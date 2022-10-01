@@ -11,7 +11,7 @@
 
 <div class="form-center">
 	<form class="form" action="login" method="post">
-	  <input class="input" name="email" type="text" placeholder="email">
+	  <input class="input" name="email" type="email" placeholder="email">
 	  <input class="input" name="password" type="password" placeholder="password">
 	  <button class="btn" type="submit">Login</button>
 	</form>

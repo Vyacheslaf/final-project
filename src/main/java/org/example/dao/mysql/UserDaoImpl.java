@@ -9,7 +9,6 @@ import java.util.List;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.example.controller.LoginServlet;
 import org.example.dao.UserDao;
 import org.example.entity.User;
 import org.example.entity.UserRole;
@@ -17,8 +16,8 @@ import org.example.exception.DaoException;
 
 public class UserDaoImpl implements UserDao {
 	private static final Logger LOG = LogManager.getLogger(UserDaoImpl.class);
-	private static final String SQL_SELECT_USER_BY_EMAIL_AND_PASSWORD = 
-			"SELECT id, role FROM user WHERE email = ? AND password = ?";
+	private static final String SQL_SELECT_USER_BY_EMAIL_AND_PASSWORD 
+				= "SELECT id, role FROM user WHERE email = ? AND password = ?";
 
 	@Override
 	public User create(User entity) throws DaoException {
@@ -50,7 +49,7 @@ public class UserDaoImpl implements UserDao {
 		User user = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
-		try(Connection con = ConnectionPool.getConnection()) {
+		try(Connection con = DbManager.getInstance().getConnection()) {
 			con.setAutoCommit(true);
 			pstmt = con.prepareStatement(SQL_SELECT_USER_BY_EMAIL_AND_PASSWORD);
 			int k = 0;

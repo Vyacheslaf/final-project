@@ -1,7 +1,6 @@
 package org.example.controller;
 
 import java.io.IOException;
-import java.util.Enumeration;
 import java.util.Objects;
 
 import javax.servlet.ServletException;
@@ -12,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.example.Config;
 import org.example.dao.DaoFactory;
 import org.example.dao.UserDao;
 import org.example.entity.User;
@@ -27,7 +27,7 @@ public class LoginServlet extends HttpServlet{
 										throws ServletException, IOException {
 		String email = req.getParameter("email");
 		String password = req.getParameter("password");
-		DaoFactory daoFactory = DaoFactory.getDaoFactory("mysql");
+		DaoFactory daoFactory = DaoFactory.getDaoFactory(Config.DAO_NAME);
 		UserDao userDao = daoFactory.getUserDao();
 		try {
 			User user = userDao.findByLoginAndPassword(email, password);
