@@ -12,8 +12,68 @@ public class Book implements Serializable{
 	private String publication;
 	private int publicationYear;
 	private int quantity;
-	private int restOf;
+	private int available;
 
+	public static class Builder {
+
+		private int id;
+		private String author;
+		private String title;
+		private String publication;
+		private int publicationYear;
+		private int quantity;
+		private int available;
+		
+		public Builder setId(int id) {
+			this.id = id;
+			return this;
+		}
+		
+		public Builder setAuthor(String author) {
+			this.author = author;
+			return this;
+		}
+
+		public Builder setTitle(String title) {
+			this.title = title;
+			return this;
+		}
+		
+		public Builder setPublication(String publication) {
+			this.publication = publication;
+			return this;
+		}
+
+		public Builder setPublicationYear(int publicationYear) {
+			this.publicationYear = publicationYear;
+			return this;
+		}
+
+		public Builder setQuantity(int quantity) {
+			this.quantity = quantity;
+			return this;
+		}
+		
+		public Builder setAvailable(int available) {
+			this.available = available;
+			return this;
+		}
+		
+		public Book build() {
+			return new Book(this);
+		}
+	}
+	
+	private Book(Builder builder) {
+		id = builder.id;
+		author = builder.author;
+		title = builder.title;
+		publication = builder.publication;
+		publicationYear = builder.publicationYear;
+		quantity = builder.quantity;
+		available = builder.available;
+	}
+	
 	public int getId() {
 		return id;
 	}
@@ -38,36 +98,16 @@ public class Book implements Serializable{
 		return quantity;
 	}
 
-	public int getRestOf() {
-		return restOf;
-	}
-
-	public void setId(int id) {
-		this.id = id;
-	}
-
-	public void setAuthor(String author) {
-		this.author = author;
-	}
-
-	public void setTitle(String title) {
-		this.title = title;
-	}
-
-	public void setPublication(String publication) {
-		this.publication = publication;
-	}
-
-	public void setPublicationYear(int publicationYear) {
-		this.publicationYear = publicationYear;
+	public int getAvailable() {
+		return available;
 	}
 
 	public void setQuantity(int quantity) {
 		this.quantity = quantity;
 	}
 
-	public void setRestOf(int restOf) {
-		this.restOf = restOf;
+	public void setAvailable(int available) {
+		this.available = available;
 	}
 
 	@Override
@@ -75,4 +115,5 @@ public class Book implements Serializable{
 		return "Book [id=" + id + ", author=" + author + ", title=" + title + ", publication=" + publication
 				+ ", publicationYear=" + publicationYear + "]";
 	}
+	
 }

@@ -67,6 +67,10 @@ header a.active {
   background-color: #009de7;
   color: white;
 }
+header a.logout {
+  background-color: #804040;
+  color: white;
+}
 header input{
   /*ie10*/ 
   /*hack to trigger the layout for horizontal alignment distribute/justify*/
@@ -81,10 +85,49 @@ header input{
 header img{
   width: 40px;
 }
+.orderbtn {
+  width: auto;
+  padding: 10px 18px;
+  background-color: #008000;
+}
 
 
 
+.book-table {
+	width: 80%;
+	margin-left: auto;
+	margin-right: auto;
+/*	height: 90%;*/
+}
+.pagination-table {
+	width: 80%;
+	margin-left: auto;
+	margin-right: auto;
+}
+tr.books {
+	height: 120px;
+  background-color: #fafafa;
+}
+tr.books-header {
+	line-height: 30px;
+  background-color: #dddddd;
+}
+td.right {
+	text-align: right;
+}
+td.center {
+	text-align: center;
+}
 
+button:disabled,
+button[disabled]{
+  border: 1px solid #999999;
+  background-color: #cccccc;
+  color: #666666;
+}
+.noHover{
+    pointer-events: none;
+}
 
     /*assign full width inputs*/
     input[type=email],

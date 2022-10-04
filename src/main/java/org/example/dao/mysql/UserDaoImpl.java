@@ -17,7 +17,7 @@ import org.example.exception.DaoException;
 public class UserDaoImpl implements UserDao {
 	private static final Logger LOG = LogManager.getLogger(UserDaoImpl.class);
 	private static final String SQL_SELECT_USER_BY_EMAIL_AND_PASSWORD 
-				= "SELECT id, role FROM user WHERE email = ? AND password = ?";
+				= "SELECT id, first_name, last_name, role FROM user WHERE email = ? AND password = ?";
 
 	@Override
 	public User create(User entity) throws DaoException {
@@ -57,9 +57,12 @@ public class UserDaoImpl implements UserDao {
 			pstmt.setString(++k, DigestUtils.sha1Hex(password));
 			rs = pstmt.executeQuery();
 			if (rs.next()) {
+				k = 0;
 				user = new User();
-				user.setId(rs.getInt(1));
-				user.setRole(UserRole.valueOf(rs.getString(2).toUpperCase()));
+				user.setId(rs.getInt(++k));
+				user.setFirstName(rs.getString(++k));
+				user.setLastName(rs.getString(++k));
+				user.setRole(UserRole.valueOf(rs.getString(++k).toUpperCase()));
 			}
 		} catch (SQLException e) {
 			String message = "Cannot get data from database";

@@ -1,6 +1,8 @@
 package org.example.dao.mysql;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import javax.naming.Context;
@@ -20,6 +22,10 @@ public class DbManager {
 													= "Cannot get a datasource";
 	private static final String GET_CONNECTION_ERROR_MESSAGE
 													= "Cannot get connection";
+	private static final String CLOSE_RESULT_SET_ERROR_MESSAGE
+													= "Cannot close ResultSet";
+	private static final String CLOSE_STATEMENT_ERROR_MESSAGE
+													= "Cannot close Statement";
 	private static DbManager instance;
 	
 	public static synchronized DbManager getInstance() throws DaoException{
@@ -49,6 +55,26 @@ public class DbManager {
 		} catch (SQLException e) {
 			LOG.error(GET_CONNECTION_ERROR_MESSAGE);
 			throw new DaoException(GET_CONNECTION_ERROR_MESSAGE, e);
+		}
+	}
+	
+	public static void close(PreparedStatement pstmt) {
+		if (pstmt != null) {
+			try {
+				pstmt.close();
+			} catch (SQLException e) {
+				LOG.error(CLOSE_STATEMENT_ERROR_MESSAGE);
+			}
+		}
+	}
+
+	public static void close(ResultSet rs) {
+		if (rs != null) {
+			try {
+				rs.close();
+			} catch (SQLException e) {
+				LOG.error(CLOSE_RESULT_SET_ERROR_MESSAGE);
+			}
 		}
 	}
 }
