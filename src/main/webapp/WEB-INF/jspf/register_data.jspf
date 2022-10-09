@@ -1,0 +1,39 @@
+  <div id="id02" class="modal">
+    <form class="modal-content-userinfo" action="changedata" method="post">
+      <div class="container">
+      <table>
+        <tr>
+          <td class="right">E-mail:</td>
+          <td><input type="email" value="${sessionScope.user.email}" name="email" required></td>
+        </tr>
+        <tr>
+          <td class="right">First Name:</td>
+          <td><input type="text" value="${sessionScope.user.firstName}" name="firstname" required></td>
+        </tr>
+        <tr>
+          <td class="right">Last Name:</td>
+          <td><input type="text" value="${sessionScope.user.lastName}" name="lastname" required></td>
+        </tr>
+        <tr>
+          <td class="right">Phone Number:</td>
+          <td><input type="text" value="${sessionScope.user.phoneNumber}" name="phone" required></td>
+        </tr>
+        <tr>
+          <td class="right">Document Number:</td>
+          <td><input type="text" value="${sessionScope.user.passportNumber}" name="passport" required></td>
+        </tr>
+      </table>
+        <button type="submit">Change register data</button>
+      </div>
+      <div class="container">
+        <input class="pass-center" type="password" placeholder="Enter new password" name="password" id="password" onkeyup='check();' required>
+        <input class="pass-center" type="password" placeholder="Confirm new password" name="confirm" id="confirm" onkeyup='check();' required>
+        <span id='message'></span>
+        <button type="submit">Change password</button>
+      </div>
+    </form>
+  </div> 
+
+<script src="js/modal_close.js"></script>
+<script src="js/confirm_password.js"></script>
+<script src="js/register_modal.js"></script>

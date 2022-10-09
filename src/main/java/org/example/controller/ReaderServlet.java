@@ -22,7 +22,7 @@ import org.example.exception.DaoException;
 public class ReaderServlet extends HttpServlet{
 
 	private static final long serialVersionUID = 1L;
-	private static final Logger LOG = LogManager.getLogger(GuestServlet.class);
+	private static final Logger LOG = LogManager.getLogger(ReaderServlet.class);
 	private static final String FIND_BOOK_ERROR_MESSAGE = "Cannot find books";
 	private static final String SORT_TYPE_ASC = "asc";
 	private static final String SORT_TYPE_DESC = "desc";

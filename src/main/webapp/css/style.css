@@ -90,6 +90,17 @@ header img{
   padding: 10px 18px;
   background-color: #008000;
 }
+.cancelorderbtn {
+  width: auto;
+  padding: 10px 18px;
+  background-color: #bb0000;
+}
+a.pointer {
+	cursor: pointer;
+}
+a.home {
+	padding: 0px;
+}
 
 
 
@@ -104,9 +115,25 @@ header img{
 	margin-left: auto;
 	margin-right: auto;
 }
+tr {
+	height: 30px;
+}
 tr.books {
 	height: 120px;
   background-color: #fafafa;
+}
+tr.orders {
+  background-color: #fafafa;
+}
+tr.orders-fined {
+  background-color: #ffcaca;
+}
+tr.orders-active {
+  background-color: #caffca;
+}
+tr.orders-inactive {
+  background-color: #f0f0f0;
+  color: #808080;
 }
 tr.books-header {
 	line-height: 30px;
@@ -119,18 +146,46 @@ td.center {
 	text-align: center;
 }
 
+a.menu {
+	text-decoration: underline;
+	color: #004080;
+}
+.left {
+	padding-left: 10px;
+}
+.blocked-account {
+	color: red;
+}
+
 button:disabled,
 button[disabled]{
   border: 1px solid #999999;
   background-color: #cccccc;
   color: #666666;
+  pointer-events: none;
 }
 .noHover{
     pointer-events: none;
 }
 
+.full-width {
+        width: 100%;
+        padding: 12px 20px;
+        margin: 8px 0;
+        display: inline-block;
+        border: 1px solid #ccc;
+        box-sizing: border-box;
+}
+
+.pass-center {
+	text-align: center;
+}
+
+
+
     /*assign full width inputs*/
     input[type=email],
+    input[type=text],
     input[type=password] {
         width: 100%;
         padding: 12px 20px;
@@ -172,6 +227,8 @@ button[disabled]{
     span.psw {
         float: right;
         padding-top: 16px;
+        color: green;
+        text-decoration: underline;
     }
    
     /*set the Modal background*/
@@ -197,6 +254,20 @@ button[disabled]{
         width: 20%;
     }
    
+    .modal-content-reg {
+        background-color: #fefefe;
+        margin: 5% auto auto auto;
+        border: 1px solid #888;
+        width: 20%;
+    }
+   
+    .modal-content-userinfo {
+        background-color: #fefefe;
+        margin: 2% auto auto auto;
+        border: 1px solid #888;
+        width: 24%;
+    }
+
     /*style the close button*/
     .close {
         position: absolute;
@@ -212,3 +283,40 @@ button[disabled]{
         color: red;
         cursor: pointer;
     }
+
+    
+    
+    
+/* The container <div> - needed to position the dropdown content */
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+/* Dropdown Content (Hidden by Default) */
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f1f1f1;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+  right: -45px;
+}
+
+/* Links inside the dropdown */
+.dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+/* Change color of dropdown links on hover */
+.dropdown-content a:hover {background-color: #ddd;}
+
+/* Show the dropdown menu on hover */
+.dropdown:hover .dropdown-content {display: block;}
+
+/* Change the background color of the dropdown button when the dropdown content is shown */
+.dropdown:hover .dropbtn {background-color: #3e8e41;}    

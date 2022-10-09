@@ -8,14 +8,17 @@ public class Constants {
 	public static final String SESSION_ATTRIBUTE_ERROR = "error";
 	public static final String GUEST_SERVLET_MAPPING = "guest";
 	public static final String READER_SERVLET_MAPPING = "reader";
+	public static final String READER_ORDERS_SERVLET = "readerorders";
 	public static final String LIBRARIAN_SERVLET_MAPPING = "librarian";
 	public static final String ADMIN_SERVLET_MAPPING = "admin";
 	public static final String ERROR_SERVLET_MAPPING = "error";
 	public static final String START_PAGE = "index.html";
-	public static final String GUEST_HOME_PAGE = "/WEB-INF/jsps/guest_start_page.jsp";
-	public static final String READER_HOME_PAGE = "/WEB-INF/jsps/reader_start_page.jsp";
-	public static final String LIBRARIAN_HOME_PAGE = "/WEB-INF/jsps/librarian_start_page.jsp";
-	public static final String ADMIN_HOME_PAGE = "/WEB-INF/jsps/admin_start_page.jsp";
-	public static final String LOGIN_PAGE = "/WEB-INF/jsps/login.jsp";
-	public static final String ERROR_PAGE = "/WEB-INF/jsps/error.jsp";
+	public static final String GUEST_HOME_PAGE = "/WEB-INF/jsp/guest.jsp";
+	public static final String READER_HOME_PAGE = "/WEB-INF/jsp/reader.jsp";
+	public static final String READER_ORDERS_PAGE = "/WEB-INF/jsp/reader_orders.jsp";
+	public static final String READER_BOOKS_PAGE = "/WEB-INF/jsp/reader_books.jsp";
+	public static final String LIBRARIAN_HOME_PAGE = "/WEB-INF/jsp/librarian.jsp";
+	public static final String ADMIN_HOME_PAGE = "/WEB-INF/jsp/admin.jsp";
+	public static final String LOGIN_PAGE = "/WEB-INF/jsp/login.jsp";
+	public static final String ERROR_PAGE = "/WEB-INF/jsp/error.jsp";
 }

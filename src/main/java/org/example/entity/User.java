@@ -1,7 +1,6 @@
 package org.example.entity;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 
 public class User implements Serializable{
 
@@ -16,7 +15,6 @@ public class User implements Serializable{
 	private String passportNumber;
 	private UserRole role;
 	private boolean blocked;
-	private BigDecimal fine;
 	
 	public int getId() {
 		return id;
@@ -54,10 +52,6 @@ public class User implements Serializable{
 		return blocked;
 	}
 
-	public BigDecimal getFine() {
-		return fine;
-	}
-
 	public void setId(int id) {
 		this.id = id;
 	}
@@ -92,10 +86,6 @@ public class User implements Serializable{
 
 	public void setBlocked(boolean blocked) {
 		this.blocked = blocked;
-	}
-
-	public void setFine(BigDecimal fine) {
-		this.fine = fine;
 	}
 
 	@Override

@@ -12,19 +12,15 @@
 <body>
 <div class="f-container fixed-hf">
   <header>
-    <mt:user></mt:user>
+      <a class="home" href="start">
+        <img alt="Library" src="img/logo.svg">
+	  </a>
 	<form action="reader" method="get">
 	  <input type="text" name="text" placeholder="Search...">
 	</form>
-	<a href="logout" class="logout">Sign out</a>
+<%@include file="/WEB-INF/jspf/reader_menu.jspf" %>  
   </header>
   <div class="main">
-	    <table class="pagination-table">
-	      <tr>
-	        <td></td>
-	        <td class="right"></td>
-	      </tr>
-	    </table>
     <table class="book-table">
         <tr class="books-header">
           <td class="center"><a href="reader?text=${text}&sortBy=author">Author</a></td>
@@ -38,11 +34,22 @@
           <td class="center">${book.title}</td>
           <td class="center">${book.publication}</td>
           <td class="center">${book.publicationYear}</td>
-          <td class="center"><button class="orderbtn">Order a book</button></td>
+          <td class="center">
+            <form action="neworder" method="post">
+	          <input type="hidden" name="bookid" value="${book.id}" >
+	          <c:if test="${!sessionScope.user.blocked}">
+                <button type="submit" class="orderbtn">Order a book</button>
+              </c:if>
+	          <c:if test="${sessionScope.user.blocked}">
+                <div class="blocked-account"> Your account is blocked!</div>
+              </c:if>
+            </form>
+          </td>
         </tr>
       </c:forEach>
     </table>
     <mtl:pagination nextPage="${nextPage}" servletName="reader" previousPage="${prevPage}" currentPage="${page}" searchText="${text}"/>
+
   
   </div>
   <footer>
@@ -54,6 +61,9 @@
     </div>
     <div></div>
   </footer>
+  
+<%@include file="/WEB-INF/jspf/register_data.jspf" %>  
+  
 </div>
 </body>
 </html>
