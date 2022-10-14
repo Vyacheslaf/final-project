@@ -110,6 +110,12 @@ a.home {
 	margin-right: auto;
 /*	height: 90%;*/
 }
+.order-table {
+	width: 80%;
+	margin-left: auto;
+	margin-right: auto;
+/*	height: 90%;*/
+}
 .pagination-table {
 	width: 80%;
 	margin-left: auto;
@@ -119,7 +125,7 @@ tr {
 	height: 30px;
 }
 tr.books {
-	height: 120px;
+	height: 118px;
   background-color: #fafafa;
 }
 tr.orders {
@@ -139,11 +145,52 @@ tr.books-header {
 	line-height: 30px;
   background-color: #dddddd;
 }
+tr.order-info {
+	line-height: 60px;
+  background-color: #dddddd;
+}
+tr.order-info-fined {
+	line-height: 60px;
+  background-color: #ffcaca;
+}
 td.right {
 	text-align: right;
 }
 td.center {
 	text-align: center;
+}
+td.year {
+	text-align: center;
+	width: 5%;
+}
+td.author{
+	text-align: center;
+	width: 18%;
+}
+td.publication {
+	text-align: center;
+	width: 15%;
+}
+td.button {
+	text-align: center;
+	width: 12%;
+}
+td.title {
+	text-align: center;
+	width: 50%;
+}
+td.order {
+    padding: 6px 11px;
+}
+td.order-right {
+	text-align: right;
+	padding: 6px 11px;
+}
+button.givebook-active {
+	background-color: green;
+}
+button.cancelorder {
+	background-color: #f44336;
 }
 
 a.menu {
@@ -155,6 +202,10 @@ a.menu {
 }
 .blocked-account {
 	color: red;
+}
+input::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+  color: #bfbfbf;
+  opacity: 1; /* Firefox */
 }
 
 button:disabled,
@@ -180,6 +231,19 @@ button[disabled]{
 .pass-center {
 	text-align: center;
 }
+.modal-error {
+        display: block;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgb(0, 0, 0);
+        background-color: rgba(0, 0, 0, 0.4);
+        padding-top: 60px;
+    }
 
 
 
@@ -217,10 +281,16 @@ button[disabled]{
         padding: 10px 18px;
         background-color: #f44336;
     }
+    .errorbtn {
+        background-color: #f44336;
+    }
    
     /*set padding to the container*/
     .container {
         padding: 16px;
+    }
+    .container-button {
+        padding: 6px 92px;
     }
      
     /*set the forgot password text*/
@@ -266,6 +336,21 @@ button[disabled]{
         margin: 2% auto auto auto;
         border: 1px solid #888;
         width: 24%;
+    }
+   
+    .modal-content-orderinfo {
+        background-color: #f1f1f1;
+        margin: 1% auto auto auto;
+        border: 1px solid #888;
+        width: 60%;
+  font-size: 18px;
+  line-height: 20px;
+    }
+    .modal-content-readerinfo {
+        margin: 1% auto auto auto;
+        width: 60%;
+  font-size: 18px;
+  line-height: 20px;
     }
 
     /*style the close button*/

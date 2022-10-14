@@ -16,17 +16,15 @@ public class StartServlet extends HttpServlet{
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp) 
-										throws ServletException, IOException {
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		
-		User user = (User) req.getSession()
-							  .getAttribute(Constants.SESSION_ATTRIBUTE_USER);
+		User user = (User) req.getSession().getAttribute(Constants.SESSION_ATTRIBUTE_USER);
 		req.getRequestDispatcher(getServletPath(user)).forward(req, resp);
 	}
 	
 	private static String getServletPath(User user) {
 		if (user == null) {
-			return Constants.GUEST_SERVLET_MAPPING;
+			return Constants.READER_SERVLET_MAPPING;
 		}
 		String path;
 		switch (user.getRole()) {

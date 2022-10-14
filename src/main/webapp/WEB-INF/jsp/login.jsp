@@ -6,6 +6,8 @@
 	<title>Final project</title>
 	<link rel="stylesheet" 
 					href="${pageContext.request.contextPath}/css/login.css" />
+	<link rel="stylesheet" 
+					href="${pageContext.request.contextPath}/css/style.css" />
 </head>
 <body>
 
@@ -17,6 +19,7 @@
 	</form>
 </div>
 
+<%@include file="/WEB-INF/jspf/error.jspf" %>
 
 </body>
 </html>

@@ -1,39 +1,53 @@
   <div id="id02" class="modal">
-    <form class="modal-content-userinfo" action="changedata" method="post">
+  <div class="modal-content-userinfo">
+    <form action="changedata" method="post">
       <div class="container">
       <table>
         <tr>
           <td class="right">E-mail:</td>
-          <td><input type="email" value="${sessionScope.user.email}" name="email" required></td>
+          <td><input type="email" value="${sessionScope.user.email}" name="email" id="email" onkeyup='checkData();' required></td>
         </tr>
         <tr>
           <td class="right">First Name:</td>
-          <td><input type="text" value="${sessionScope.user.firstName}" name="firstname" required></td>
+          <td><input type="text" value="${sessionScope.user.firstName}" name="firstname" id="firstname" onkeyup='checkData();' required></td>
         </tr>
         <tr>
           <td class="right">Last Name:</td>
-          <td><input type="text" value="${sessionScope.user.lastName}" name="lastname" required></td>
+          <td><input type="text" value="${sessionScope.user.lastName}" name="lastname" id="lastname" onkeyup='checkData();' required></td>
         </tr>
         <tr>
           <td class="right">Phone Number:</td>
-          <td><input type="text" value="${sessionScope.user.phoneNumber}" name="phone" required></td>
+          <td><input type="text" value="${sessionScope.user.phoneNumber}" name="phone" id="phone" onkeyup='checkData();' required></td>
         </tr>
         <tr>
           <td class="right">Document Number:</td>
-          <td><input type="text" value="${sessionScope.user.passportNumber}" name="passport" required></td>
+          <td><input type="text" value="${sessionScope.user.passportNumber}" name="passport" id="passport" onkeyup='checkData();' required></td>
         </tr>
       </table>
-        <button type="submit">Change register data</button>
-      </div>
-      <div class="container">
-        <input class="pass-center" type="password" placeholder="Enter new password" name="password" id="password" onkeyup='check();' required>
-        <input class="pass-center" type="password" placeholder="Confirm new password" name="confirm" id="confirm" onkeyup='check();' required>
-        <span id='message'></span>
-        <button type="submit">Change password</button>
+        <input type="hidden" name="id" value="${sessionScope.user.id}" >
+        <input type="hidden" name="password" value="${sessionScope.user.password}" >
+        <button type="submit" id="databtn">Change register data</button>
       </div>
     </form>
+    <form action="changepass" method="post">
+      <div class="container">
+        <input class="pass-center" type="password" placeholder="Enter new password" name="password" id="password" onkeyup='checkPass();' required>
+        <input class="pass-center" type="password" placeholder="Confirm new password" name="confirm" id="confirm" onkeyup='checkPass();' required>
+        <span id='message' class="center"></span>
+        <input type="hidden" name="id" value="${sessionScope.user.id}" >
+        <input type="hidden" value="${sessionScope.user.email}" name="email" >
+        <input type="hidden" value="${sessionScope.user.firstName}" name="firstname" >
+        <input type="hidden" value="${sessionScope.user.lastName}" name="lastname" >
+        <input type="hidden" value="${sessionScope.user.phoneNumber}" name="phone" >
+        <input type="hidden" value="${sessionScope.user.passportNumber}" name="passport" >
+        <button type="submit" id="passbtn">Change password</button>
+      </div>
+    </form>
+    </div>
   </div> 
 
 <script src="js/modal_close.js"></script>
-<script src="js/confirm_password.js"></script>
+<script src="js/input_checks.js"></script>
 <script src="js/register_modal.js"></script>
+<script>checkPass();</script>
+<script>checkData();</script>

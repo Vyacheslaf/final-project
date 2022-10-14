@@ -1,7 +1,6 @@
 package org.example.controller;
 
 import java.io.IOException;
-import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -11,19 +10,18 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.example.entity.Order;
 import org.example.entity.User;
 import org.example.exception.DaoException;
-import org.example.service.OrderService;
+import org.example.service.UserService;
 
-@WebServlet("/readerbooks")
-public class ReaderBooksServlet extends HttpServlet {
+@WebServlet("/findreader")
+public class FindReaderServlet extends HttpServlet{
 
 	private static final long serialVersionUID = 1L;
-	private static final Logger LOG = LogManager.getLogger(ReaderBooksServlet.class);
-	private static final String REQ_ATTR_ORDERS = "orders";
-	private static final String GET_ORDER_LIST_ERROR_MESSAGE = "Cannot get list of orders for user #";
-	
+	private static final Logger LOG = LogManager.getLogger(FindReaderServlet.class);
+	private static final String REQ_ATTR_PHONE_NUMBER = "phonenumber";
+	private static final Object ERROR_MESSAGE = "Reader not found";
+
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		User user = (User)req.getSession().getAttribute(Constants.SESSION_ATTRIBUTE_USER);
@@ -31,16 +29,20 @@ public class ReaderBooksServlet extends HttpServlet {
 			req.getRequestDispatcher(Constants.START_PAGE).forward(req, resp);
 			return;
 		}
-		List<Order> orders;
+		String phoneNumber = req.getParameter(REQ_ATTR_PHONE_NUMBER);
+		System.out.println(phoneNumber);
 		try {
-			orders = OrderService.getReaderProcessedOrders(user);
-			req.setAttribute(REQ_ATTR_ORDERS, orders);
+			user = UserService.findUserByPhone(phoneNumber);
+			if (user != null) {
+				resp.sendRedirect(Constants.READER_DETAILS_SERVLET_MAPPING + "?readerid=" + user.getId());
+				return;
+			}
 		} catch (DaoException e) {
-			LOG.error(GET_ORDER_LIST_ERROR_MESSAGE + user.getId());
+			LOG.error(e.getMessage());
 			req.getRequestDispatcher(Constants.ERROR_SERVLET_MAPPING).forward(req, resp);
 			return;
 		}
-		req.getRequestDispatcher(Constants.READER_BOOKS_PAGE).forward(req, resp);
+		req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_ERROR_MESSAGE, ERROR_MESSAGE);
+		resp.sendRedirect(req.getHeader("Referer"));
 	}
-
 }

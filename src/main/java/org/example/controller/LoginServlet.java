@@ -11,47 +11,39 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.example.Config;
-import org.example.dao.DaoFactory;
-import org.example.dao.UserDao;
 import org.example.entity.User;
 import org.example.exception.DaoException;
+import org.example.service.UserService;
 
 @WebServlet("/login")
 public class LoginServlet extends HttpServlet{
+	
 	private static final long serialVersionUID = 1L;
 	private static final Logger LOGGER = LogManager.getLogger(LoginServlet.class);
+	private static final Object ERROR_MESSAGE = "Cannot find a user";
 
 	@Override
-	protected void doPost(HttpServletRequest req, HttpServletResponse resp) 
-										throws ServletException, IOException {
-		String email = req.getParameter("email");
-		String password = req.getParameter("password");
-		DaoFactory daoFactory = DaoFactory.getDaoFactory(Config.DAO_NAME);
-		UserDao userDao = daoFactory.getUserDao();
+	protected void doPost(HttpServletRequest req, HttpServletResponse resp)	throws ServletException, IOException {
 		try {
-			User user = userDao.findByLoginAndPassword(email, password);
-			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_USER, 
-											user);
+			User user = UserService.login(req);
+			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_USER,	user);
 			resp.sendRedirect(req.getRequestURI());
 		} catch (DaoException e) {
-			String message = "Cannot get access to DAO";
-			LOGGER.error(message);
-			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_ERROR, 
-																	message);
+			LOGGER.error(e.getMessage());
+			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_ERROR, ERROR_MESSAGE);
 			resp.sendRedirect(Constants.ERROR_SERVLET_MAPPING);
 		}
 	}
 	
 	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp) 
-										throws ServletException, IOException {
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
 		User user = (User) req.getSession().getAttribute(Constants.SESSION_ATTRIBUTE_USER);
 		if (Objects.nonNull(user)) {
 			req.getRequestDispatcher(Constants.START_PAGE).forward(req, resp);
 			return;
 		}
+		req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_ERROR, ERROR_MESSAGE);
 		req.getRequestDispatcher(Constants.LOGIN_PAGE).forward(req, resp);
 	}
 }

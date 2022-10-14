@@ -16,11 +16,11 @@ import org.example.exception.DaoException;
 
 public class UserDaoImpl implements UserDao {
 	private static final Logger LOG = LogManager.getLogger(UserDaoImpl.class);
-//	private static final String SQL_SELECT_USER_BY_EMAIL_AND_PASSWORD 
-//				= "SELECT id, first_name, last_name, role FROM user WHERE email = ? AND password = ?";
 	private static final String QUERY_INSERT_USER = "insert.user";
-	private static final String QUERY_SELECT_USER_BY_EMAIL_AND_PASSWORD 
-											= "select.user.by.email.password";
+	private static final String QUERY_SELECT_USER_BY_EMAIL_AND_PASSWORD = "select.user.by.email.password";
+	private static final String QUERY_UPDATE_USER = "update.user";
+	private static final String QUERY_SELECT_USER_BY_ID = "select.user.by.id";
+	private static final String QUERY_SELECT_USER_BY_PHONE = "select.reader.by.phone";
 
 	@Override
 	public User create(User user) throws DaoException {
@@ -29,8 +29,7 @@ public class UserDaoImpl implements UserDao {
 		try(Connection con = DbManager.getInstance().getConnection()) {
 			con.setAutoCommit(true);
 			int k = 0;
-			pstmt = con.prepareStatement(Queries.getQuery(QUERY_INSERT_USER), 
-									PreparedStatement.RETURN_GENERATED_KEYS);
+			pstmt = con.prepareStatement(Queries.getQuery(QUERY_INSERT_USER), PreparedStatement.RETURN_GENERATED_KEYS);
 			pstmt.setString(++k, user.getEmail());
 			pstmt.setString(++k, DigestUtils.sha1Hex(user.getPassword()));
 			pstmt.setString(++k, user.getFirstName());
@@ -46,9 +45,9 @@ public class UserDaoImpl implements UserDao {
 				}
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+//			e.printStackTrace();
 			String message = "Cannot create user";
-			LOG.error(message);
+			LOG.error(e);
 			throw new DaoException(message, e);
 		} finally {
 			DbManager.close(rs);
@@ -58,16 +57,59 @@ public class UserDaoImpl implements UserDao {
 	}
 
 	@Override
-	public User find(User entity) throws DaoException {
-		// TODO Auto-generated method stub
-		return null;
+	public User find(User user) throws DaoException {
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		try(Connection con = DbManager.getInstance().getConnection()) {
+			con.setAutoCommit(true);
+			pstmt = con.prepareStatement(Queries.getQuery(QUERY_SELECT_USER_BY_ID)); 
+			int k = 0;
+			pstmt.setInt(++k, user.getId());
+			rs = pstmt.executeQuery();
+			if (rs.next()) {
+				user = getUser(rs);
+			}
+		} catch (SQLException e) {
+			String message = "Cannot get data from database";
+			LOG.error(e);
+			throw new DaoException(message, e);
+		} finally {
+			DbManager.close(rs);
+			DbManager.close(pstmt);
+		}
+		return user;
 	}
 
 	@Override
-	public void update(User entity) throws DaoException {
-		// TODO Auto-generated method stub
-		
+	public void update(User user) throws DaoException {
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		try(Connection con = DbManager.getInstance().getConnection()) {
+			con.setAutoCommit(true);
+			int k = 0;
+			pstmt = con.prepareStatement(Queries.getQuery(QUERY_UPDATE_USER));
+			pstmt.setString(++k, user.getEmail());
+			pstmt.setString(++k, user.getPassword());
+			pstmt.setString(++k, user.getFirstName());
+			pstmt.setString(++k, user.getLastName());
+			pstmt.setString(++k, user.getPhoneNumber());
+			pstmt.setString(++k, user.getPassportNumber());
+//			pstmt.setInt(++k, booleanToInt(user.isBlocked()));
+			pstmt.setInt(++k, user.getId());
+			pstmt.executeUpdate();
+		} catch (SQLException e) {
+			String message = "Cannot update user";
+			LOG.error(e);
+			throw new DaoException(message, e);
+		} finally {
+			DbManager.close(rs);
+			DbManager.close(pstmt);
+		}
 	}
+	
+/*	private static int booleanToInt(boolean blocked) {
+		return blocked ? 1 : 0;
+	}*/
 
 	@Override
 	public void remove(User entity) throws DaoException {
@@ -94,11 +136,11 @@ public class UserDaoImpl implements UserDao {
 			}
 		} catch (SQLException e) {
 			String message = "Cannot get data from database";
-			LOG.error(message);
+			LOG.error(e);
 			throw new DaoException(message, e);
 		} finally {
-			close(rs);
-			close(pstmt);
+			DbManager.close(rs);
+			DbManager.close(pstmt);
 		}
 		return user;
 	}
@@ -114,8 +156,12 @@ public class UserDaoImpl implements UserDao {
 		user.setPhoneNumber(rs.getString(++k));
 		user.setPassportNumber(rs.getString(++k));
 		user.setRole(UserRole.valueOf(rs.getString(++k).toUpperCase()));
-		user.setBlocked(Boolean.getBoolean(rs.getString(++k)));
+		user.setBlocked(intToBoolean(rs.getInt(++k)));
 		return user;
+	}
+
+	private static boolean intToBoolean(int num) {
+		return num != 0 ? true : false;
 	}
 
 	@Override
@@ -123,27 +169,29 @@ public class UserDaoImpl implements UserDao {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
-	private void close(PreparedStatement pstmt) {
-		if (pstmt != null) {
-			try {
-				pstmt.close();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-	}
 
-	private void close(ResultSet rs) {
-		if (rs != null) {
-			try {
-				rs.close();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+	@Override
+	public User findByPhone(String phoneNumber) throws DaoException {
+		User user = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		try(Connection con = DbManager.getInstance().getConnection()) {
+			pstmt = con.prepareStatement(Queries.getQuery(QUERY_SELECT_USER_BY_PHONE)); 
+			int k = 0;
+			pstmt.setString(++k, phoneNumber);
+			rs = pstmt.executeQuery();
+			if (rs.next()) {
+				user = getUser(rs);
 			}
+		} catch (SQLException e) {
+			String message = "Cannot get data from database";
+			LOG.error(e);
+			throw new DaoException(message, e);
+		} finally {
+			DbManager.close(rs);
+			DbManager.close(pstmt);
 		}
+		return user;
 	}
 
 }

@@ -15,50 +15,50 @@
       <a class="home" href="start">
         <img alt="Library" src="img/logo.svg">
 	  </a>
-	<form action="reader" method="get">
-	  <input type="text" name="text" placeholder="Search...">
+	<form action="findreader" method="get">
+	  <input type="text" name="phonenumber" placeholder="find a reader by phone...">
 	</form>
-<%@include file="/WEB-INF/jspf/reader_menu.jspf" %>  
+<%@include file="/WEB-INF/jspf/librarian_menu.jspf" %>  
   </header>
   <div class="main">
     <c:if test="${orders.size() == 0}">
       <div class="modal-content-orderinfo">
         <div class="container">
-          <h4 class="pass-center">Not found books on a subscription</h4>
+          <h4 class="pass-center">Not found readers with books on a subscription</h4>
         </div>
       </div>
     </c:if>
     <c:if test="${orders.size() != 0}">
     <table class="book-table">
         <tr class="books-header">
-          <td class="center">Order</td>
-		  <td class="center">Book</td>
-          <td class="center">Return date</td>
+          <td class="center">Reader ID</td>
+		  <td class="title">Reader Name</td>
           <td class="center">Fine</td>
+          <td></td>
       <c:forEach items="${orders}" var="order">
-        <c:if test="${order.state == 'PROCESSED'}">
-        <c:if test="${order.fine == 0}">
-        <tr class="orders-active">
-          <td class="center">${order.id}</td>
-          <td><div class="left">${order.book.author}, ${order.book.title}, ${order.book.publication}, ${order.book.publicationYear}</div></td>
-          <td class="center"><mt:date time="${order.returnTime}" /></td>
-          <td class="center">${order.fine} UAH</td>
-        </tr>
-        </c:if>
         <c:if test="${order.fine != 0}">
         <tr class="orders-fined">
-          <td class="center">${order.id}</td>
-          <td><div class="left">${order.book.author}, ${order.book.title}, ${order.book.publication}, ${order.book.publicationYear}</div></td>
-          <td class="center"><mt:date time="${order.returnTime}" /></td>
+          <td class="center">${order.user.id}</td>
+		  <td class="center">${order.user.firstName} ${order.user.lastName}</td>
           <td class="center">${order.fine} UAH</td>
+          <td class="button">
+            <a href="readerdetails?readerid=${order.user.id}">Reader's orders</a>
+          </td>
         </tr>
         </c:if>
+        <c:if test="${order.fine == 0}">
+        <tr class="orders-active">
+          <td class="center">${order.user.id}</td>
+		  <td class="center">${order.user.firstName} ${order.user.lastName}</td>
+          <td class="center">${order.fine} UAH</td>
+          <td class="button">
+            <a href="readerdetails?readerid=${order.user.id}">Reader's orders</a>
+          </td>
+        </tr>
         </c:if>
       </c:forEach>
     </table>
     </c:if>
-    <mtl:pagination nextPage="${nextPage}" servletName="reader" previousPage="${prevPage}" currentPage="${page}" searchText="${text}"/>
-  
   </div>
   <footer>
   <div></div>
@@ -70,8 +70,7 @@
     <div></div>
   </footer>
   
-<%@include file="/WEB-INF/jspf/register_data.jspf" %>  
-  
+<%@include file="/WEB-INF/jspf/error.jspf" %>
   
 </div>
 </body>

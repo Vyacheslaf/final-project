@@ -1,14 +1,39 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<%@ page language="java" contentType="text/html; charset=UTF-8" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://example.org/taglib" prefix="mtl" %>
+<%@ taglib tagdir="/WEB-INF/tags" prefix="mt" %>
+
+<!DOCTYPE html>
+<html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<title>Insert title here</title>
+  <title>Library</title>
+  <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
- Admin<br />
- <a href="logout">Log out</a>
+<div class="f-container fixed-hf">
+  <header>
+      <a class="home" href="start">
+        <img alt="Library" src="img/logo.svg">
+	  </a>
+	<form action="findreader" method="get">
+	  <input type="text" name="phonenumber" placeholder="find a reader by phone...">
+	</form>
+<%@include file="/WEB-INF/jspf/admin_menu.jspf" %>  
+  </header>
+  <div class="main">
+  </div>
+  <footer>
+  <div></div>
+  <div>
+    <a href="">english</a>
+    | 
+    <a href="">українська</a>
+    </div>
+    <div></div>
+  </footer>
+  
+<%@include file="/WEB-INF/jspf/error.jspf" %>
+  
+</div>
 </body>
 </html>

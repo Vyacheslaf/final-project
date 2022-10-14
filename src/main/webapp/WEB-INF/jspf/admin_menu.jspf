@@ -1,0 +1,9 @@
+ 	<div class="dropdown">
+      <a class="logout">Menu</a>
+	  <div class="dropdown-content">
+	    <a href="admin">Manage books</a>
+	    <a href="managereaders">Manage readers</a>
+	    <a href="managelibrarian">Manage librarians</a>
+	    <a href="logout">Sign out</a>
+	  </div>
+    </div>

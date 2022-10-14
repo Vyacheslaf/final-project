@@ -10,4 +10,5 @@ public interface UserDao extends Dao<User>{
 	User findByLoginAndPassword(String login, String password) 
 															throws DaoException;
 	List<User> findByRole(UserRole userRole) throws DaoException;
+	User findByPhone(String phoneNumber) throws DaoException;
 }

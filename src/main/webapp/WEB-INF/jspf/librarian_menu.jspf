@@ -1,0 +1,8 @@
+ 	<div class="dropdown">
+      <a class="logout">Menu</a>
+	  <div class="dropdown-content">
+	    <a href="librarian">Orders</a>
+	    <a href="listreaders">Readers</a>
+	    <a href="logout">Sign out</a>
+	  </div>
+    </div>

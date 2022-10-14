@@ -58,21 +58,25 @@ public class PaginationTag extends TagSupport{
 	@Override
 	public int doStartTag() throws JspException {
 		JspWriter out = pageContext.getOut();
+		String insertSearchText = "";
+		if (!searchText.equalsIgnoreCase("")) {
+			insertSearchText = "text=" + searchText + "&";
+		}
 		try {
 			out.println("<table class=\"pagination-table\">");
 			out.println("<tr>");
 			if (currentPage == previousPage) {
 				out.println("<td></td>");
 			} else {
-				out.print("<td><a href=\"" + servletName + "?text=");
-				out.print(searchText + "&page=");
+				out.print("<td><a href=\"" + servletName + "?");//text=");
+				out.print(insertSearchText + "page=");
 				out.println(previousPage + "\">Previous page</a></td>");
 			}
 			if (currentPage == nextPage) {
 				out.println("<td></td>");
 			} else {
 				out.print("<td class=\"right\"><a href=\"" + servletName);
-				out.print("?text=" + searchText + "&page=");
+				out.print("?" + insertSearchText + "page=");
 				out.println(nextPage + "\">Next page</a></td>");
 			}
 			out.println("</tr>");

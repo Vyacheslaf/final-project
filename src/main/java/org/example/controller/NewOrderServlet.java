@@ -19,29 +19,26 @@ public class NewOrderServlet extends HttpServlet{
 
 	private static final long serialVersionUID = 1L;
 	private static final Logger LOG = LogManager.getLogger(NewOrderServlet.class);
-	private static final String CREATE_ORDER_ERROR_MESSAGE 
-													= "Cannot create an order";
+	private static final String ERROR_MESSAGE = "Cannot create an order";
 
 	@Override
-	protected void doPost(HttpServletRequest req, HttpServletResponse resp) 
-										throws ServletException, IOException {
-//		System.out.println(req.getHeader("Referer"));
+	protected void doPost(HttpServletRequest req, HttpServletResponse resp)	throws ServletException, IOException {
 		String orderId = req.getParameter("orderid");
 		if (orderId == null) {
 			String bookId = req.getParameter("bookid");
-			User user = (User)req.getSession()
-								.getAttribute(Constants.SESSION_ATTRIBUTE_USER);
+			User user = (User)req.getSession().getAttribute(Constants.SESSION_ATTRIBUTE_USER);
 			boolean isCreated = false;
 			try {
 				isCreated = OrderService.createOrder(bookId, user);
 			} catch (DaoException e) {
-				LOG.error(CREATE_ORDER_ERROR_MESSAGE);
-				req.getRequestDispatcher(Constants.ERROR_SERVLET_MAPPING)
-													.forward(req, resp);
+				LOG.error(ERROR_MESSAGE);
+				req.getSession().setAttribute("errormessage", ERROR_MESSAGE);
+				req.getRequestDispatcher(Constants.ERROR_SERVLET_MAPPING).forward(req, resp);
 			}
 			if (isCreated) {
 				resp.sendRedirect(req.getRequestURI());
 			} else {
+				req.getSession().setAttribute("errormessage", ERROR_MESSAGE);
 				resp.sendRedirect(req.getHeader("Referer"));
 			}
 		}

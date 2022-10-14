@@ -13,6 +13,7 @@ public class Book implements Serializable{
 	private int publicationYear;
 	private int quantity;
 	private int available;
+	private String isbn;
 
 	public static class Builder {
 
@@ -23,6 +24,7 @@ public class Book implements Serializable{
 		private int publicationYear;
 		private int quantity;
 		private int available;
+		private String isbn;
 		
 		public Builder setId(int id) {
 			this.id = id;
@@ -59,6 +61,11 @@ public class Book implements Serializable{
 			return this;
 		}
 		
+		public Builder setISBN(String isbn) {
+			this.isbn = isbn;
+			return this;
+		}
+		
 		public Book build() {
 			return new Book(this);
 		}
@@ -72,6 +79,7 @@ public class Book implements Serializable{
 		publicationYear = builder.publicationYear;
 		quantity = builder.quantity;
 		available = builder.available;
+		isbn = builder.isbn;
 	}
 	
 	public int getId() {
@@ -108,6 +116,14 @@ public class Book implements Serializable{
 
 	public void setAvailable(int available) {
 		this.available = available;
+	}
+
+	public String getIsbn() {
+		return isbn;
+	}
+
+	public void setIsbn(String isbn) {
+		this.isbn = isbn;
 	}
 
 	@Override

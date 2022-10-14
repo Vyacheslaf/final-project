@@ -14,10 +14,10 @@ public class LogoutServlet extends HttpServlet{
 	private static final long serialVersionUID = 4157755494235871684L;
 
 	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp) 
-										throws ServletException, IOException {
-		
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		req.getSession().removeAttribute(Constants.SESSION_ATTRIBUTE_USER);
+		req.getSession().removeAttribute(Constants.SESSION_ATTRIBUTE_SORT_BY);
+		req.getSession().removeAttribute(Constants.SESSION_ATTRIBUTE_SORT_TYPE);
 		req.getRequestDispatcher(Constants.START_PAGE).forward(req, resp);
 	}
 }

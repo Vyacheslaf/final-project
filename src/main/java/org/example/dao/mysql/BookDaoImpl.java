@@ -103,7 +103,7 @@ public class BookDaoImpl implements BookDao{
 				pstmt.setString(++k, search);
 				pstmt.setString(++k, search);
 			}*/
-			if (searchText != null && searchText != "") {
+			if (searchText != null && !searchText.equalsIgnoreCase("")) {
 				String search = "%" + searchText + "%";
 				pstmt.setString(++k, search);
 				pstmt.setString(++k, search);

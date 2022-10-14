@@ -16,13 +16,14 @@ import org.example.entity.User;
 import org.example.exception.DaoException;
 import org.example.service.OrderService;
 
-@WebServlet("/readerbooks")
-public class ReaderBooksServlet extends HttpServlet {
+@WebServlet("/readerdetails")
+public class ReaderDetailsServlet extends HttpServlet{
 
 	private static final long serialVersionUID = 1L;
-	private static final Logger LOG = LogManager.getLogger(ReaderBooksServlet.class);
+	private static final Logger LOG = LogManager.getLogger(ReaderDetailsServlet.class);
 	private static final String REQ_ATTR_ORDERS = "orders";
 	private static final String GET_ORDER_LIST_ERROR_MESSAGE = "Cannot get list of orders for user #";
+	private static final String REQ_ATTR_READER_ID = "readerid";
 	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -32,15 +33,16 @@ public class ReaderBooksServlet extends HttpServlet {
 			return;
 		}
 		List<Order> orders;
+		user = new User();
+		user.setId(Integer.parseInt(req.getParameter(REQ_ATTR_READER_ID)));
 		try {
-			orders = OrderService.getReaderProcessedOrders(user);
+			orders = OrderService.getReaderActualOrders(user);
 			req.setAttribute(REQ_ATTR_ORDERS, orders);
 		} catch (DaoException e) {
 			LOG.error(GET_ORDER_LIST_ERROR_MESSAGE + user.getId());
 			req.getRequestDispatcher(Constants.ERROR_SERVLET_MAPPING).forward(req, resp);
 			return;
 		}
-		req.getRequestDispatcher(Constants.READER_BOOKS_PAGE).forward(req, resp);
+		req.getRequestDispatcher(Constants.READER_DETAILS_PAGE).forward(req, resp);
 	}
-
 }
