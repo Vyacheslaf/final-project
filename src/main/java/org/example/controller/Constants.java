@@ -31,4 +31,5 @@ public class Constants {
 	public static final String READER_DETAILS_PAGE = "/WEB-INF/jsp/reader_details.jsp";
 	public static final String BOOK_DETAILS_PAGE = "/WEB-INF/jsp/book_details.jsp";
 	public static final String MANAGE_LIBRARIANS_PAGE = "/WEB-INF/jsp/manage_librarians.jsp";
+	public static final String MANAGE_READERS_PAGE = "/WEB-INF/jsp/manage_readers.jsp";
 }

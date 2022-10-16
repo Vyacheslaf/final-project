@@ -121,4 +121,23 @@ public class UserService {
 		LOG.error(message);
 		throw new ServiceException(message);
 	}
+
+	public static List<User> findFinedUsers() throws DaoException {
+		DaoFactory daoFactory = DaoFactory.getDaoFactory(Config.DAO_NAME);
+		UserDao userDao = daoFactory.getUserDao();
+		return userDao.findByFine();
+	}
+
+	public static void blockUser(HttpServletRequest req) throws DaoException, ServiceException {
+		String userId = req.getParameter(REQ_PARAM_ID);
+		if (userId == null || !userId.matches("\\d+")) {
+			logAndThrowException("Cannot block user: ID is wrong");
+		}
+		DaoFactory daoFactory = DaoFactory.getDaoFactory(Config.DAO_NAME);
+		UserDao userDao = daoFactory.getUserDao();
+		User user = new User();
+		user.setId(Integer.parseInt(userId));
+		user.setBlocked(Boolean.parseBoolean(req.getParameter(REQ_PARAM_BLOCKED)));
+		userDao.block(user);
+	}
 }

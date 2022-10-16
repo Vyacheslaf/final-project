@@ -15,6 +15,7 @@ public class User implements Serializable{
 	private String passportNumber;
 	private UserRole role;
 	private boolean blocked;
+	private int fine;
 	
 	public int getId() {
 		return id;
@@ -91,5 +92,13 @@ public class User implements Serializable{
 	@Override
 	public String toString() {
 		return "User [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", role=" + role + "]";
+	}
+
+	public int getFine() {
+		return fine;
+	}
+
+	public void setFine(int fine) {
+		this.fine = fine;
 	}
 }

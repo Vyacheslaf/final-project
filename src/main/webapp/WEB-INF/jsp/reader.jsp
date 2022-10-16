@@ -75,6 +75,7 @@
   
 <%@include file="/WEB-INF/jspf/register_data.jspf" %>  
 <%@include file="/WEB-INF/jspf/error.jspf" %>
+<%@include file="/WEB-INF/jspf/info.jspf" %>
   
 </div>
 </body>

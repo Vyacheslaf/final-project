@@ -93,6 +93,7 @@
   </div> 
   
 <%@include file="/WEB-INF/jspf/error.jspf" %>
+<%@include file="/WEB-INF/jspf/info.jspf" %>
 
 <script src="js/modal_close.js"></script>
 <script src="js/input_checks.js"></script>

@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,13 +26,15 @@ public class UserDaoImpl implements UserDao {
 	private static final String QUERY_SELECT_USER_BY_PHONE = "select.reader.by.phone";
 	private static final String QUERY_SELECT_USERS_BY_ROLE = "select.users.by.role";
 	private static final String QUERY_DELETE_USER = "delete.user";
+	private static final String QUERY_SELECT_FINED_USERS = "select.fined.users";
+	private static final String QUERY_BLOCK_USER = "block.user";
+	private static final int FINE_COLUMN_INDEX = 10;
 
 	@Override
 	public User create(User user) throws DaoException {
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		try(Connection con = DbManager.getInstance().getConnection()) {
-			con.setAutoCommit(true);
 			int k = 0;
 			pstmt = con.prepareStatement(Queries.getQuery(QUERY_INSERT_USER), PreparedStatement.RETURN_GENERATED_KEYS);
 			pstmt.setString(++k, user.getEmail());
@@ -101,7 +104,6 @@ public class UserDaoImpl implements UserDao {
 			pstmt.setString(++k, user.getLastName());
 			pstmt.setString(++k, user.getPhoneNumber());
 			pstmt.setString(++k, user.getPassportNumber());
-//			pstmt.setInt(++k, booleanToInt(user.isBlocked()));
 			pstmt.setInt(++k, user.getId());
 			pstmt.executeUpdate();
 		} catch (SQLException e) {
@@ -114,10 +116,6 @@ public class UserDaoImpl implements UserDao {
 		}
 	}
 	
-/*	private static int booleanToInt(boolean blocked) {
-		return blocked ? 1 : 0;
-	}*/
-
 	@Override
 	public void remove(User user) throws DaoException {
 		PreparedStatement pstmt = null;
@@ -176,6 +174,9 @@ public class UserDaoImpl implements UserDao {
 		user.setPassportNumber(rs.getString(++k));
 		user.setRole(UserRole.valueOf(rs.getString(++k).toUpperCase()));
 		user.setBlocked(intToBoolean(rs.getInt(++k)));
+		if (rs.getMetaData().getColumnCount() == FINE_COLUMN_INDEX) {
+			user.setFine(rs.getInt(++k));
+		}
 		return user;
 	}
 
@@ -231,4 +232,45 @@ public class UserDaoImpl implements UserDao {
 		return user;
 	}
 
+	@Override
+	public List<User> findByFine() throws DaoException {
+		ArrayList<User> users = new ArrayList<>();
+		Statement stmt = null;
+		ResultSet rs = null;
+		try(Connection con = DbManager.getInstance().getConnection()) {
+			stmt = con.createStatement();
+			rs = stmt.executeQuery(Queries.getQuery(QUERY_SELECT_FINED_USERS));
+			while (rs.next()) {
+				users.add(getUser(rs));
+			}
+		} catch (SQLException e) {
+			String message = "Cannot get users from database";
+			LOG.error(e);
+			throw new DaoException(message, e);
+		} finally {
+			DbManager.close(rs);
+			DbManager.close(stmt);
+		}
+		return users;
+	}
+
+	@Override
+	public void block(User user) throws DaoException {
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		try(Connection con = DbManager.getInstance().getConnection()) {
+			int k = 0;
+			pstmt = con.prepareStatement(Queries.getQuery(QUERY_BLOCK_USER));
+			pstmt.setInt(++k, user.isBlocked() ? 1 : 0);
+			pstmt.setInt(++k, user.getId());
+			pstmt.executeUpdate();
+		} catch (SQLException e) {
+			String message = "Cannot block the user";
+			LOG.error(e);
+			throw new DaoException(message, e);
+		} finally {
+			DbManager.close(rs);
+			DbManager.close(pstmt);
+		}
+	}
 }

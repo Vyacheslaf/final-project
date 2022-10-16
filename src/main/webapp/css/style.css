@@ -201,7 +201,7 @@ td.order-right {
 	padding: 6px 11px;
 }
 button.givebook-active {
-	background-color: green;
+	background-color: #00ce00;
 }
 button.cancelorder {
 	background-color: #f44336;
@@ -305,7 +305,7 @@ button[disabled]{
         width: 92%;
     }
     button.changebook {
-        background-color: green;
+        background-color: #00ce00;
         color: white;
         padding: 14px 50px;
         margin: 8px 32px;
@@ -326,6 +326,12 @@ button[disabled]{
 	  width: auto;
   	  padding: 10px 18px;
   	  background-color: #bb0000;
+      cursor: pointer;
+    }
+    button.unblockuser {
+	  width: auto;
+  	  padding: 10px 18px;
+  	  background-color: #00ce00;
       cursor: pointer;
     }
    
