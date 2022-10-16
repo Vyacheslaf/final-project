@@ -1,5 +1,6 @@
 package org.example.dao.mysql;
 
+import org.example.dao.AuthorDao;
 import org.example.dao.BookDao;
 import org.example.dao.DaoFactory;
 import org.example.dao.OrderDao;
@@ -26,6 +27,11 @@ public class MysqlDaoFactory extends DaoFactory{
 	@Override
 	public OrderDao getOrderDao() {
 		return new OrderDaoImpl();
+	}
+
+	@Override
+	public AuthorDao getAuthorDao() {
+		return new AuthorDaoImpl();
 	}
 
 }

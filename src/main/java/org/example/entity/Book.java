@@ -126,6 +126,10 @@ public class Book implements Serializable{
 		this.isbn = isbn;
 	}
 
+	public void setId(int id) {
+		this.id = id;
+	}
+
 	@Override
 	public String toString() {
 		return "Book [id=" + id + ", author=" + author + ", title=" + title + ", publication=" + publication

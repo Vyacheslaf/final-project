@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.codec.digest.DigestUtils;
@@ -21,6 +23,8 @@ public class UserDaoImpl implements UserDao {
 	private static final String QUERY_UPDATE_USER = "update.user";
 	private static final String QUERY_SELECT_USER_BY_ID = "select.user.by.id";
 	private static final String QUERY_SELECT_USER_BY_PHONE = "select.reader.by.phone";
+	private static final String QUERY_SELECT_USERS_BY_ROLE = "select.users.by.role";
+	private static final String QUERY_DELETE_USER = "delete.user";
 
 	@Override
 	public User create(User user) throws DaoException {
@@ -44,8 +48,11 @@ public class UserDaoImpl implements UserDao {
 					user.setId(rs.getInt(1));
 				}
 			}
+		} catch (SQLIntegrityConstraintViolationException ex){
+			String message = "User with such data is already registered";
+			LOG.error(ex);
+			throw new DaoException(message, ex);
 		} catch (SQLException e) {
-//			e.printStackTrace();
 			String message = "Cannot create user";
 			LOG.error(e);
 			throw new DaoException(message, e);
@@ -112,9 +119,22 @@ public class UserDaoImpl implements UserDao {
 	}*/
 
 	@Override
-	public void remove(User entity) throws DaoException {
-		// TODO Auto-generated method stub
-		
+	public void remove(User user) throws DaoException {
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		try(Connection con = DbManager.getInstance().getConnection()) {
+			int k = 0;
+			pstmt = con.prepareStatement(Queries.getQuery(QUERY_DELETE_USER));
+			pstmt.setInt(++k, user.getId());
+			pstmt.executeUpdate();
+		} catch (SQLException e) {
+			String message = "Cannot delete user";
+			LOG.error(e);
+			throw new DaoException(message, e);
+		} finally {
+			DbManager.close(rs);
+			DbManager.close(pstmt);
+		}
 	}
 
 	@Override
@@ -126,7 +146,6 @@ public class UserDaoImpl implements UserDao {
 		try(Connection con = DbManager.getInstance().getConnection()) {
 			con.setAutoCommit(true);
 			pstmt = con.prepareStatement(Queries.getQuery(QUERY_SELECT_USER_BY_EMAIL_AND_PASSWORD)); 
-//			pstmt = con.prepareStatement(SQL_SELECT_USER_BY_EMAIL_AND_PASSWORD);
 			int k = 0;
 			pstmt.setString(++k, email);
 			pstmt.setString(++k, DigestUtils.sha1Hex(password));
@@ -165,9 +184,27 @@ public class UserDaoImpl implements UserDao {
 	}
 
 	@Override
-	public List<User> findByRole(UserRole userRole) {
-		// TODO Auto-generated method stub
-		return null;
+	public List<User> findByRole(UserRole userRole) throws DaoException {
+		ArrayList<User> users = new ArrayList<>();
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		try(Connection con = DbManager.getInstance().getConnection()) {
+			pstmt = con.prepareStatement(Queries.getQuery(QUERY_SELECT_USERS_BY_ROLE)); 
+			int k = 0;
+			pstmt.setString(++k, userRole.toString().toLowerCase());
+			rs = pstmt.executeQuery();
+			while (rs.next()) {
+				users.add(getUser(rs));
+			}
+		} catch (SQLException e) {
+			String message = "Cannot get users from database";
+			LOG.error(e);
+			throw new DaoException(message, e);
+		} finally {
+			DbManager.close(rs);
+			DbManager.close(pstmt);
+		}
+		return users;
 	}
 
 	@Override

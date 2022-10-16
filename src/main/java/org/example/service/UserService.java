@@ -1,17 +1,23 @@
 package org.example.service;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.example.Config;
 import org.example.dao.DaoFactory;
 import org.example.dao.UserDao;
 import org.example.entity.User;
 import org.example.entity.UserRole;
 import org.example.exception.DaoException;
+import org.example.exception.ServiceException;
 
 public class UserService {
 
+	private static final Logger LOG = LogManager.getLogger(UserService.class);
 	private static final String REQ_PARAM_EMAIL = "email";
 	private static final String REQ_PARAM_PASSWORD = "password";
 	private static final String REQ_PARAM_FIRST_NAME = "firstname";
@@ -93,4 +99,26 @@ public class UserService {
 		return userDao.findByPhone(phoneNumber);
 	}
 
+	public static List<User> findUsersByRole(UserRole userRole) throws DaoException {
+		DaoFactory daoFactory = DaoFactory.getDaoFactory(Config.DAO_NAME);
+		UserDao userDao = daoFactory.getUserDao();
+		return userDao.findByRole(userRole);
+	}
+
+	public static void deleteUser(String userId) throws ServiceException, DaoException {
+		if (userId == null || !userId.matches("\\d+")) {
+			logAndThrowException("Cannot delete user: ID is wrong");
+		}
+		DaoFactory daoFactory = DaoFactory.getDaoFactory(Config.DAO_NAME);
+		UserDao userDao = daoFactory.getUserDao();
+		User user = new User();
+		user.setId(Integer.parseInt(userId));
+		userDao.remove(user);
+	}
+
+	
+	private static void logAndThrowException(String message) throws ServiceException {
+		LOG.error(message);
+		throw new ServiceException(message);
+	}
 }

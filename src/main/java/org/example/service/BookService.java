@@ -1,16 +1,26 @@
 package org.example.service;
 
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.example.Config;
 import org.example.dao.BookDao;
 import org.example.dao.DaoFactory;
 import org.example.entity.Book;
 import org.example.exception.DaoException;
+import org.example.exception.ServiceException;
 
 public class BookService {
+
+	private static final Logger LOG = LogManager.getLogger(BookService.class);
 	private static final String SORT_TYPE_ASC = "asc";
 	private static final String SORT_TYPE_DESC = "desc";
 	private static final String SORT_BY_ID = "id";
@@ -18,6 +28,14 @@ public class BookService {
 	private static final String REQ_ATTR_SORT_TYPE = "sortType";
 	private static final String REQ_ATTR_SEARCH_TEXT = "text";
 	private static final String REQ_ATTR_CURRENT_PAGE = "page";
+	private static final String REQ_PARAM_ISBN = "isbn";
+	private static final String REQ_PARAM_AUTHOR = "author";
+	private static final String REQ_PARAM_TITLE = "title";
+	private static final String REQ_PARAM_PUBLICATION = "publication";
+	private static final String REQ_PARAM_PUBLICATION_YEAR = "year";
+	private static final String REQ_PARAM_QUANTITY = "quantity";
+	private static final String REQ_PARAM_BOOK_ID = "bookid";
+	private static final String ISBN_REGEX = "^(97(8|9))?\\d{9}(\\d|X)$";
 	
 	public static List<Book> findBooks(HttpServletRequest req, int page) throws DaoException {
 		String text = req.getParameter(REQ_ATTR_SEARCH_TEXT);
@@ -95,5 +113,125 @@ public class BookService {
 	
 	public static int getPrevPage(int page) {
 		return page > 1 ? --page : 1;
+	}
+
+	public static void addBook(HttpServletRequest req) throws ServiceException, DaoException {
+		DaoFactory daoFactory = DaoFactory.getDaoFactory(Config.DAO_NAME);
+		BookDao bookDao = daoFactory.getBookDao();
+		bookDao.create(getBookFromRequest(req));
+	}
+	
+	private static Book getBookFromRequest(HttpServletRequest req) throws ServiceException {
+		if (!checkISBN(req)) {
+			logAndThrowException("ISBN is wrong");
+		}
+		if (!checkPublicationYear(req)) {
+			logAndThrowException("Year of publication is wrong");
+		}
+		if (!isNumber(req.getParameter(REQ_PARAM_QUANTITY))) {
+			logAndThrowException("Quantity is wrong");
+		}
+		return new Book.Builder().setISBN(req.getParameter(REQ_PARAM_ISBN))
+								 .setAuthor(req.getParameter(REQ_PARAM_AUTHOR))
+								 .setTitle(req.getParameter(REQ_PARAM_TITLE))
+								 .setPublication(req.getParameter(REQ_PARAM_PUBLICATION))
+								 .setPublicationYear(Integer.parseInt(req.getParameter(REQ_PARAM_PUBLICATION_YEAR)))
+								 .setQuantity(Integer.parseInt(req.getParameter(REQ_PARAM_QUANTITY)))
+								 .build();
+	}
+
+	private static boolean isNumber(String str) {
+		return str != null && str.matches("\\d+");
+	}
+
+	private static boolean checkISBN(HttpServletRequest req) {
+		String isbn = req.getParameter(REQ_PARAM_ISBN);
+		if (isbn == null || !isbn.matches(ISBN_REGEX)) {
+			return false;
+		}
+		if (isbn.length() == 10) {
+			return checkISBN10(isbn);
+		}
+		return checkISBN13(isbn);
+	}
+	
+	private static boolean checkISBN10(String isbn) {
+		List<Integer> weights = IntStream.rangeClosed(1, 10)
+										 .mapToObj(Integer::valueOf)
+										 .sorted(Collections.reverseOrder())
+										 .collect(Collectors.toList());
+		List<Integer> digits = Arrays.asList(isbn.split(""))
+									 .stream()
+									 .map(BookService::convertISBNSymbolToDigit)
+									 .collect(Collectors.toList());
+		int checksum = IntStream.range(0, 10)
+								.map(i -> weights.get(i) * digits.get(i))
+								.sum();
+		return checksum % 11 == 0;
+	}
+	
+	private static boolean checkISBN13(String isbn) {
+		List<Integer> weights = IntStream.range(0, 13)
+										 .map(i -> (i % 2) * 2 + 1)
+										 .mapToObj(Integer::valueOf)
+										 .collect(Collectors.toList());
+		List<Integer> digits = Arrays.asList(isbn.split(""))
+									 .stream()
+									 .map(BookService::convertISBNSymbolToDigit)
+									 .collect(Collectors.toList());
+		int checksum = IntStream.range(0, 13)
+								.map(i -> weights.get(i) * digits.get(i))
+								.sum();
+		return checksum % 10 == 0;
+	}
+	
+	private static Integer convertISBNSymbolToDigit(String sym) {
+		return sym.equalsIgnoreCase("X") ? Integer.valueOf(10) : Integer.valueOf(sym);
+	}
+
+	private static boolean checkPublicationYear(HttpServletRequest req) {
+		String publicationYear = req.getParameter(REQ_PARAM_PUBLICATION_YEAR);
+		if (!isNumber(publicationYear)) {
+			return false;
+		}
+		int year = Integer.parseInt(publicationYear);
+		if (year < 1900 || year > LocalDateTime.now().getYear()) {
+			return false;
+		}
+		return true;
+	}
+	
+	public static Book findBookByISBN(String isbn) throws DaoException {
+		DaoFactory daoFactory = DaoFactory.getDaoFactory(Config.DAO_NAME);
+		BookDao bookDao = daoFactory.getBookDao();
+		return bookDao.findByISBN(isbn);
+	}
+
+	public static void deleteBook(String bookId) throws ServiceException, DaoException {
+		if (!isNumber(bookId)) {
+			logAndThrowException("Cannot delete the book: Wrong id!");
+		}
+		Book book = new Book.Builder().setId(Integer.parseInt(bookId))
+									  .build();
+		DaoFactory daoFactory = DaoFactory.getDaoFactory(Config.DAO_NAME);
+		BookDao bookDao = daoFactory.getBookDao();
+		bookDao.remove(book);
+	}
+
+	public static void changeBook(HttpServletRequest req) throws ServiceException, DaoException {
+		String bookId = req.getParameter(REQ_PARAM_BOOK_ID);
+		if (!isNumber(bookId)) {
+			logAndThrowException("Cannot change the book: Wrong id!");
+		}
+		Book book = getBookFromRequest(req);
+		book.setId(Integer.parseInt(bookId));
+		DaoFactory daoFactory = DaoFactory.getDaoFactory(Config.DAO_NAME);
+		BookDao bookDao = daoFactory.getBookDao();
+		bookDao.update(book);
+	}
+	
+	private static void logAndThrowException(String message) throws ServiceException {
+		LOG.error(message);
+		throw new ServiceException(message);
 	}
 }

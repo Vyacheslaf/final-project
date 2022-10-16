@@ -67,6 +67,10 @@ header a.active {
   background-color: #009de7;
   color: white;
 }
+header a.register {
+  background-color: #008000;
+  color: white;
+}
 header a.logout {
   background-color: #804040;
   color: white;
@@ -106,6 +110,12 @@ a.home {
 
 .book-table {
 	width: 80%;
+	margin-left: auto;
+	margin-right: auto;
+/*	height: 90%;*/
+}
+.bookinfo-table {
+	width: 90%;
 	margin-left: auto;
 	margin-right: auto;
 /*	height: 90%;*/
@@ -156,6 +166,10 @@ tr.order-info-fined {
 td.right {
 	text-align: right;
 }
+td.right-field {
+	text-align: right;
+	width: 10%;
+}
 td.center {
 	text-align: center;
 }
@@ -202,6 +216,18 @@ a.menu {
 }
 .blocked-account {
 	color: red;
+}
+input.number-field,
+input.datalist-field {
+	height: 36px; 
+	width: 600px; 
+	margin-top: 8px;
+	margin-bottom: 8px;
+	padding-left: 20px; 
+	border: 1px solid #ccc;	
+}
+input[type=number]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
 }
 input::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
   color: #bfbfbf;
@@ -269,6 +295,39 @@ button[disabled]{
         cursor: pointer;
         width: 100%;
     }
+    button.book {
+        background-color: #009de7;
+        color: white;
+        padding: 14px 50px;
+        margin: 8px 32px;
+        border: none;
+        cursor: pointer;
+        width: 92%;
+    }
+    button.changebook {
+        background-color: green;
+        color: white;
+        padding: 14px 50px;
+        margin: 8px 32px;
+        border: none;
+        cursor: pointer;
+        width: 92%;
+    }
+    button.deletebook {
+        background-color: #f44336;
+        color: white;
+        padding: 14px 50px;
+        margin: 8px 32px;
+        border: none;
+        cursor: pointer;
+        width: 92%;
+    }
+    button.deleteuser {
+	  width: auto;
+  	  padding: 10px 18px;
+  	  background-color: #bb0000;
+      cursor: pointer;
+    }
    
     /* set a hover effect for the button*/
     button:hover {
@@ -284,6 +343,9 @@ button[disabled]{
     .errorbtn {
         background-color: #f44336;
     }
+    .infobtn {
+        background-color: #00ce00;
+    }
    
     /*set padding to the container*/
     .container {
@@ -291,6 +353,10 @@ button[disabled]{
     }
     .container-button {
         padding: 6px 92px;
+    }
+    .container-message {
+        padding: 16px;
+        background-color:#f1f1f1;
     }
      
     /*set the forgot password text*/
@@ -352,6 +418,13 @@ button[disabled]{
   font-size: 18px;
   line-height: 20px;
     }
+    .modal-content-bookinfo {
+        background-color: #fafafa;
+        margin: 2% auto auto auto;
+        border: 1px solid #888;
+        width: 50%;
+    }
+   
 
     /*style the close button*/
     .close {

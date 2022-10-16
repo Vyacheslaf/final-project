@@ -22,22 +22,19 @@ public class RegisterServlet extends HttpServlet{
 	private static final Logger LOG = LogManager.getLogger(GuestServlet.class);
 
 	@Override
-	protected void doPost(HttpServletRequest req, HttpServletResponse resp) 
-										throws ServletException, IOException {
+	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		try {
 			User user = UserService.register(req);
 			if (user.getRole().equals(UserRole.READER)) {
-				req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_USER, 
-												user);
+				req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_USER, user);
 				resp.sendRedirect("login");
 			} else {
-				resp.sendRedirect(req.getRequestURI());
+				resp.sendRedirect(req.getHeader("Referer"));
 			}
 		} catch (DaoException e) {
 			LOG.error(e.getMessage());
-			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_ERROR, 
-															e.getMessage());
-			resp.sendRedirect(Constants.ERROR_SERVLET_MAPPING);
+			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_ERROR_MESSAGE, e.getMessage());
+			resp.sendRedirect(req.getHeader("Referer"));
 		}
 	}
 }

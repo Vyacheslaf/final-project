@@ -9,6 +9,7 @@ public abstract class DaoFactory {
 	public abstract BookDao getBookDao();
 	public abstract PublicationDao getPublicationDao();
 	public abstract OrderDao getOrderDao();
+	public abstract AuthorDao getAuthorDao();
 	
 	public static DaoFactory getDaoFactory(String dbmsName) {
 		if (dbmsName != null) {

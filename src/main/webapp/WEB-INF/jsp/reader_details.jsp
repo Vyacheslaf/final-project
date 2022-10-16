@@ -59,7 +59,7 @@
           <c:if test="${order.state == 'NEW'}">
             <tr class="orders">
               <td class="center">${order.id}</td>
-              <td><div class="left">${order.book.author}, ${order.book.title}, ${order.book.publication}, ${order.book.publicationYear}</div></td>
+              <td class="center">${order.book.author}, ${order.book.title}, ${order.book.publication}, ${order.book.publicationYear}</td>
               <td class="center">Not issued yet</td>
               <td class="center">${order.fine} UAH</td>
               <td class="button">

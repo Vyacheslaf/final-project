@@ -9,6 +9,7 @@ public class Constants {
 	public static final String SESSION_ATTRIBUTE_SORT_BY = "sortBy";
 	public static final String SESSION_ATTRIBUTE_SORT_TYPE = "sortType";
 	public static final String SESSION_ATTRIBUTE_ERROR_MESSAGE = "errormessage";
+	public static final String SESSION_ATTRIBUTE_INFO_MESSAGE = "infomessage";
 	public static final String GUEST_SERVLET_MAPPING = "guest";
 	public static final String READER_SERVLET_MAPPING = "reader";
 	public static final String READER_ORDERS_SERVLET = "readerorders";
@@ -28,4 +29,6 @@ public class Constants {
 	public static final String ORDER_DETAILS_PAGE = "/WEB-INF/jsp/order_details.jsp";
 	public static final String LIBRARIAN_LIST_READERS_PAGE = "/WEB-INF/jsp/librarian_list_readers.jsp";
 	public static final String READER_DETAILS_PAGE = "/WEB-INF/jsp/reader_details.jsp";
+	public static final String BOOK_DETAILS_PAGE = "/WEB-INF/jsp/book_details.jsp";
+	public static final String MANAGE_LIBRARIANS_PAGE = "/WEB-INF/jsp/manage_librarians.jsp";
 }

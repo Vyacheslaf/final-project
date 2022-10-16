@@ -23,17 +23,17 @@
   <div class="main">
   
   <div class="modal-content-bookinfo">
-    <form action="addbook" method="post">
+    <form action="changebook" method="post">
       <div class="container">
       <table class="bookinfo-table">
         <tr>
           <td class="right-field">ISBN:</td>
-          <td><input type="text" name="isbn" id="isbn" required></td>
+          <td><input type="text" name="isbn" id="isbn" value="${requestScope.book.isbn}" required></td>
         </tr>
         <tr>
           <td class="right">Author:</td>
           <td>
-            <input list="author-list" name="author" id="author" class="datalist-field" required>
+            <input list="author-list" name="author" id="author" class="datalist-field" value="${requestScope.book.author}" required>
             <datalist id="author-list">
               <c:forEach items="${authors}" var="author">
                 <option value="${author.fullName}">
@@ -43,12 +43,12 @@
         </tr>
         <tr>
           <td class="right">Title:</td>
-          <td><input type="text" name="title" id="title" required></td>
+          <td><input type="text" name="title" id="title" value="${requestScope.book.title}" required></td>
         </tr>
         <tr>
           <td class="right">Publication:</td>
           <td>
-            <input list="publications-list" name="publication" id="publication" class="datalist-field" required>
+            <input list="publications-list" name="publication" id="publication" class="datalist-field" value="${requestScope.book.publication}" required>
             <datalist id="publications-list">
               <c:forEach items="${publications}" var="publisher">
                 <option value="${publisher.publicationName}">
@@ -58,16 +58,23 @@
         </tr>
         <tr>
           <td class="right">Publication Year:</td>
-          <td><input type="number" name="year" id="year" class="number-field" required></td>
+          <td><input type="number" name="year" id="year" class="number-field" value="${requestScope.book.publicationYear}" required></td>
         </tr>
         <tr>
           <td class="right">Quantity:</td>
-          <td><input type="number" name="quantity" id="quantity" class="number-field" required></td>
+          <td><input type="number" name="quantity" id="quantity" class="number-field" value="${requestScope.book.quantity}" required></td>
         </tr>
       </table>
       <br>
       <br>
-        <button type="submit" id="addbookbtn" class="book">Add the book to the catalog</button>
+        <input type="hidden" name="bookid" value="${requestScope.book.id}" >
+        <button type="submit" id="changebookbtn" class="changebook">Save changes to the catalog</button>
+      </div>
+    </form>
+    <form action="deletebook" method="post">
+      <div class="container">
+        <input type="hidden" name="bookid" value="${requestScope.book.id}" >
+        <button type="submit" id="deletebookbtn" class="deletebook">Delete the book from the catalog</button>
       </div>
     </form>
     </div>
