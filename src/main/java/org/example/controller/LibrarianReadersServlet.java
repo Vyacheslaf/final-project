@@ -36,8 +36,9 @@ public class LibrarianReadersServlet extends HttpServlet{
 			orders = OrderService.getProcessedOrders();
 			req.setAttribute(REQ_ATTR_ORDERS, orders);
 		} catch (DaoException e) {
-			LOG.error(GET_ORDER_LIST_ERROR_MESSAGE);
-			req.getRequestDispatcher(Constants.ERROR_SERVLET_MAPPING).forward(req, resp);
+			LOG.error(e);
+			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_ERROR_MESSAGE, GET_ORDER_LIST_ERROR_MESSAGE);
+			resp.sendRedirect(req.getHeader("Referer"));
 			return;
 		}
 		req.getRequestDispatcher(Constants.LIBRARIAN_LIST_READERS_PAGE).forward(req, resp);

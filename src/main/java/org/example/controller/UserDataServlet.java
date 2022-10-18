@@ -25,11 +25,10 @@ public class UserDataServlet extends HttpServlet{
 		try {
 			User user = UserService.updateUserData(req);
 			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_USER, user);
-			resp.sendRedirect(req.getHeader("Referer"));
 		} catch (DaoException e) {
 			LOG.error(e.getMessage());
-			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_ERROR, e.getMessage());
-			resp.sendRedirect(Constants.ERROR_SERVLET_MAPPING);
+			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_ERROR_MESSAGE, e.getMessage());
 		}
+		resp.sendRedirect(req.getHeader("Referer"));
 	}
 }

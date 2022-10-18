@@ -71,7 +71,7 @@
         <c:if test="${order.fine != 0}">
         <tr class="orders-fined">
           <td class="center">${order.id}</td>
-          <td><div class="left">${order.book.author}, ${order.book.title}, ${order.book.publication}, ${order.book.publicationYear}</div></td>
+          <td class="center">${order.book.author}, ${order.book.title}, ${order.book.publication}, ${order.book.publicationYear}</td>
           <td class="center"><mt:date time="${order.returnTime}" /></td>
           <td class="center">${order.fine} UAH</td>
           <td class="button">

@@ -25,7 +25,7 @@ public class ReaderServlet extends HttpServlet{
 	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		String text = req.getParameter("text");
+		String text = req.getParameter("search");
 		int page = BookService.getPageNumber(req);
 		int booksCount = 0;
 		List<Book> books = new ArrayList<>();
@@ -34,10 +34,11 @@ public class ReaderServlet extends HttpServlet{
 			books = BookService.findBooks(req, page);
 		} catch (DaoException e) {
 			LOG.error(e.getMessage());
-			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_ERROR, ERROR_MESSAGE);
-			req.getRequestDispatcher(Constants.ERROR_SERVLET_MAPPING).forward(req, resp);
+			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_ERROR_MESSAGE, ERROR_MESSAGE);
+			resp.sendRedirect(req.getHeader("Referer"));
+			return;
 		}
-		req.setAttribute("text", text);
+		req.setAttribute("search", text);
 		req.setAttribute("books", books);
 		req.setAttribute("nextPage", BookService.getNextPage(page, booksCount));
 		req.setAttribute("prevPage", BookService.getPrevPage(page));

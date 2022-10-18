@@ -32,7 +32,8 @@ public class NewOrderServlet extends HttpServlet{
 		} catch (DaoException e) {
 			LOG.error(e);
 			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_ERROR_MESSAGE, e.getMessage());
-			req.getRequestDispatcher(Constants.ERROR_SERVLET_MAPPING).forward(req, resp);
+			resp.sendRedirect(req.getHeader("Referer"));
+			return;
 		}
 		if (isCreated) {
 			resp.sendRedirect(req.getRequestURI());

@@ -22,11 +22,11 @@ public class BookService {
 
 	private static final Logger LOG = LogManager.getLogger(BookService.class);
 	private static final String SORT_TYPE_ASC = "asc";
-	private static final String SORT_TYPE_DESC = "desc";
-	private static final String SORT_BY_ID = "id";
+//	private static final String SORT_TYPE_DESC = "desc";
+//	private static final String SORT_BY_ID = "id";
 	private static final String REQ_ATTR_SORT_BY = "sortBy";
 	private static final String REQ_ATTR_SORT_TYPE = "sortType";
-	private static final String REQ_ATTR_SEARCH_TEXT = "text";
+	private static final String REQ_ATTR_SEARCH_TEXT = "search";
 	private static final String REQ_ATTR_CURRENT_PAGE = "page";
 	private static final String REQ_PARAM_ISBN = "isbn";
 	private static final String REQ_PARAM_AUTHOR = "author";
@@ -55,7 +55,12 @@ public class BookService {
 	}
 
 	private static String getSortType(HttpServletRequest req) {
-		String sessionSortBy = (String) req.getSession().getAttribute(REQ_ATTR_SORT_BY);
+		String sortType = req.getParameter(REQ_ATTR_SORT_TYPE);
+		if (sortType == null) {
+			sortType= SORT_TYPE_ASC;
+		}
+		req.setAttribute(REQ_ATTR_SORT_TYPE, sortType);
+/*		String sessionSortBy = (String) req.getSession().getAttribute(REQ_ATTR_SORT_BY);
 		if (sessionSortBy == null) {
 			return SORT_TYPE_ASC;
 		}
@@ -73,12 +78,17 @@ public class BookService {
 		} else {
 			sortType = SORT_TYPE_ASC;
 		}
-		req.getSession().setAttribute(REQ_ATTR_SORT_TYPE, sortType);
+		req.getSession().setAttribute(REQ_ATTR_SORT_TYPE, sortType);*/
 		return sortType;
 	}
 
 	private static String getOrderBy(HttpServletRequest req) {
 		String sortBy = req.getParameter(REQ_ATTR_SORT_BY);
+		if (sortBy != null) {
+			req.setAttribute(REQ_ATTR_SORT_BY, sortBy);
+		}
+		return sortBy;
+/*		String sortBy = req.getParameter(REQ_ATTR_SORT_BY);
 		if (sortBy != null) {
 			req.getSession().setAttribute(REQ_ATTR_SORT_BY, sortBy);
 		} else {
@@ -87,7 +97,7 @@ public class BookService {
 		if (sortBy == null) {
 			sortBy = SORT_BY_ID;
 		}
-		return sortBy;
+		return sortBy;*/
 	}
 
 	public static int getPageNumber(HttpServletRequest req) {

@@ -33,8 +33,10 @@ public class GuestServlet extends HttpServlet{
 			booksCount = BookService.getBooksCount(req);
 			books = BookService.findBooks(req, page);
 		} catch (DaoException e) {
-			LOG.error(FIND_BOOK_ERROR_MESSAGE);
-			req.getRequestDispatcher(Constants.ERROR_SERVLET_MAPPING).forward(req, resp);
+			LOG.error(e);
+			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_ERROR_MESSAGE, FIND_BOOK_ERROR_MESSAGE);
+			resp.sendRedirect(req.getHeader("Referer"));
+			return;
 		}
 		req.setAttribute("text", text);
 		req.setAttribute("books", books);

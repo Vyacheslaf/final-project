@@ -13,23 +13,25 @@ public class PaginationTag extends TagSupport{
 	private int nextPage;
 	private int previousPage;
 	private String searchText;
-	private String servletName;
+//	private String servletName;
+	private String sortBy;
+	private String sortType;
 	
 	public String getSearchText() {
 		return searchText;
 	}
 
-	public String getServletName() {
+/*	public String getServletName() {
 		return servletName;
-	}
+	}*/
 
 	public void setSearchText(String searchText) {
 		this.searchText = searchText;
 	}
 
-	public void setServletName(String servletName) {
+/*	public void setServletName(String servletName) {
 		this.servletName = servletName;
-	}
+	}*/
 
 	public int getCurrentPage() {
 		return currentPage;
@@ -60,7 +62,19 @@ public class PaginationTag extends TagSupport{
 		JspWriter out = pageContext.getOut();
 		String insertSearchText = "";
 		if (!searchText.equalsIgnoreCase("")) {
-			insertSearchText = "text=" + searchText + "&";
+			insertSearchText = "search=" + searchText + "&";
+		}
+/*		String insertSortBy = "";
+		if (!sortBy.equalsIgnoreCase("")) {
+			insertSortBy = "sortBy=" + sortBy + "&";
+		}*/
+		String insertSortType = "";
+		if (!sortType.equalsIgnoreCase("")) {
+			insertSortType = "sortType=" + sortType + "&";
+		}
+		if (!sortBy.equalsIgnoreCase("")) {
+			String insertSortBy = "sortBy=" + sortBy + "&";
+			insertSearchText = insertSearchText.concat(insertSortBy).concat(insertSortType);
 		}
 		try {
 			out.println("<table class=\"pagination-table\">");
@@ -68,15 +82,17 @@ public class PaginationTag extends TagSupport{
 			if (currentPage == previousPage) {
 				out.println("<td></td>");
 			} else {
-				out.print("<td><a href=\"" + servletName + "?");//text=");
+//				out.print("<td><a href=\"" + servletName + "?");//text=");
+				out.print("<td><a href=\"reader?");//text=");
 				out.print(insertSearchText + "page=");
 				out.println(previousPage + "\">Previous page</a></td>");
 			}
 			if (currentPage == nextPage) {
 				out.println("<td></td>");
 			} else {
-				out.print("<td class=\"right\"><a href=\"" + servletName);
-				out.print("?" + insertSearchText + "page=");
+//				out.print("<td class=\"right\"><a href=\"" + servletName);
+				out.print("<td class=\"right\"><a href=\"reader?");
+				out.print(insertSearchText + "page=");
 				out.println(nextPage + "\">Next page</a></td>");
 			}
 			out.println("</tr>");
@@ -85,6 +101,22 @@ public class PaginationTag extends TagSupport{
 			e.printStackTrace();
 		}
 		return SKIP_BODY;
+	}
+
+	public String getSortType() {
+		return sortType;
+	}
+
+	public void setSortType(String sortType) {
+		this.sortType = sortType;
+	}
+
+	public String getSortBy() {
+		return sortBy;
+	}
+
+	public void setSortBy(String sortBy) {
+		this.sortBy = sortBy;
 	}
 
 	

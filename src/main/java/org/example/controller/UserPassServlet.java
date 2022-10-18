@@ -21,19 +21,15 @@ public class UserPassServlet extends HttpServlet{
 	private static final Logger LOG = LogManager.getLogger(UserDataServlet.class);
 
 	@Override
-	protected void doPost(HttpServletRequest req, HttpServletResponse resp) 
-										throws ServletException, IOException {
+	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		try {
 			User user = UserService.updateUserPassword(req);
-			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_USER, 
-												user);
-			resp.sendRedirect(req.getHeader("Referer"));
+			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_USER,	user);
 		} catch (DaoException e) {
 			LOG.error(e.getMessage());
-			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_ERROR, 
-															e.getMessage());
-			resp.sendRedirect(Constants.ERROR_SERVLET_MAPPING);
+			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_ERROR_MESSAGE, e.getMessage());
 		}
+		resp.sendRedirect(req.getHeader("Referer"));
 	}
 
 }

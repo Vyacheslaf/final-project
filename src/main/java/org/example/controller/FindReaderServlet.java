@@ -51,8 +51,8 @@ public class FindReaderServlet extends HttpServlet{
 			req.getRequestDispatcher(Constants.MANAGE_READERS_PAGE).forward(req, resp);
 		} catch (DaoException e) {
 			LOG.error(e.getMessage());
-			req.getRequestDispatcher(Constants.ERROR_SERVLET_MAPPING).forward(req, resp);
-			return;
+			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_ERROR_MESSAGE, e.getMessage());
+			resp.sendRedirect(req.getHeader("Referer"));
 		}
 	}
 }

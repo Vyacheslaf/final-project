@@ -16,7 +16,7 @@ public class Constants {
 	public static final String LIBRARIAN_SERVLET_MAPPING = "librarian";
 	public static final String ADMIN_SERVLET_MAPPING = "admin";
 	public static final String READER_DETAILS_SERVLET_MAPPING = "readerdetails";
-	public static final String ERROR_SERVLET_MAPPING = "error";
+//	public static final String ERROR_SERVLET_MAPPING = "error";
 	public static final String START_PAGE = "index.html";
 	public static final String GUEST_HOME_PAGE = "/WEB-INF/jsp/guest.jsp";
 	public static final String READER_HOME_PAGE = "/WEB-INF/jsp/reader.jsp";

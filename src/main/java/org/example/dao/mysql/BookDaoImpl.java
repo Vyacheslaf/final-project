@@ -17,26 +17,26 @@ import org.example.exception.DaoException;
 public class BookDaoImpl implements BookDao{
 
 	private static final Logger LOG = LogManager.getLogger(BookDaoImpl.class);
-	private static final String QUERY_SELECT_ALL_BOOKS_WITH_LIMITS = "select.all.books.with.limits";
-	private static final String QUERY_SELECT_BOOKS_BY_AUTHOR_TITLE = "select.books.by.author.title";
+//	private static final String QUERY_SELECT_ALL_BOOKS_WITH_LIMITS = "select.all.books.with.limits";
+//	private static final String QUERY_SELECT_BOOKS_BY_AUTHOR_TITLE = "select.books.by.author.title";
 	private static final String QUERY_COUNT_ALL_BOOKS = "select.count.all.books";
 	private static final String QUERY_COUNT_BOOKS_FROM_SEARCH = "select.count.books.from.search";
-	private static final String QUERY_SELECT_ALL_BOOKS_ORDER_BY_AUTHOR = "select.all.books.order.by.author";
-	private static final String QUERY_SELECT_ALL_BOOKS_ORDER_BY_TITLE = "select.all.books.order.by.title";
-	private static final String QUERY_SELECT_ALL_BOOKS_ORDER_BY_PUBLICATION = "select.all.books.order.by.publication";
-	private static final String QUERY_SELECT_ALL_BOOKS_ORDER_BY_YEAR = "select.all.books.order.by.year";
-	private static final String QUERY_SEARCH_BOOKS_ORDER_BY_AUTHOR = "search.books.order.by.author";
-	private static final String QUERY_SEARCH_BOOKS_ORDER_BY_TITLE = "search.books.order.by.title";
-	private static final String QUERY_SEARCH_BOOKS_ORDER_BY_PUBLICATION = "search.books.order.by.publication";
-	private static final String QUERY_SEARCH_BOOKS_ORDER_BY_YEAR = "search.books.order.by.year";
-	private static final String QUERY_SELECT_ALL_BOOKS_ORDER_BY_AUTHOR_DESC = "select.all.books.order.by.author.desc";
-	private static final String QUERY_SELECT_ALL_BOOKS_ORDER_BY_TITLE_DESC = "select.all.books.order.by.title.desc";
-	private static final String QUERY_SELECT_ALL_BOOKS_ORDER_BY_PUBLICATION_DESC = "select.all.books.order.by.publication.desc";
-	private static final String QUERY_SELECT_ALL_BOOKS_ORDER_BY_YEAR_DESC = "select.all.books.order.by.year.desc";
-	private static final String QUERY_SEARCH_BOOKS_ORDER_BY_AUTHOR_DESC = "search.books.order.by.author.desc";
-	private static final String QUERY_SEARCH_BOOKS_ORDER_BY_TITLE_DESC = "search.books.order.by.title.desc";
-	private static final String QUERY_SEARCH_BOOKS_ORDER_BY_PUBLICATION_DESC = "search.books.order.by.publication.desc";
-	private static final String QUERY_SEARCH_BOOKS_ORDER_BY_YEAR_DESC = "search.books.order.by.year.desc";
+//	private static final String QUERY_SELECT_ALL_BOOKS_ORDER_BY_AUTHOR = "select.all.books.order.by.author";
+//	private static final String QUERY_SELECT_ALL_BOOKS_ORDER_BY_TITLE = "select.all.books.order.by.title";
+//	private static final String QUERY_SELECT_ALL_BOOKS_ORDER_BY_PUBLICATION = "select.all.books.order.by.publication";
+//	private static final String QUERY_SELECT_ALL_BOOKS_ORDER_BY_YEAR = "select.all.books.order.by.year";
+//	private static final String QUERY_SEARCH_BOOKS_ORDER_BY_AUTHOR = "search.books.order.by.author";
+//	private static final String QUERY_SEARCH_BOOKS_ORDER_BY_TITLE = "search.books.order.by.title";
+//	private static final String QUERY_SEARCH_BOOKS_ORDER_BY_PUBLICATION = "search.books.order.by.publication";
+//	private static final String QUERY_SEARCH_BOOKS_ORDER_BY_YEAR = "search.books.order.by.year";
+//	private static final String QUERY_SELECT_ALL_BOOKS_ORDER_BY_AUTHOR_DESC = "select.all.books.order.by.author.desc";
+//	private static final String QUERY_SELECT_ALL_BOOKS_ORDER_BY_TITLE_DESC = "select.all.books.order.by.title.desc";
+//	private static final String QUERY_SELECT_ALL_BOOKS_ORDER_BY_PUBLICATION_DESC = "select.all.books.order.by.publication.desc";
+//	private static final String QUERY_SELECT_ALL_BOOKS_ORDER_BY_YEAR_DESC = "select.all.books.order.by.year.desc";
+//	private static final String QUERY_SEARCH_BOOKS_ORDER_BY_AUTHOR_DESC = "search.books.order.by.author.desc";
+//	private static final String QUERY_SEARCH_BOOKS_ORDER_BY_TITLE_DESC = "search.books.order.by.title.desc";
+//	private static final String QUERY_SEARCH_BOOKS_ORDER_BY_PUBLICATION_DESC = "search.books.order.by.publication.desc";
+//	private static final String QUERY_SEARCH_BOOKS_ORDER_BY_YEAR_DESC = "search.books.order.by.year.desc";
 	private static final String QUERY_INSERT_BOOK = "insert.book";
 	private static final String QUERY_SELECT_BOOK_BY_ISBN = "select.book.by.isbn";
 	private static final String QUERY_SELECT_COUNT_BOOK_ON_SUBSCRIPTION = "select.count.books.on.subscription.by.id";
@@ -176,7 +176,8 @@ public class BookDaoImpl implements BookDao{
 		try(Connection con = DbManager.getInstance().getConnection()) {
 			con.setAutoCommit(true);
 			int k = 0;
-			String query = selectQuery(searchText, orderBy, orderType);
+//			String query = selectQuery(searchText, orderBy, orderType);
+			String query = makeQuery(searchText, orderBy, orderType);
 			pstmt = con.prepareStatement(query);
 /*			if (searchText == null || searchText == "") {
 				pstmt = con.prepareStatement(
@@ -210,8 +211,26 @@ public class BookDaoImpl implements BookDao{
 		return books;
 	}
 
-	private String selectQuery(String searchText, String orderBy, 
-										String orderType) throws SQLException {
+	private String makeQuery(String searchText, String orderBy, String orderType) {
+		StringBuilder query = new StringBuilder("");
+		query.append(Queries.getQuery("select.book")).append(" ");
+		if (searchText != null && !searchText.equalsIgnoreCase("")) {
+			query.append(Queries.getQuery("search.text")).append(" ");
+		}
+		query.append(Queries.getQuery("order.by")).append(" ");
+		if (orderBy == null || orderBy.equalsIgnoreCase("")) {
+			orderBy = "default";
+		}
+		query.append(Queries.getQuery(orderBy)).append(" ");
+		if ("desc".equalsIgnoreCase(orderType)) {
+			query.append(Queries.getQuery("order.desc")).append(" ");
+		}
+		query.append(Queries.getQuery("limit.offset")).append(" ");
+		return query.toString();
+	}
+	
+//	private String selectQuery(String searchText, String orderBy, String orderType) throws SQLException {
+/*	private String selectQuery(String searchText, String orderBy, String orderType) {
 		String query;
 		if (orderBy == null) {
 			orderBy = "";
@@ -294,7 +313,7 @@ public class BookDaoImpl implements BookDao{
 			}
 		}
 		return query;
-	}
+	}*/
 
 	@Override
 	public int countBooks(String searchText) throws DaoException{

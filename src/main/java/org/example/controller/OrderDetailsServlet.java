@@ -30,9 +30,10 @@ public class OrderDetailsServlet extends HttpServlet{
 			Order order = OrderService.findOrder(orderId);
 			req.setAttribute(REQ_ATTR_ORDER, order);
 		} catch (DaoException e) {
-			LOG.error(ERROR_MESSAGE);
-			req.getSession().setAttribute("errormessage", ERROR_MESSAGE);
-			req.getRequestDispatcher(Constants.ERROR_SERVLET_MAPPING).forward(req, resp);
+			LOG.error(e);
+			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_ERROR_MESSAGE, ERROR_MESSAGE);
+			resp.sendRedirect(req.getHeader("Referer"));
+			return;
 		}
 		req.getRequestDispatcher(Constants.ORDER_DETAILS_PAGE).forward(req, resp);
 	}

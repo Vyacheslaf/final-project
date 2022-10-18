@@ -42,7 +42,7 @@ public class CancelOrderServlet extends HttpServlet {
 			resp.sendRedirect(Constants.LIBRARIAN_SERVLET_MAPPING);
 		} catch (DaoException e) {
 			LOG.error(CANCEL_ORDER_ERROR_MESSAGE);
-			resp.sendRedirect(Constants.ERROR_SERVLET_MAPPING);
+			resp.sendRedirect(req.getHeader("Referer"));
 //			req.getRequestDispatcher(Constants.ERROR_SERVLET_MAPPING).forward(req, resp);
 		}
 	}

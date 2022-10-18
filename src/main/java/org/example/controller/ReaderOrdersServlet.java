@@ -22,25 +22,22 @@ public class ReaderOrdersServlet extends HttpServlet{
 	private static final long serialVersionUID = 1L;
 	private static final Logger LOG = LogManager.getLogger(GuestServlet.class);
 	private static final String REQ_ATTR_ORDERS = "orders";
-	private static final String GET_ORDER_LIST_ERROR_MESSAGE 
-									= "Cannot get list of orders for user #";
+	private static final String GET_ORDER_LIST_ERROR_MESSAGE = "Cannot get list of orders for user #";
 	
 	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp) 
-										throws ServletException, IOException {
-		User user = (User)req.getSession()
-								.getAttribute(Constants.SESSION_ATTRIBUTE_USER);
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		User user = (User)req.getSession().getAttribute(Constants.SESSION_ATTRIBUTE_USER);
 		List<Order> orders;
 		try {
 			orders = OrderService.getReaderOrders(user);
 			req.setAttribute(REQ_ATTR_ORDERS, orders);
 		} catch (DaoException e) {
-			LOG.error(GET_ORDER_LIST_ERROR_MESSAGE + user.getId());
-			req.getRequestDispatcher(Constants.ERROR_SERVLET_MAPPING)
-															.forward(req, resp);
+			String message = GET_ORDER_LIST_ERROR_MESSAGE + user.getId();
+			LOG.error(message);
+			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_ERROR_MESSAGE, message);
+			resp.sendRedirect(req.getHeader("Referer"));
 			return;
 		}
-		req.getRequestDispatcher(Constants.READER_ORDERS_PAGE)
-			.forward(req, resp);
+		req.getRequestDispatcher(Constants.READER_ORDERS_PAGE).forward(req, resp);
 	}
 }

@@ -19,7 +19,7 @@
         <img alt="Library" src="img/logo.svg">
 	  </a>
 	  <form action="reader" method="get">
-	    <input type="text" name="text" placeholder="Search...">
+	    <input type="text" name="search" placeholder="Search...">
 <!-- 	    <input type="submit" value="Find a book"> -->
 	  </form>
     <a class="active" onclick="document.getElementById('id01').style.display='block'">Sign in</a>
@@ -46,7 +46,8 @@
         </tr>
       </c:forEach>
     </table>
-    <mtl:pagination nextPage="${nextPage}" servletName="reader" previousPage="${prevPage}" currentPage="${page}" searchText="${text}"/>
+    <mtl:pagination nextPage="${nextPage}" previousPage="${prevPage}" currentPage="${page}" 
+    				searchText="${search}" sortBy="${sortBy}" sortType="${sortType}"/>
   
   </div>
   <footer>

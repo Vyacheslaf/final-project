@@ -22,6 +22,7 @@ import org.example.exception.DaoException;
 public class OrderDaoImpl implements OrderDao {
 
 	private static final Logger LOG = LogManager.getLogger(OrderDaoImpl.class);
+	private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 	private static final String QUERY_SELECT_COUNT_ACTIVE_ORDERS = "select.count.active.orders";
 	private static final String QUERY_INSERT_ORDER = "insert.order";
 	private static final String QUERY_SELECT_READER_ORDERS = "select.reader.orders";
@@ -35,6 +36,8 @@ public class OrderDaoImpl implements OrderDao {
 	private static final String QUERY_SELECT_PROCESSED_ORDERS = "select.processed.orders";
 	private static final String QUERY_SELECT_READER_ACTUAL_ORDERS = "select.reader.actual.orders";
 	private static final String QUERY_SELECT_READER_PROCESSED_ORDERS = "select.reader.processed.orders";
+	private static final String QUERY_SELECT_OVERDUE_ORDERS_IDS = "select.overdue.orders.ids";
+	private static final String QUERY_SET_FINE = "set.fine";
 	
 	@Override
 	public Order create(Order order) throws DaoException {
@@ -269,8 +272,8 @@ public class OrderDaoImpl implements OrderDao {
 			DbManager.close(pstmt);
 			k=0;
 			pstmt = con.prepareStatement(Queries.getQuery(QUERY_UPDATE_ORDER_STATE_AND_RETURN_DATE));
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-			pstmt.setString(++k, returnTime.format(formatter));
+//			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+			pstmt.setString(++k, returnTime.format(DATE_TIME_FORMATTER));
 			pstmt.setString(++k, OrderState.PROCESSED.toString().toLowerCase());
 			pstmt.setInt(++k, orderId);
 			pstmt.executeUpdate();
@@ -336,8 +339,8 @@ public class OrderDaoImpl implements OrderDao {
 			DbManager.close(pstmt);
 			k=0;
 			pstmt = con.prepareStatement(Queries.getQuery(QUERY_UPDATE_ORDER_STATE_AND_RETURN_DATE));
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-			pstmt.setString(++k, returnTime.format(formatter));
+//			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+			pstmt.setString(++k, returnTime.format(DATE_TIME_FORMATTER));
 			pstmt.setString(++k, OrderState.COMPLETED.toString().toLowerCase());
 			pstmt.setInt(++k, orderId);
 			pstmt.executeUpdate();
@@ -398,7 +401,7 @@ public class OrderDaoImpl implements OrderDao {
 				orders.add(getOrder(rs));
 			}
 		} catch (SQLException e) {
-			String message = "Cannot get list of order for user #" + userId;
+			String message = "Cannot get list of orders for user #" + userId;
 			LOG.error(e);
 			throw new DaoException(message, e);
 		} finally {
@@ -406,6 +409,50 @@ public class OrderDaoImpl implements OrderDao {
 			DbManager.close(pstmt);
 		}
 		return orders;
+	}
+
+	@Override
+	public List<Integer> getOverdueOrdersIds(LocalDateTime ldt) throws DaoException {
+		List<Integer> overdueOrdersIds = new ArrayList<>();
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		try(Connection con = DbManager.getInstance().getConnection()) {
+			int k = 0;
+			pstmt = con.prepareStatement(Queries.getQuery(QUERY_SELECT_OVERDUE_ORDERS_IDS));
+			pstmt.setString(++k, ldt.format(DATE_TIME_FORMATTER));
+			rs = pstmt.executeQuery();
+			while (rs.next()) {
+				overdueOrdersIds.add(rs.getInt(k));
+			}
+		} catch (SQLException e) {
+			String message = "Cannot get list of overdue orders ids";
+			LOG.error(e);
+			throw new DaoException(message, e);
+		} finally {
+			DbManager.close(rs);
+			DbManager.close(pstmt);
+		}
+		return overdueOrdersIds;
+	}
+
+	@Override
+	public void setFine(int orderId, int fine) throws DaoException {
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		try(Connection con = DbManager.getInstance().getConnection()) {
+			int k = 0;
+			pstmt = con.prepareStatement(Queries.getQuery(QUERY_SET_FINE));
+			pstmt.setInt(++k, fine);
+			pstmt.setInt(++k, orderId);
+			pstmt.executeUpdate();
+		} catch (SQLException e) {
+			String message = "Cannot set fine for order #" + orderId;
+			LOG.error(e);
+			throw new DaoException(message, e);
+		} finally {
+			DbManager.close(rs);
+			DbManager.close(pstmt);
+		}
 	}
 
 	

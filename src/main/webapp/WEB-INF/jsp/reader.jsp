@@ -16,27 +16,67 @@
         <img alt="Library" src="img/logo.svg">
 	  </a>
 	<form action="reader" method="get">
-	  <input type="text" name="text" placeholder="Search...">
+	  <input type="text" name="search" placeholder="Search...">
 	</form>
 <%@include file="/WEB-INF/jspf/reader_menu.jspf" %>  
   </header>
   <div class="main">
     <table class="book-table">
-        <tr class="books-header">
-          <c:if test="${not empty text}">
-          <td class="author"><a href="reader?text=${text}&sortBy=author">Author</a></td>
-          <td class="title"><a href="reader?text=${text}&sortBy=title">Title</a></td>
-          <td class="publication"><a href="reader?text=${text}&sortBy=publication">Publication</a></td>
-          <td class="year"><a href="reader?text=${text}&sortBy=year">Year</a></td>
-          <td class="button"></td>
+      <tr class="books-header">
+        <c:if test="${not empty search}">
+          <c:if test="${sortBy == 'author' && sortType == 'asc'}">
+            <td class="author"><a href="reader?search=${search}&sortBy=author&sortType=desc">Author</a></td>
           </c:if>
-          <c:if test="${empty text}">
-          <td class="author"><a href="reader?sortBy=author">Author</a></td>
-          <td class="title"><a href="reader?sortBy=title">Title</a></td>
-          <td class="publication"><a href="reader?sortBy=publication">Publication</a></td>
-          <td class="year"><a href="reader?sortBy=year">Year</a></td>
-          <td class="button"></td>
+          <c:if test="${sortBy != 'author' || sortType != 'asc'}">
+            <td class="author"><a href="reader?search=${search}&sortBy=author&sortType=asc">Author</a></td>
           </c:if>
+          <c:if test="${sortBy == 'title' && sortType == 'asc'}">
+            <td class="title"><a href="reader?search=${search}&sortBy=title&sortType=desc">Title</a></td>
+          </c:if>
+          <c:if test="${sortBy != 'title' || sortType != 'asc'}">
+            <td class="title"><a href="reader?search=${search}&sortBy=title&sortType=asc">Title</a></td>
+          </c:if>
+          <c:if test="${sortBy == 'publication' && sortType == 'asc'}">
+            <td class="publication"><a href="reader?search=${search}&sortBy=publication&sortType=desc">Publication</a></td>
+          </c:if>
+          <c:if test="${sortBy != 'publication' || sortType != 'asc'}">
+            <td class="publication"><a href="reader?search=${search}&sortBy=publication&sortType=asc">Publication</a></td>
+          </c:if>
+          <c:if test="${sortBy == 'year' && sortType == 'asc'}">
+            <td class="year"><a href="reader?search=${search}&sortBy=year&sortType=desc">Year</a></td>
+          </c:if>
+          <c:if test="${sortBy != 'year' || sortType != 'asc'}">
+            <td class="year"><a href="reader?search=${search}&sortBy=year&sortType=asc">Year</a></td>
+          </c:if>
+          <td class="button"></td>
+        </c:if>
+        <c:if test="${empty search}">
+          <c:if test="${sortBy == 'author' && sortType == 'asc'}">
+            <td class="author"><a href="reader?sortBy=author&sortType=desc">Author</a></td>
+          </c:if>
+          <c:if test="${sortBy != 'author' || sortType != 'asc'}">
+            <td class="author"><a href="reader?sortBy=author&sortType=asc">Author</a></td>
+          </c:if>
+          <c:if test="${sortBy == 'title' && sortType == 'asc'}">
+            <td class="title"><a href="reader?sortBy=title&sortType=desc">Title</a></td>
+          </c:if>
+          <c:if test="${sortBy != 'title' || sortType != 'asc'}">
+            <td class="title"><a href="reader?sortBy=title&sortType=asc">Title</a></td>
+          </c:if>
+          <c:if test="${sortBy == 'publication' && sortType == 'asc'}">
+            <td class="publication"><a href="reader?sortBy=publication&sortType=desc">Publication</a></td>
+          </c:if>
+          <c:if test="${sortBy != 'publication' || sortType != 'asc'}">
+            <td class="publication"><a href="reader?sortBy=publication&sortType=asc">Publication</a></td>
+          </c:if>
+          <c:if test="${sortBy == 'year' && sortType == 'asc'}">
+            <td class="year"><a href="reader?sortBy=year&sortType=desc">Year</a></td>
+          </c:if>
+          <c:if test="${sortBy != 'year' || sortType != 'asc'}">
+            <td class="year"><a href="reader?sortBy=year&sortType=asc">Year</a></td>
+          </c:if>
+          <td class="button"></td>
+        </c:if>
       <c:forEach items="${books}" var="book">
         <tr class="books">
           <td class="center">${book.author}</td>
@@ -60,7 +100,8 @@
         </tr>
       </c:forEach>
     </table>
-    <mtl:pagination nextPage="${nextPage}" servletName="reader" previousPage="${prevPage}" currentPage="${page}" searchText="${text}"/>
+    <mtl:pagination nextPage="${nextPage}" previousPage="${prevPage}" currentPage="${page}" 
+    				searchText="${search}" sortBy="${sortBy}" sortType="${sortType}"/>
 
   </div>
   <footer>

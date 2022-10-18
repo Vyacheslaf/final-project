@@ -19,4 +19,6 @@ public interface OrderDao extends Dao<Order> {
 	void completeOrder(int id, LocalDateTime returnTime) throws DaoException;
 	List<Order> getUserActualOrders(int userId) throws DaoException;
 	List<Order> getUserProcessedOrders(int userId) throws DaoException;
+	List<Integer> getOverdueOrdersIds(LocalDateTime ldt) throws DaoException;
+	void setFine(int orderId, int fine) throws DaoException;
 }

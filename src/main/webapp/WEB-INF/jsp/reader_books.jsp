@@ -57,7 +57,6 @@
       </c:forEach>
     </table>
     </c:if>
-    <mtl:pagination nextPage="${nextPage}" servletName="reader" previousPage="${prevPage}" currentPage="${page}" searchText="${text}"/>
   
   </div>
   <footer>

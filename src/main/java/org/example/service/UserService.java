@@ -15,6 +15,8 @@ import org.example.entity.UserRole;
 import org.example.exception.DaoException;
 import org.example.exception.ServiceException;
 
+import static org.example.Config.*;
+
 public class UserService {
 
 	private static final Logger LOG = LogManager.getLogger(UserService.class);
@@ -30,7 +32,7 @@ public class UserService {
 
 	public static User register(HttpServletRequest req) throws DaoException {
 		User user = getUser(req);
-		DaoFactory daoFactory = DaoFactory.getDaoFactory(Config.DAO_NAME);
+		DaoFactory daoFactory = DaoFactory.getDaoFactory(DAO_NAME);
 		UserDao userDao = daoFactory.getUserDao();
 		user = userDao.create(user);
 		return user;

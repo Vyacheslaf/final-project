@@ -12,6 +12,8 @@ import org.example.entity.Order;
 import org.example.entity.User;
 import org.example.exception.DaoException;
 
+import static org.example.Config.*;
+
 public class OrderService {
 
 	public static boolean createOrder(String bookId, User user) throws DaoException {
@@ -99,5 +101,15 @@ public class OrderService {
 		DaoFactory daoFactory = DaoFactory.getDaoFactory(Config.DAO_NAME);
 		OrderDao orderDao = daoFactory.getOrderDao();
 		return orderDao.getUserProcessedOrders(userId);
+	}
+
+	public static void setFineForOverdueOrders() throws DaoException {
+		LocalDateTime ldt = LocalDate.now(ZONE_ID).atStartOfDay();
+		OrderDao orderDao = DAO_FACTORY.getOrderDao();
+		List<Integer> overdueOrdersIds = orderDao.getOverdueOrdersIds(ldt);
+		for (Integer id : overdueOrdersIds) {
+			orderDao.setFine(id.intValue(), FINE);
+		}
+//		overdueOrdersIds.forEach(id -> orderDao.setFine(id.intValue(), FINE));
 	}
 }

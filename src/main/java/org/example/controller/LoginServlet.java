@@ -19,7 +19,7 @@ import org.example.service.UserService;
 public class LoginServlet extends HttpServlet{
 	
 	private static final long serialVersionUID = 1L;
-	private static final Logger LOGGER = LogManager.getLogger(LoginServlet.class);
+	private static final Logger LOG = LogManager.getLogger(LoginServlet.class);
 	private static final Object ERROR_MESSAGE = "Cannot find a user";
 
 	@Override
@@ -29,9 +29,9 @@ public class LoginServlet extends HttpServlet{
 			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_USER,	user);
 			resp.sendRedirect(req.getRequestURI());
 		} catch (DaoException e) {
-			LOGGER.error(e.getMessage());
-			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_ERROR, ERROR_MESSAGE);
-			resp.sendRedirect(Constants.ERROR_SERVLET_MAPPING);
+			LOG.error(e);
+			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_ERROR_MESSAGE, ERROR_MESSAGE);
+			resp.sendRedirect(req.getHeader("Referer"));
 		}
 	}
 	
