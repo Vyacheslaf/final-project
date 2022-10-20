@@ -272,7 +272,6 @@ public class OrderDaoImpl implements OrderDao {
 			DbManager.close(pstmt);
 			k=0;
 			pstmt = con.prepareStatement(Queries.getQuery(QUERY_UPDATE_ORDER_STATE_AND_RETURN_DATE));
-//			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 			pstmt.setString(++k, returnTime.format(DATE_TIME_FORMATTER));
 			pstmt.setString(++k, OrderState.PROCESSED.toString().toLowerCase());
 			pstmt.setInt(++k, orderId);
@@ -339,7 +338,6 @@ public class OrderDaoImpl implements OrderDao {
 			DbManager.close(pstmt);
 			k=0;
 			pstmt = con.prepareStatement(Queries.getQuery(QUERY_UPDATE_ORDER_STATE_AND_RETURN_DATE));
-//			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 			pstmt.setString(++k, returnTime.format(DATE_TIME_FORMATTER));
 			pstmt.setString(++k, OrderState.COMPLETED.toString().toLowerCase());
 			pstmt.setInt(++k, orderId);

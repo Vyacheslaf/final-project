@@ -22,12 +22,12 @@ public class Constants {
 	public static final String READER_HOME_PAGE = "/WEB-INF/jsp/reader.jsp";
 	public static final String READER_ORDERS_PAGE = "/WEB-INF/jsp/reader_orders.jsp";
 	public static final String READER_BOOKS_PAGE = "/WEB-INF/jsp/reader_books.jsp";
-	public static final String LIBRARIAN_HOME_PAGE = "/WEB-INF/jsp/librarian.jsp";
-	public static final String ADMIN_HOME_PAGE = "/WEB-INF/jsp/admin.jsp";
-	public static final String LOGIN_PAGE = "/WEB-INF/jsp/login.jsp";
+	public static final String LIBRARIAN_HOME_PAGE = "/WEB-INF/jsp/librarian_orders.jsp";
+	public static final String ADMIN_HOME_PAGE = "/WEB-INF/jsp/manage_books.jsp";
+//	public static final String LOGIN_PAGE = "/WEB-INF/jsp/login.jsp";
 	public static final String ERROR_PAGE = "/WEB-INF/jsp/error.jsp";
 	public static final String ORDER_DETAILS_PAGE = "/WEB-INF/jsp/order_details.jsp";
-	public static final String LIBRARIAN_LIST_READERS_PAGE = "/WEB-INF/jsp/librarian_list_readers.jsp";
+	public static final String LIBRARIAN_LIST_READERS_PAGE = "/WEB-INF/jsp/librarian_readers.jsp";
 	public static final String READER_DETAILS_PAGE = "/WEB-INF/jsp/reader_details.jsp";
 	public static final String BOOK_DETAILS_PAGE = "/WEB-INF/jsp/book_details.jsp";
 	public static final String MANAGE_LIBRARIANS_PAGE = "/WEB-INF/jsp/manage_librarians.jsp";

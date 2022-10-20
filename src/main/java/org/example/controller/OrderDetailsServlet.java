@@ -11,6 +11,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.example.entity.Order;
+import org.example.entity.User;
+import org.example.entity.UserRole;
 import org.example.exception.DaoException;
 import org.example.service.OrderService;
 
@@ -23,8 +25,12 @@ public class OrderDetailsServlet extends HttpServlet{
 	private static final String REQ_ATTR_ORDER = "order";
 
 	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp) 
-										throws ServletException, IOException {
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		User user = (User) req.getSession().getAttribute(Constants.SESSION_ATTRIBUTE_USER);
+		if (user == null || !user.getRole().equals(UserRole.LIBRARIAN)) {
+			resp.sendRedirect(Constants.START_PAGE);
+			return;
+		}
 		int orderId = Integer.parseInt(req.getParameter("orderid"));
 		try {
 			Order order = OrderService.findOrder(orderId);

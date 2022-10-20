@@ -25,7 +25,7 @@ public class InitServletListener implements ServletContextListener{
 	
 	private static final Logger LOG = LogManager.getLogger(InitServletListener.class);
 	private static final Timer PENALTY_TIMER = new Timer();
-	private static final String LOCALES_PATH = "locales/locales.properties";
+	private static final String LOCALES_PATH = "i18n/locales.properties";
 	private static final String CANNOT_FIND_ERROR_MESSAGE = "Cannot find property file";
 	private static final String CANNOT_LOAD_ERROR_MESSAGE = "Unable to load property file";
 	private static final String CONTEXT_ATTR_LOCALES = "locales";

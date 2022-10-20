@@ -16,22 +16,20 @@ public class PaginationTag extends TagSupport{
 //	private String servletName;
 	private String sortBy;
 	private String sortType;
+	private String nextButtonText;
+	private String previousButtonText;
 	
-	public String getSearchText() {
+/*	public String getSearchText() {
 		return searchText;
 	}
 
-/*	public String getServletName() {
+	public String getServletName() {
 		return servletName;
-	}*/
-
-	public void setSearchText(String searchText) {
-		this.searchText = searchText;
 	}
 
-/*	public void setServletName(String servletName) {
+	public void setServletName(String servletName) {
 		this.servletName = servletName;
-	}*/
+	}
 
 	public int getCurrentPage() {
 		return currentPage;
@@ -44,7 +42,27 @@ public class PaginationTag extends TagSupport{
 	public int getPreviousPage() {
 		return previousPage;
 	}
-	
+
+	public String getSortType() {
+		return sortType;
+	}
+
+	public String getSortBy() {
+		return sortBy;
+	}
+
+	public String getNextButtonText() {
+		return nextButtonText;
+	}
+
+	public String getPreviousButtonText() {
+		return previousButtonText;
+	}
+	*/
+	public void setSearchText(String searchText) {
+		this.searchText = searchText;
+	}
+
 	public void setCurrentPage(int currentPage) {
 		this.currentPage = currentPage;
 	}
@@ -55,6 +73,22 @@ public class PaginationTag extends TagSupport{
 	
 	public void setPreviousPage(int previousPage) {
 		this.previousPage = previousPage;
+	}
+
+	public void setSortType(String sortType) {
+		this.sortType = sortType;
+	}
+
+	public void setSortBy(String sortBy) {
+		this.sortBy = sortBy;
+	}
+
+	public void setNextButtonText(String nextButtonText) {
+		this.nextButtonText = nextButtonText;
+	}
+
+	public void setPreviousButtonText(String previousButtonText) {
+		this.previousButtonText = previousButtonText;
 	}
 
 	@Override
@@ -85,7 +119,7 @@ public class PaginationTag extends TagSupport{
 //				out.print("<td><a href=\"" + servletName + "?");//text=");
 				out.print("<td><a href=\"reader?");//text=");
 				out.print(insertSearchText + "page=");
-				out.println(previousPage + "\">Previous page</a></td>");
+				out.println(previousPage + "\">" + previousButtonText + "</a></td>");
 			}
 			if (currentPage == nextPage) {
 				out.println("<td></td>");
@@ -93,7 +127,7 @@ public class PaginationTag extends TagSupport{
 //				out.print("<td class=\"right\"><a href=\"" + servletName);
 				out.print("<td class=\"right\"><a href=\"reader?");
 				out.print(insertSearchText + "page=");
-				out.println(nextPage + "\">Next page</a></td>");
+				out.println(nextPage + "\">" + nextButtonText + "</a></td>");
 			}
 			out.println("</tr>");
 			out.println("</table>");
@@ -101,22 +135,6 @@ public class PaginationTag extends TagSupport{
 			e.printStackTrace();
 		}
 		return SKIP_BODY;
-	}
-
-	public String getSortType() {
-		return sortType;
-	}
-
-	public void setSortType(String sortType) {
-		this.sortType = sortType;
-	}
-
-	public String getSortBy() {
-		return sortBy;
-	}
-
-	public void setSortBy(String sortBy) {
-		this.sortBy = sortBy;
 	}
 
 	

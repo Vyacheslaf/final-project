@@ -26,19 +26,19 @@
       </header>
       <div class="main">
         <div class="modal-content-bookinfo">
-          <form action="changebook" method="post">
+          <form action="addbook" method="post">
             <div class="container">
               <table class="bookinfo-table">
                 <tr>
                   <td class="right-field">ISBN:</td>
-                  <td><input type="text" name="isbn" id="isbn" value="${requestScope.book.isbn}" required></td>
+                  <td><input type="text" name="isbn" id="isbn" required></td>
                 </tr>
                 <tr>
                   <td class="right"><fmt:message key='author'/>:</td>
                   <td>
-                    <input list="author-list" name="author" id="author" class="datalist-field" value="${requestScope.book.author}" required>
+                    <input list="author-list" name="author" id="author" class="datalist-field" required>
                     <datalist id="author-list">
-                      <c:forEach items="${requestScope.authors}" var="author">
+                      <c:forEach items="${authors}" var="author">
                         <option value="${author.fullName}">
                       </c:forEach>
                     </datalist>
@@ -46,14 +46,14 @@
                 </tr>
                 <tr>
                   <td class="right"><fmt:message key='title'/>:</td>
-                  <td><input type="text" name="title" id="title" value="${requestScope.book.title}" required></td>
+                  <td><input type="text" name="title" id="title" required></td>
                 </tr>
                 <tr>
                   <td class="right"><fmt:message key='publication'/>:</td>
                   <td>
-                    <input list="publications-list" name="publication" id="publication" class="datalist-field" value="${requestScope.book.publication}" required>
+                    <input list="publications-list" name="publication" id="publication" class="datalist-field" required>
                     <datalist id="publications-list">
-                      <c:forEach items="${requestScope.publications}" var="publisher">
+                      <c:forEach items="${publications}" var="publisher">
                         <option value="${publisher.publicationName}">
                       </c:forEach>
                     </datalist>
@@ -61,27 +61,16 @@
                 </tr>
                 <tr>
                   <td class="right"><fmt:message key='publication.year'/>:</td>
-                  <td>
-                    <input type="number" name="year" id="year" class="number-field" value="${requestScope.book.publicationYear}" required>
-                  </td>
+                  <td><input type="number" name="year" id="year" class="number-field" required></td>
                 </tr>
                 <tr>
                   <td class="right"><fmt:message key='quantity'/>:</td>
-                  <td>
-                    <input type="number" name="quantity" id="quantity" class="number-field" value="${requestScope.book.quantity}" required>
-                  </td>
+                  <td><input type="number" name="quantity" id="quantity" class="number-field" required></td>
                 </tr>
               </table>
               <br>
               <br>
-              <input type="hidden" name="bookid" value="${requestScope.book.id}" >
-              <button type="submit" id="changebookbtn" class="changebook"><fmt:message key='save.book'/></button>
-            </div>
-          </form>
-          <form action="deletebook" method="post">
-            <div class="container">
-              <input type="hidden" name="bookid" value="${requestScope.book.id}" >
-              <button type="submit" id="deletebookbtn" class="deletebook"><fmt:message key='delete.book'/></button>
+              <button type="submit" id="addbookbtn" class="book"><fmt:message key='add.book'/></button>
             </div>
           </form>
         </div>
@@ -89,9 +78,9 @@
       <footer>
         <div></div>
         <div>
-          <a href="?isbn=${requestScope.book.isbn}&lang=en">english</a>
+          <a href="?lang=en">english</a>
           | 
-          <a href="?isbn=${requestScope.book.isbn}&lang=uk">українська</a>
+          <a href="?lang=uk">українська</a>
         </div>
         <div></div>
       </footer>

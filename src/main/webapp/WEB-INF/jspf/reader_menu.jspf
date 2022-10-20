@@ -1,9 +1,11 @@
- 	<div class="dropdown">
-      <a class="logout">Menu</a>
-	  <div class="dropdown-content">
-	    <a href="readerorders">My orders</a>
-	    <a href="readerbooks">My books</a>
-	    <a onclick="document.getElementById('id02').style.display='block'">My info</a>
-	    <a href="logout">Sign out</a>
-	  </div>
-    </div>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+ 	
+<div class="dropdown">
+  <a class="logout"><fmt:message key="menu"/></a>
+  <div class="dropdown-content">
+    <a href="readerorders"><fmt:message key="my.orders"/></a>
+    <a href="readerbooks"><fmt:message key="my.books"/></a>
+    <a onclick="document.getElementById('id02').style.display='block'"><fmt:message key="my.info"/></a>
+    <a href="logout"><fmt:message key="logout"/></a>
+  </div>
+</div>

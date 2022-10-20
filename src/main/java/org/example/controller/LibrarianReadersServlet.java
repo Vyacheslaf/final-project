@@ -13,6 +13,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.example.entity.Order;
 import org.example.entity.User;
+import org.example.entity.UserRole;
 import org.example.exception.DaoException;
 import org.example.service.OrderService;
 
@@ -27,7 +28,7 @@ public class LibrarianReadersServlet extends HttpServlet{
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		User user = (User) req.getSession().getAttribute(Constants.SESSION_ATTRIBUTE_USER);
-		if (user == null) {
+		if (user == null || !user.getRole().equals(UserRole.LIBRARIAN)) {
 			resp.sendRedirect(Constants.START_PAGE);
 			return;
 		}

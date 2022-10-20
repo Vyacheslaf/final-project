@@ -1,9 +1,11 @@
- 	<div class="dropdown">
-      <a class="logout">Menu</a>
-	  <div class="dropdown-content">
-	    <a href="admin">Manage books</a>
-	    <a href="managereaders">Manage readers</a>
-	    <a href="managelibrarians">Manage librarians</a>
-	    <a href="logout">Sign out</a>
-	  </div>
-    </div>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+
+<div class="dropdown">
+  <a class="logout"><fmt:message key="menu" /></a>
+  <div class="dropdown-content">
+    <a href="admin"><fmt:message key="manage.books" /></a> 
+	<a href="managereaders"><fmt:message key="manage.readers" /></a> 
+	<a href="managelibrarians"><fmt:message key="manage.librarians" /></a> 
+	<a href="logout"><fmt:message key="logout" /></a>
+  </div>
+</div>

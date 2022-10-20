@@ -13,6 +13,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.example.entity.Book;
+import org.example.entity.User;
+import org.example.entity.UserRole;
 import org.example.exception.DaoException;
 import org.example.service.BookService;
 
@@ -25,6 +27,11 @@ public class ReaderServlet extends HttpServlet{
 	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		User user = (User) req.getSession().getAttribute(Constants.SESSION_ATTRIBUTE_USER);
+		if (user != null && !user.getRole().equals(UserRole.READER)) {
+			resp.sendRedirect(Constants.START_PAGE);
+			return;
+		}
 		String text = req.getParameter("search");
 		int page = BookService.getPageNumber(req);
 		int booksCount = 0;
@@ -33,9 +40,10 @@ public class ReaderServlet extends HttpServlet{
 			booksCount = BookService.getBooksCount(req);
 			books = BookService.findBooks(req, page);
 		} catch (DaoException e) {
-			LOG.error(e.getMessage());
+			LOG.error(e);
 			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_ERROR_MESSAGE, ERROR_MESSAGE);
-			resp.sendRedirect(req.getHeader("Referer"));
+//			resp.sendRedirect(req.getHeader("Referer"));
+			resp.sendRedirect(Constants.ERROR_PAGE);
 			return;
 		}
 		req.setAttribute("search", text);
@@ -43,7 +51,7 @@ public class ReaderServlet extends HttpServlet{
 		req.setAttribute("nextPage", BookService.getNextPage(page, booksCount));
 		req.setAttribute("prevPage", BookService.getPrevPage(page));
 		req.setAttribute("page", page);
-		if (req.getSession().getAttribute(Constants.SESSION_ATTRIBUTE_USER) == null) {
+		if (user == null) {
 			req.getRequestDispatcher(Constants.GUEST_HOME_PAGE).forward(req, resp);
 		} else {
 			req.getRequestDispatcher(Constants.READER_HOME_PAGE).forward(req, resp);

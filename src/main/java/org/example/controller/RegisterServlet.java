@@ -19,12 +19,17 @@ import org.example.service.UserService;
 public class RegisterServlet extends HttpServlet{
 	
 	private static final long serialVersionUID = 1L;
-	private static final Logger LOG = LogManager.getLogger(GuestServlet.class);
+	private static final Logger LOG = LogManager.getLogger(RegisterServlet.class);
 
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		User user = (User) req.getSession().getAttribute(Constants.SESSION_ATTRIBUTE_USER);
+		if (user != null && !user.getRole().equals(UserRole.ADMIN)) {
+			resp.sendRedirect(Constants.START_PAGE);
+			return;
+		}
 		try {
-			User user = UserService.register(req);
+			user = UserService.register(req);
 			if (user.getRole().equals(UserRole.READER)) {
 				req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_USER, user);
 				resp.sendRedirect("login");

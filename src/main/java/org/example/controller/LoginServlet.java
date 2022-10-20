@@ -37,13 +37,10 @@ public class LoginServlet extends HttpServlet{
 	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-
 		User user = (User) req.getSession().getAttribute(Constants.SESSION_ATTRIBUTE_USER);
-		if (Objects.nonNull(user)) {
-			req.getRequestDispatcher(Constants.START_PAGE).forward(req, resp);
-			return;
+		if (Objects.isNull(user)) {
+			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_ERROR_MESSAGE, ERROR_MESSAGE);
 		}
-		req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_ERROR, ERROR_MESSAGE);
-		req.getRequestDispatcher(Constants.LOGIN_PAGE).forward(req, resp);
+		req.getRequestDispatcher(Constants.START_PAGE).forward(req, resp);
 	}
 }

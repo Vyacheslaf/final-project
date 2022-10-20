@@ -1,18 +1,20 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
-  <c:if test="${not empty sessionScope.errormessage}">
+<c:if test="${not empty sessionScope.errormessage}">
   <div id="error" class="modal-error">
     <div class="modal-content">
       <div class="container" style="background-color:#f1f1f1"></div>
       <div class="container" style="background-color:#f1f1f1">
-      <div class="pass-center" style="background-color:#f1f1f1">
-      	${sessionScope.errormessage}
-        <c:remove var="errormessage" scope="session"/>
-      </div>
+        <div class="pass-center" style="background-color:#f1f1f1">
+      	  ${sessionScope.errormessage}
+          <c:remove var="errormessage" scope="session"/>
+        </div>
       </div>
       <div class="container" style="background-color:#f1f1f1">
-        <button type="button" onclick="document.getElementById('error').style.display='none'" class="errorbtn">Ok</button>
+        <button type="button" onclick="document.getElementById('error').style.display='none'" class="errorbtn">
+          Ok
+        </button>
       </div>
     </div>
   </div> 
-  </c:if>
+</c:if>

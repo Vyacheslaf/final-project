@@ -29,11 +29,12 @@ public class FindReaderServlet extends HttpServlet{
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		User user = (User)req.getSession().getAttribute(Constants.SESSION_ATTRIBUTE_USER);
-		if (user == null) {
+		if (user == null || user.getRole().equals(UserRole.READER)) {
 			req.getRequestDispatcher(Constants.START_PAGE).forward(req, resp);
 			return;
 		}
 		String phoneNumber = req.getParameter(REQ_ATTR_PHONE_NUMBER);
+		req.setAttribute(REQ_ATTR_PHONE_NUMBER, req.getParameter(REQ_ATTR_PHONE_NUMBER));
 		try {
 			User reader = UserService.findUserByPhone(phoneNumber);
 			if (reader == null) {

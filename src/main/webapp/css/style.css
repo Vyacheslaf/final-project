@@ -201,10 +201,10 @@ td.order-right {
 	padding: 6px 11px;
 }
 button.givebook-active {
-	background-color: #00ce00;
+	background-color: #008000;
 }
 button.cancelorder {
-	background-color: #f44336;
+	background-color: #bb0000;
 }
 
 a.menu {
@@ -215,7 +215,7 @@ a.menu {
 	padding-left: 10px;
 }
 .blocked-account {
-	color: red;
+	color: #bb0000;
 }
 input.number-field,
 input.datalist-field {
@@ -305,7 +305,7 @@ button[disabled]{
         width: 92%;
     }
     button.changebook {
-        background-color: #00ce00;
+        background-color: #008000;
         color: white;
         padding: 14px 50px;
         margin: 8px 32px;
@@ -314,7 +314,7 @@ button[disabled]{
         width: 92%;
     }
     button.deletebook {
-        background-color: #f44336;
+        background-color: #bb0000;
         color: white;
         padding: 14px 50px;
         margin: 8px 32px;
@@ -331,7 +331,7 @@ button[disabled]{
     button.unblockuser {
 	  width: auto;
   	  padding: 10px 18px;
-  	  background-color: #00ce00;
+  	  background-color: #008000;
       cursor: pointer;
     }
    
@@ -344,13 +344,13 @@ button[disabled]{
     .cancelbtn {
         width: auto;
         padding: 10px 18px;
-        background-color: #f44336;
+        background-color: #bb0000;
     }
     .errorbtn {
-        background-color: #f44336;
+        background-color: #bb0000;
     }
     .infobtn {
-        background-color: #00ce00;
+        background-color: #008000;
     }
    
     /*set padding to the container*/
@@ -444,7 +444,7 @@ button[disabled]{
      
     .close:hover,
     .close:focus {
-        color: red;
+        color: #bb0000;
         cursor: pointer;
     }
 

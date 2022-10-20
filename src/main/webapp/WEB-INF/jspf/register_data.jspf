@@ -1,38 +1,40 @@
-  <div id="id02" class="modal">
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+  
+<div id="id02" class="modal">
   <div class="modal-content-userinfo">
     <form action="changedata" method="post">
       <div class="container">
-      <table>
-        <tr>
-          <td class="right">E-mail:</td>
-          <td><input type="email" value="${sessionScope.user.email}" name="email" id="email" onkeyup='checkData();' required></td>
-        </tr>
-        <tr>
-          <td class="right">First Name:</td>
-          <td><input type="text" value="${sessionScope.user.firstName}" name="firstname" id="firstname" onkeyup='checkData();' required></td>
-        </tr>
-        <tr>
-          <td class="right">Last Name:</td>
-          <td><input type="text" value="${sessionScope.user.lastName}" name="lastname" id="lastname" onkeyup='checkData();' required></td>
-        </tr>
-        <tr>
-          <td class="right">Phone Number:</td>
-          <td><input type="text" value="${sessionScope.user.phoneNumber}" name="phone" id="phone" onkeyup='checkData();' required></td>
-        </tr>
-        <tr>
-          <td class="right">Document Number:</td>
-          <td><input type="text" value="${sessionScope.user.passportNumber}" name="passport" id="passport" onkeyup='checkData();' required></td>
-        </tr>
-      </table>
+        <table>
+          <tr>
+            <td class="right"><fmt:message key='email'/>:</td>
+            <td><input type="email" value="${sessionScope.user.email}" name="email" id="email" onkeyup='checkData();' required></td>
+          </tr>
+          <tr>
+            <td class="right"><fmt:message key='firstname'/>:</td>
+            <td><input type="text" value="${sessionScope.user.firstName}" name="firstname" id="firstname" onkeyup='checkData();' required></td>
+          </tr>
+          <tr>
+            <td class="right"><fmt:message key='lastname'/>:</td>
+            <td><input type="text" value="${sessionScope.user.lastName}" name="lastname" id="lastname" onkeyup='checkData();' required></td>
+          </tr>
+          <tr>
+            <td class="right"><fmt:message key='phone'/>:</td>
+            <td><input type="text" value="${sessionScope.user.phoneNumber}" name="phone" id="phone" onkeyup='checkData();' required></td>
+          </tr>
+          <tr>
+            <td class="right"><fmt:message key='document'/>:</td>
+            <td><input type="text" value="${sessionScope.user.passportNumber}" name="passport" id="passport" onkeyup='checkData();' required></td>
+          </tr>
+        </table>
         <input type="hidden" name="id" value="${sessionScope.user.id}" >
         <input type="hidden" name="password" value="${sessionScope.user.password}" >
-        <button type="submit" id="databtn">Change register data</button>
+        <button type="submit" id="databtn"><fmt:message key='change.register.data'/></button>
       </div>
     </form>
     <form action="changepass" method="post">
       <div class="container">
-        <input class="pass-center" type="password" placeholder="Enter new password" name="password" id="password" onkeyup='checkPass();' required>
-        <input class="pass-center" type="password" placeholder="Confirm new password" name="confirm" id="confirm" onkeyup='checkPass();' required>
+        <input class="pass-center" type="password" placeholder="<fmt:message key='enter.new.password'/>" name="password" id="password" onkeyup='checkPass();' required>
+        <input class="pass-center" type="password" placeholder="<fmt:message key='confirm.new.password'/>" name="confirm" id="confirm" onkeyup='checkPass();' required>
         <span id='message' class="center"></span>
         <input type="hidden" name="id" value="${sessionScope.user.id}" >
         <input type="hidden" value="${sessionScope.user.email}" name="email" >
@@ -40,11 +42,11 @@
         <input type="hidden" value="${sessionScope.user.lastName}" name="lastname" >
         <input type="hidden" value="${sessionScope.user.phoneNumber}" name="phone" >
         <input type="hidden" value="${sessionScope.user.passportNumber}" name="passport" >
-        <button type="submit" id="passbtn">Change password</button>
+        <button type="submit" id="passbtn"><fmt:message key='change.password'/></button>
       </div>
     </form>
-    </div>
-  </div> 
+  </div>
+</div> 
 
 <script src="js/modal_close.js"></script>
 <script src="js/input_checks.js"></script>
