@@ -38,26 +38,7 @@ public class Queries {
 		}
 	}
 
-/*	private static synchronized Properties getQueries() throws SQLException {
-		try (InputStream inputStream = Queries.class.getClassLoader().getResourceAsStream(propFileName)) {
-			if (inputStream == null) {
-				LOG.error(CANNOT_FIND_ERROR_MESSAGE);
-				throw new SQLException(CANNOT_FIND_ERROR_MESSAGE + propFileName);
-			}
-			if (properties == null) {
-				properties = new Properties();
-			}
-			properties.load(inputStream);
-		} catch (IOException e) {
-			LOG.error(CANNOT_LOAD_ERROR_MESSAGE);
-			throw new SQLException(CANNOT_LOAD_ERROR_MESSAGE + propFileName, e);
-		}
-		return properties;
-	}*/
-
-//	public static String getQuery(String query) throws SQLException {
-	public static String getQuery(String query) {
-//		return getQueries().getProperty(query);
+	public String getQuery(String query) {
 		return properties.getProperty(query);
 	}
 

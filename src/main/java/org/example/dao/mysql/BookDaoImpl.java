@@ -17,26 +17,8 @@ import org.example.exception.DaoException;
 public class BookDaoImpl implements BookDao{
 
 	private static final Logger LOG = LogManager.getLogger(BookDaoImpl.class);
-//	private static final String QUERY_SELECT_ALL_BOOKS_WITH_LIMITS = "select.all.books.with.limits";
-//	private static final String QUERY_SELECT_BOOKS_BY_AUTHOR_TITLE = "select.books.by.author.title";
 	private static final String QUERY_COUNT_ALL_BOOKS = "select.count.all.books";
 	private static final String QUERY_COUNT_BOOKS_FROM_SEARCH = "select.count.books.from.search";
-//	private static final String QUERY_SELECT_ALL_BOOKS_ORDER_BY_AUTHOR = "select.all.books.order.by.author";
-//	private static final String QUERY_SELECT_ALL_BOOKS_ORDER_BY_TITLE = "select.all.books.order.by.title";
-//	private static final String QUERY_SELECT_ALL_BOOKS_ORDER_BY_PUBLICATION = "select.all.books.order.by.publication";
-//	private static final String QUERY_SELECT_ALL_BOOKS_ORDER_BY_YEAR = "select.all.books.order.by.year";
-//	private static final String QUERY_SEARCH_BOOKS_ORDER_BY_AUTHOR = "search.books.order.by.author";
-//	private static final String QUERY_SEARCH_BOOKS_ORDER_BY_TITLE = "search.books.order.by.title";
-//	private static final String QUERY_SEARCH_BOOKS_ORDER_BY_PUBLICATION = "search.books.order.by.publication";
-//	private static final String QUERY_SEARCH_BOOKS_ORDER_BY_YEAR = "search.books.order.by.year";
-//	private static final String QUERY_SELECT_ALL_BOOKS_ORDER_BY_AUTHOR_DESC = "select.all.books.order.by.author.desc";
-//	private static final String QUERY_SELECT_ALL_BOOKS_ORDER_BY_TITLE_DESC = "select.all.books.order.by.title.desc";
-//	private static final String QUERY_SELECT_ALL_BOOKS_ORDER_BY_PUBLICATION_DESC = "select.all.books.order.by.publication.desc";
-//	private static final String QUERY_SELECT_ALL_BOOKS_ORDER_BY_YEAR_DESC = "select.all.books.order.by.year.desc";
-//	private static final String QUERY_SEARCH_BOOKS_ORDER_BY_AUTHOR_DESC = "search.books.order.by.author.desc";
-//	private static final String QUERY_SEARCH_BOOKS_ORDER_BY_TITLE_DESC = "search.books.order.by.title.desc";
-//	private static final String QUERY_SEARCH_BOOKS_ORDER_BY_PUBLICATION_DESC = "search.books.order.by.publication.desc";
-//	private static final String QUERY_SEARCH_BOOKS_ORDER_BY_YEAR_DESC = "search.books.order.by.year.desc";
 	private static final String QUERY_INSERT_BOOK = "insert.book";
 	private static final String QUERY_SELECT_BOOK_BY_ISBN = "select.book.by.isbn";
 	private static final String QUERY_SELECT_COUNT_BOOK_ON_SUBSCRIPTION = "select.count.books.on.subscription.by.id";
@@ -46,11 +28,15 @@ public class BookDaoImpl implements BookDao{
 	
 	@Override
 	public Book create(Book book) throws DaoException {
+		return create(DbManager.getInstance().getConnection(), book);
+	}
+	
+	static Book create(Connection con, Book book) throws DaoException {
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
-		try(Connection con = DbManager.getInstance().getConnection()) {
+		try {
 			int k = 0;
-			pstmt = con.prepareStatement(Queries.getQuery(QUERY_INSERT_BOOK));
+			pstmt = con.prepareStatement(Queries.getInstance().getQuery(QUERY_INSERT_BOOK));
 			pstmt.setString(++k, book.getAuthor());
 			pstmt.setString(++k, book.getTitle());
 			pstmt.setString(++k, book.getPublication());
@@ -67,29 +53,50 @@ public class BookDaoImpl implements BookDao{
 			LOG.error(e);
 			throw new DaoException(message, e);
 		} finally {
-			DbManager.close(rs);
-			DbManager.close(pstmt);
+			DbManager.closeResources(con, pstmt, rs);
 		}
 		return book;
 	}
 
 	@Override
-	public Book find(Book entity) throws DaoException {
-		// TODO Auto-generated method stub
-		return null;
+	public Book find(Book book) throws DaoException {
+		return find(DbManager.getInstance().getConnection(), book);
 	}
 
-	@Override
-	public void update(Book book) throws DaoException {
-		Connection con = null;
+	static Book find(Connection con, Book book) throws DaoException {
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		try {
-			con = DbManager.getInstance().getConnection();
+			int k = 0;
+			pstmt = con.prepareStatement(Queries.getInstance().getQuery(QUERY_SELECT_BOOK_BY_ISBN));
+			pstmt.setString(++k, book.getIsbn());
+			rs = pstmt.executeQuery();
+			if (rs.next()) {
+				return getBook(rs);
+			}
+			return null;
+		} catch (SQLException e) {
+			String message = "Cannot get data from database";
+			LOG.error(message);
+			throw new DaoException(message, e);
+		} finally {
+			DbManager.closeResources(con, pstmt, rs);
+		}
+	}
+	
+	@Override
+	public void update(Book book) throws DaoException {
+		update(DbManager.getInstance().getConnection(), book);
+	}
+
+	static void update(Connection con, Book book) throws DaoException {
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		try {
 			con.setAutoCommit(false);
 			con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
 			int k = 0;
-			pstmt = con.prepareStatement(Queries.getQuery(QUERY_SELECT_BOOK_BY_ID));
+			pstmt = con.prepareStatement(Queries.getInstance().getQuery(QUERY_SELECT_BOOK_BY_ID));
 			pstmt.setInt(++k, book.getId());
 			rs = pstmt.executeQuery();
 			if (!rs.next()) {
@@ -107,7 +114,7 @@ public class BookDaoImpl implements BookDao{
 			book.setAvailable(available);
 			k = 0;
 			DbManager.close(pstmt);
-			pstmt = con.prepareStatement(Queries.getQuery(QUERY_UPDATE_BOOK));
+			pstmt = con.prepareStatement(Queries.getInstance().getQuery(QUERY_UPDATE_BOOK));
 			pstmt.setString(++k, book.getAuthor());
 			pstmt.setString(++k, book.getTitle());
 			pstmt.setString(++k, book.getPublication());
@@ -124,23 +131,23 @@ public class BookDaoImpl implements BookDao{
 			LOG.error(e);
 			throw new DaoException(message, e);
 		} finally {
-			DbManager.close(rs);
-			DbManager.close(pstmt);
-			DbManager.close(con);
+			DbManager.closeResources(con, pstmt, rs);
 		}
 	}
 
 	@Override
 	public void remove(Book book) throws DaoException {
-		Connection con = null;
+		remove(DbManager.getInstance().getConnection(), book);
+	}
+
+	static void remove(Connection con, Book book) throws DaoException {
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		try {
-			con = DbManager.getInstance().getConnection();
 			con.setAutoCommit(false);
 			con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
 			int k = 0;
-			pstmt = con.prepareStatement(Queries.getQuery(QUERY_SELECT_COUNT_BOOK_ON_SUBSCRIPTION));
+			pstmt = con.prepareStatement(Queries.getInstance().getQuery(QUERY_SELECT_COUNT_BOOK_ON_SUBSCRIPTION));
 			pstmt.setInt(++k, book.getId());
 			rs = pstmt.executeQuery();
 			if (!rs.next() || rs.getInt(k) > 0) {
@@ -150,7 +157,7 @@ public class BookDaoImpl implements BookDao{
 			}
 			DbManager.close(pstmt);
 			k=0;
-			pstmt = con.prepareStatement(Queries.getQuery(QUERY_DELETE_BOOK));
+			pstmt = con.prepareStatement(Queries.getInstance().getQuery(QUERY_DELETE_BOOK));
 			pstmt.setInt(++k, book.getId());
 			pstmt.executeUpdate();
 			con.commit();
@@ -160,35 +167,25 @@ public class BookDaoImpl implements BookDao{
 			LOG.error(e);
 			throw new DaoException(message, e);
 		} finally {
-			DbManager.close(rs);
-			DbManager.close(pstmt);
-			DbManager.close(con);
+			DbManager.closeResources(con, pstmt, rs);
 		}
 	}
-
+	
 	@Override
-	public List<Book> findBooks(String searchText, String orderBy, 
-								String orderType, int limit, int offset) 
-															throws DaoException{
+	public List<Book> findBooks(String searchText, String orderBy,
+								String orderType, int limit, int offset) throws DaoException{
+		return findBooks(DbManager.getInstance().getConnection(), searchText, orderBy, orderType, limit, offset);
+	}
+
+	static List<Book> findBooks(Connection con, String searchText, String orderBy,
+											String orderType, int limit, int offset) throws DaoException{
 		List<Book> books = new ArrayList<>();
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
-		try(Connection con = DbManager.getInstance().getConnection()) {
-			con.setAutoCommit(true);
+		try {
 			int k = 0;
-//			String query = selectQuery(searchText, orderBy, orderType);
 			String query = makeQuery(searchText, orderBy, orderType);
 			pstmt = con.prepareStatement(query);
-/*			if (searchText == null || searchText == "") {
-				pstmt = con.prepareStatement(
-						  Queries.getQuery(QUERY_SELECT_ALL_BOOKS_WITH_LIMITS));
-			} else {
-				String search = "%" + searchText + "%";
-				pstmt = con.prepareStatement(
-						  Queries.getQuery(QUERY_SELECT_BOOKS_BY_AUTHOR_TITLE));
-				pstmt.setString(++k, search);
-				pstmt.setString(++k, search);
-			}*/
 			if (searchText != null && !searchText.equalsIgnoreCase("")) {
 				String search = "%" + searchText + "%";
 				pstmt.setString(++k, search);
@@ -205,131 +202,27 @@ public class BookDaoImpl implements BookDao{
 			LOG.error(message);
 			throw new DaoException(message, e);
 		} finally {
-			DbManager.close(rs);
-			DbManager.close(pstmt);
+			DbManager.closeResources(con, pstmt, rs);
 		}
 		return books;
 	}
-
-	private String makeQuery(String searchText, String orderBy, String orderType) {
-		StringBuilder query = new StringBuilder("");
-		query.append(Queries.getQuery("select.book")).append(" ");
-		if (searchText != null && !searchText.equalsIgnoreCase("")) {
-			query.append(Queries.getQuery("search.text")).append(" ");
-		}
-		query.append(Queries.getQuery("order.by")).append(" ");
-		if (orderBy == null || orderBy.equalsIgnoreCase("")) {
-			orderBy = "default";
-		}
-		query.append(Queries.getQuery(orderBy)).append(" ");
-		if ("desc".equalsIgnoreCase(orderType)) {
-			query.append(Queries.getQuery("order.desc")).append(" ");
-		}
-		query.append(Queries.getQuery("limit.offset")).append(" ");
-		return query.toString();
-	}
 	
-//	private String selectQuery(String searchText, String orderBy, String orderType) throws SQLException {
-/*	private String selectQuery(String searchText, String orderBy, String orderType) {
-		String query;
-		if (orderBy == null) {
-			orderBy = "";
-		}
-		if (orderType == null || orderType.equalsIgnoreCase("asc")) {
-			if (searchText == null || searchText.equalsIgnoreCase("")) {
-				switch (orderBy) {
-				case "author":
-					query = Queries.getQuery(QUERY_SELECT_ALL_BOOKS_ORDER_BY_AUTHOR);
-					break;
-				case "title":
-					query = Queries.getQuery(QUERY_SELECT_ALL_BOOKS_ORDER_BY_TITLE);
-					break;
-				case "publication":
-					query = Queries.getQuery(QUERY_SELECT_ALL_BOOKS_ORDER_BY_PUBLICATION);
-					break;
-				case "year":
-					query = Queries.getQuery(QUERY_SELECT_ALL_BOOKS_ORDER_BY_YEAR);
-					break;
-				default:
-					query = Queries.getQuery(QUERY_SELECT_ALL_BOOKS_WITH_LIMITS);
-					break;
-				}
-			} else {
-				switch (orderBy) {
-				case "author":
-					query = Queries.getQuery(QUERY_SEARCH_BOOKS_ORDER_BY_AUTHOR);
-					break;
-				case "title":
-					query = Queries.getQuery(QUERY_SEARCH_BOOKS_ORDER_BY_TITLE);
-					break;
-				case "publication":
-					query = Queries.getQuery(QUERY_SEARCH_BOOKS_ORDER_BY_PUBLICATION);
-					break;
-				case "year":
-					query = Queries.getQuery(QUERY_SEARCH_BOOKS_ORDER_BY_YEAR);
-					break;
-				default:
-					query = Queries.getQuery(QUERY_SELECT_BOOKS_BY_AUTHOR_TITLE);
-					break;
-				}
-			}
-		} else {
-			if (searchText == null || searchText.equalsIgnoreCase("")) {
-				switch (orderBy) {
-				case "author":
-					query = Queries.getQuery(QUERY_SELECT_ALL_BOOKS_ORDER_BY_AUTHOR_DESC);
-					break;
-				case "title":
-					query = Queries.getQuery(QUERY_SELECT_ALL_BOOKS_ORDER_BY_TITLE_DESC);
-					break;
-				case "publication":
-					query = Queries.getQuery(QUERY_SELECT_ALL_BOOKS_ORDER_BY_PUBLICATION_DESC);
-					break;
-				case "year":
-					query = Queries.getQuery(QUERY_SELECT_ALL_BOOKS_ORDER_BY_YEAR_DESC);
-					break;
-				default:
-					query = Queries.getQuery(QUERY_SELECT_ALL_BOOKS_WITH_LIMITS);
-					break;
-				}
-			} else {
-				switch (orderBy) {
-				case "author":
-					query = Queries.getQuery(QUERY_SEARCH_BOOKS_ORDER_BY_AUTHOR_DESC);
-					break;
-				case "title":
-					query = Queries.getQuery(QUERY_SEARCH_BOOKS_ORDER_BY_TITLE_DESC);
-					break;
-				case "publication":
-					query = Queries.getQuery(QUERY_SEARCH_BOOKS_ORDER_BY_PUBLICATION_DESC);
-					break;
-				case "year":
-					query = Queries.getQuery(QUERY_SEARCH_BOOKS_ORDER_BY_YEAR_DESC);
-					break;
-				default:
-					query = Queries.getQuery(QUERY_SELECT_BOOKS_BY_AUTHOR_TITLE);
-					break;
-				}
-			}
-		}
-		return query;
-	}*/
-
 	@Override
 	public int countBooks(String searchText) throws DaoException{
+		return countBooks(DbManager.getInstance().getConnection(), searchText);
+	}
+
+	static int countBooks(Connection con, String searchText) throws DaoException{
 		int count = 0;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
-		try (Connection con = DbManager.getInstance().getConnection()) {
-			con.setAutoCommit(true);
+		try {
 			int k = 0;
-			if (searchText == null || searchText == "") {
-				pstmt = con.prepareStatement(
-						  Queries.getQuery(QUERY_COUNT_ALL_BOOKS));
+			if (searchText == null || searchText.equalsIgnoreCase("")) {
+				pstmt = con.prepareStatement(Queries.getInstance().getQuery(QUERY_COUNT_ALL_BOOKS));
 			} else {
 				String search = "%" + searchText + "%";
-				pstmt = con.prepareStatement(
-						  Queries.getQuery(QUERY_COUNT_BOOKS_FROM_SEARCH));
+				pstmt = con.prepareStatement(Queries.getInstance().getQuery(QUERY_COUNT_BOOKS_FROM_SEARCH));
 				pstmt.setString(++k, search);
 				pstmt.setString(++k, search);
 			}
@@ -342,13 +235,30 @@ public class BookDaoImpl implements BookDao{
 			LOG.error(message);
 			throw new DaoException(message, e);
 		} finally {
-			DbManager.close(rs);
-			DbManager.close(pstmt);
+			DbManager.closeResources(con, pstmt, rs);
 		}
 		return count;
 	}
 	
-	private Book getBook(ResultSet rs) throws SQLException {
+	private static String makeQuery(String searchText, String orderBy, String orderType) {
+		StringBuilder query = new StringBuilder("");
+		query.append(Queries.getInstance().getQuery("select.book")).append(" ");
+		if (searchText != null && !searchText.equalsIgnoreCase("")) {
+			query.append(Queries.getInstance().getQuery("search.text")).append(" ");
+		}
+		query.append(Queries.getInstance().getQuery("order.by")).append(" ");
+		if (orderBy == null || orderBy.equalsIgnoreCase("")) {
+			orderBy = "default";
+		}
+		query.append(Queries.getInstance().getQuery(orderBy)).append(" ");
+		if ("desc".equalsIgnoreCase(orderType)) {
+			query.append(Queries.getInstance().getQuery("order.desc")).append(" ");
+		}
+		query.append(Queries.getInstance().getQuery("limit.offset")).append(" ");
+		return query.toString();
+	}
+	
+	private static Book getBook(ResultSet rs) throws SQLException {
 		int k = 0;
 		return new Book.Builder().setId(rs.getInt(++k))
 								.setAuthor(rs.getString(++k))
@@ -359,30 +269,5 @@ public class BookDaoImpl implements BookDao{
 								.setAvailable(rs.getInt(++k))
 								.setISBN(rs.getString(++k))
 								.build();
-	}
-
-	@Override
-	public Book findByISBN(String isbn) throws DaoException {
-		Book book = null;
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
-		try (Connection con = DbManager.getInstance().getConnection()) {
-			con.setAutoCommit(true);
-			int k = 0;
-			pstmt = con.prepareStatement(Queries.getQuery(QUERY_SELECT_BOOK_BY_ISBN));
-			pstmt.setString(++k, isbn);
-			rs = pstmt.executeQuery();
-			if (rs.next()) {
-				book = getBook(rs);
-			}
-		} catch (SQLException e) {
-			String message = "Cannot get data from database";
-			LOG.error(message);
-			throw new DaoException(message, e);
-		} finally {
-			DbManager.close(rs);
-			DbManager.close(pstmt);
-		}
-		return book;
 	}
 }

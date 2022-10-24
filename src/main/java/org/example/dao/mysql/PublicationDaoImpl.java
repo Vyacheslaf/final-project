@@ -50,12 +50,16 @@ public class PublicationDaoImpl implements PublicationDao{
 
 	@Override
 	public List<Publication> findAllPublication() throws DaoException {
+		return findAllPublication(DbManager.getInstance().getConnection());
+	}
+
+	static List<Publication> findAllPublication(Connection con) throws DaoException {
 		List<Publication> publications = new ArrayList<>();
 		Statement stmt = null;
 		ResultSet rs = null;
-		try(Connection con = DbManager.getInstance().getConnection()) {
+		try {
 			stmt = con.createStatement();
-			rs = stmt.executeQuery(Queries.getQuery(QUERY_SELECT_ALL_PUBLICATIONS));
+			rs = stmt.executeQuery(Queries.getInstance().getQuery(QUERY_SELECT_ALL_PUBLICATIONS));
 			while (rs.next()) {
 				publications.add(getPublication(rs));
 			}
@@ -64,13 +68,12 @@ public class PublicationDaoImpl implements PublicationDao{
 			LOG.error(e);
 			throw new DaoException(message, e);
 		} finally {
-			DbManager.close(rs);
-			DbManager.close(stmt);
+			DbManager.closeResources(con, stmt, rs);
 		}
 		return publications;
 	}
-
-	private Publication getPublication(ResultSet rs) throws SQLException {
+	
+	private static Publication getPublication(ResultSet rs) throws SQLException {
 		Publication publication = new Publication();
 		int k = 0;
 		publication.setId(rs.getInt(++k));

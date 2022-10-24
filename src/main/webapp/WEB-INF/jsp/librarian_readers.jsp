@@ -57,7 +57,7 @@
 		          <td class="center">${order.user.firstName} ${order.user.lastName}</td>
                   <td class="center">${order.fine} <fmt:message key='currency.uah'/></td>
                   <td class="button">
-                    <a href="readerdetails?readerid=${order.user.id}"><fmt:message key='orders.of reader'/></a>
+                    <a href="readerdetails?readerid=${order.user.id}"><fmt:message key='orders.of.reader'/></a>
                   </td>
                 </tr>
               </c:if>
@@ -68,9 +68,9 @@
       <footer>
         <div></div>
         <div>
-          <a href="?lang=en">english</a>
+          <a href="?lang=en">${applicationScope.locales.en}</a>
           | 
-          <a href="?lang=uk">українська</a>
+          <a href="?lang=uk">${applicationScope.locales.uk}</a>
         </div>
         <div></div>
       </footer>

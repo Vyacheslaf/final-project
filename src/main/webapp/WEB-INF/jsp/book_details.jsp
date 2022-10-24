@@ -89,9 +89,9 @@
       <footer>
         <div></div>
         <div>
-          <a href="?isbn=${requestScope.book.isbn}&lang=en">english</a>
+          <a href="?isbn=${requestScope.book.isbn}&lang=en">${applicationScope.locales.en}</a>
           | 
-          <a href="?isbn=${requestScope.book.isbn}&lang=uk">українська</a>
+          <a href="?isbn=${requestScope.book.isbn}&lang=uk">${applicationScope.locales.uk}</a>
         </div>
         <div></div>
       </footer>

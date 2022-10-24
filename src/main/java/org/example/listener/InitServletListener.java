@@ -17,8 +17,10 @@ import javax.servlet.annotation.WebListener;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.example.Config;
-import org.example.FineUsersTask;
+import org.example.exception.DaoException;
+import org.example.service.OrderService;
+import org.example.util.Config;
+import org.example.util.FineUsersTask;
 
 @WebListener
 public class InitServletListener implements ServletContextListener{
@@ -35,8 +37,14 @@ public class InitServletListener implements ServletContextListener{
 		ServletContext context = sce.getServletContext();
 		setLocales(context);
 		initPenaltyTimer();
-		LOG.info("Selected DAO is " + Config.DAO_NAME);
+		LOG.info("Selected DBMS is " + Config.DBMS.toUpperCase());
 		LOG.info("Servlet at " + context.getRealPath("") + " started");
+		try {
+			OrderService.setFineForOverdueOrders();
+		} catch (DaoException e) {
+			LOG.error(e);
+			throw new RuntimeException(e);
+		}
 	}
 
 	private void initPenaltyTimer() {
@@ -44,6 +52,7 @@ public class InitServletListener implements ServletContextListener{
 		ZonedDateTime zdt = tomorrow.atZone(Config.ZONE_ID);
 		Date tomorrowDate = Date.from(zdt.toInstant());
 		PENALTY_TIMER.schedule(new FineUsersTask(), tomorrowDate, TimeUnit.DAYS.toMillis(1));
+		LOG.info("Penalty timer started");
 	}
 
 	private void setLocales(ServletContext context) {

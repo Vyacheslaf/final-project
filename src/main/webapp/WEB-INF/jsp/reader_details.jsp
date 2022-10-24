@@ -98,9 +98,9 @@
       <footer>
         <div></div>
         <div>
-          <a href="?readerid=${requestScope.readerid}&lang=en">english</a>
+          <a href="?readerid=${requestScope.readerid}&lang=en">${applicationScope.locales.en}</a>
           | 
-          <a href="?readerid=${requestScope.readerid}&lang=uk">українська</a>
+          <a href="?readerid=${requestScope.readerid}&lang=uk">${applicationScope.locales.uk}</a>
         </div>
         <div></div>
       </footer>

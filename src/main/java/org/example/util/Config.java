@@ -1,4 +1,4 @@
-package org.example;
+package org.example.util;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,7 +11,7 @@ import org.example.dao.DaoFactory;
 
 public class Config {
 
-	public static final String DAO_NAME;
+	public static final String DBMS;
 	public static final int LIMIT_BOOKS_ON_PAGE;
 	public static final int DAY_ON_SUBSCRIPTION;
 	public static final ZoneId ZONE_ID;
@@ -20,15 +20,15 @@ public class Config {
 	private static final Logger LOG = LogManager.getLogger(Config.class);
 	
 	static {
-		Properties prop = new Properties();
 		try (InputStream inputStream = Config.class.getClassLoader().getResourceAsStream("config.properties")) {
 			if (inputStream == null) {
 				LOG.error("Cannot find config.properties");
 				throw new IOException();
 			}
+			Properties prop = new Properties();
 			prop.load(inputStream);
-			DAO_NAME = prop.getProperty("dao.name");
-			DAO_FACTORY = DaoFactory.getDaoFactory(DAO_NAME);
+			DBMS = prop.getProperty("dbms");
+			DAO_FACTORY = DaoFactory.getDaoFactory(DBMS);
 			LIMIT_BOOKS_ON_PAGE = Integer.parseInt(prop.getProperty("limit.books.on.page"));
 			DAY_ON_SUBSCRIPTION = Integer.parseInt(prop.getProperty("count.days.on.subscription"));
 			ZONE_ID = ZoneId.of(prop.getProperty("time.zone.id"));

@@ -20,36 +20,34 @@ public class AuthorDaoImpl implements AuthorDao{
 	
 	@Override
 	public Author create(Author entity) throws DaoException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Author find(Author entity) throws DaoException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public void update(Author entity) throws DaoException {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void remove(Author entity) throws DaoException {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public List<Author> findAllAuthor() throws DaoException {
+		return findAllAuthor(DbManager.getInstance().getConnection());
+	}
+
+	static List<Author> findAllAuthor(Connection con) throws DaoException {
 		List<Author> authors = new ArrayList<>();
 		Statement stmt = null;
 		ResultSet rs = null;
-		try(Connection con = DbManager.getInstance().getConnection()) {
+		try {
 			stmt = con.createStatement();
-			rs = stmt.executeQuery(Queries.getQuery(QUERY_SELECT_ALL_AUTHORS));
+			rs = stmt.executeQuery(Queries.getInstance().getQuery(QUERY_SELECT_ALL_AUTHORS));
 			while (rs.next()) {
 				authors.add(getAuthor(rs));
 			}
@@ -58,18 +56,16 @@ public class AuthorDaoImpl implements AuthorDao{
 			LOG.error(e);
 			throw new DaoException(message, e);
 		} finally {
-			DbManager.close(rs);
-			DbManager.close(stmt);
+			DbManager.closeResources(con, stmt, rs);
 		}
 		return authors;
 	}
 
-	private Author getAuthor(ResultSet rs) throws SQLException {
+	private static Author getAuthor(ResultSet rs) throws SQLException {
 		Author author = new Author();
 		int k = 0;
 		author.setId(rs.getInt(++k));
 		author.setFullName(rs.getString(++k));
 		return author;
 	}
-
 }

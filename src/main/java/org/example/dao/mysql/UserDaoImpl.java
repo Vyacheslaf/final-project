@@ -9,7 +9,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.codec.digest.DigestUtils;
+//import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.example.dao.UserDao;
@@ -32,13 +32,62 @@ public class UserDaoImpl implements UserDao {
 
 	@Override
 	public User create(User user) throws DaoException {
+		return create(DbManager.getInstance().getConnection(), user);
+	}
+
+	@Override
+	public User find(User user) throws DaoException {
+		return find(DbManager.getInstance().getConnection(), user);
+	}
+	
+	@Override
+	public void update(User user) throws DaoException {
+		update(DbManager.getInstance().getConnection(), user);
+	}
+	
+	@Override
+	public void remove(User user) throws DaoException {
+		remove(DbManager.getInstance().getConnection(), user);
+	}
+	
+	@Override
+	public User findByLoginAndPassword(String email, String password) throws DaoException{
+		return findByLoginAndPassword(DbManager.getInstance().getConnection(), email, password);
+	}
+	
+	@Override
+	public List<User> findByRole(UserRole userRole) throws DaoException {
+		return findByRole(DbManager.getInstance().getConnection(), userRole);
+	}
+	
+	@Override
+	public User findByPhone(String phoneNumber) throws DaoException {
+		return findByPhone(DbManager.getInstance().getConnection(), phoneNumber);
+	}
+	
+	@Override
+	public List<User> findByFine() throws DaoException {
+		return findByFine(DbManager.getInstance().getConnection());
+	}
+	
+	@Override
+	public void block(User user) throws DaoException {
+		block(DbManager.getInstance().getConnection(), user);
+	}
+
+	static User create(Connection con, User user) throws DaoException {
+		if (user == null || user.getPassword() == null) {
+			throw new DaoException("Password cannot be null");
+		}
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
-		try(Connection con = DbManager.getInstance().getConnection()) {
+		try {
 			int k = 0;
-			pstmt = con.prepareStatement(Queries.getQuery(QUERY_INSERT_USER), PreparedStatement.RETURN_GENERATED_KEYS);
+			pstmt = con.prepareStatement(Queries.getInstance().getQuery(QUERY_INSERT_USER), 
+										 PreparedStatement.RETURN_GENERATED_KEYS);
 			pstmt.setString(++k, user.getEmail());
-			pstmt.setString(++k, DigestUtils.sha1Hex(user.getPassword()));
+//			pstmt.setString(++k, DigestUtils.sha1Hex(user.getPassword()));
+			pstmt.setString(++k, user.getPassword());
 			pstmt.setString(++k, user.getFirstName());
 			pstmt.setString(++k, user.getLastName());
 			pstmt.setString(++k, user.getPhoneNumber());
@@ -60,21 +109,20 @@ public class UserDaoImpl implements UserDao {
 			LOG.error(e);
 			throw new DaoException(message, e);
 		} finally {
-			DbManager.close(rs);
-			DbManager.close(pstmt);
+			DbManager.closeResources(con, pstmt, rs);
 		}
 		return user;
 	}
 
-	@Override
-	public User find(User user) throws DaoException {
+	static User find(Connection con, User user) throws DaoException {
+		int userId = user.getId();
+		user = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
-		try(Connection con = DbManager.getInstance().getConnection()) {
-			con.setAutoCommit(true);
-			pstmt = con.prepareStatement(Queries.getQuery(QUERY_SELECT_USER_BY_ID)); 
+		try {
+			pstmt = con.prepareStatement(Queries.getInstance().getQuery(QUERY_SELECT_USER_BY_ID)); 
 			int k = 0;
-			pstmt.setInt(++k, user.getId());
+			pstmt.setInt(++k, userId);
 			rs = pstmt.executeQuery();
 			if (rs.next()) {
 				user = getUser(rs);
@@ -84,20 +132,16 @@ public class UserDaoImpl implements UserDao {
 			LOG.error(e);
 			throw new DaoException(message, e);
 		} finally {
-			DbManager.close(rs);
-			DbManager.close(pstmt);
+			DbManager.closeResources(con, pstmt, rs);
 		}
 		return user;
 	}
 
-	@Override
-	public void update(User user) throws DaoException {
+	static void update(Connection con, User user) throws DaoException {
 		PreparedStatement pstmt = null;
-		ResultSet rs = null;
-		try(Connection con = DbManager.getInstance().getConnection()) {
-			con.setAutoCommit(true);
+		try {
 			int k = 0;
-			pstmt = con.prepareStatement(Queries.getQuery(QUERY_UPDATE_USER));
+			pstmt = con.prepareStatement(Queries.getInstance().getQuery(QUERY_UPDATE_USER));
 			pstmt.setString(++k, user.getEmail());
 			pstmt.setString(++k, user.getPassword());
 			pstmt.setString(++k, user.getFirstName());
@@ -111,18 +155,15 @@ public class UserDaoImpl implements UserDao {
 			LOG.error(e);
 			throw new DaoException(message, e);
 		} finally {
-			DbManager.close(rs);
-			DbManager.close(pstmt);
+			DbManager.closeResources(con, pstmt);
 		}
 	}
-	
-	@Override
-	public void remove(User user) throws DaoException {
+
+	static void remove(Connection con, User user) throws DaoException {
 		PreparedStatement pstmt = null;
-		ResultSet rs = null;
-		try(Connection con = DbManager.getInstance().getConnection()) {
+		try {
 			int k = 0;
-			pstmt = con.prepareStatement(Queries.getQuery(QUERY_DELETE_USER));
+			pstmt = con.prepareStatement(Queries.getInstance().getQuery(QUERY_DELETE_USER));
 			pstmt.setInt(++k, user.getId());
 			pstmt.executeUpdate();
 		} catch (SQLException e) {
@@ -130,23 +171,23 @@ public class UserDaoImpl implements UserDao {
 			LOG.error(e);
 			throw new DaoException(message, e);
 		} finally {
-			DbManager.close(rs);
-			DbManager.close(pstmt);
+			DbManager.closeResources(con, pstmt);
 		}
 	}
 
-	@Override
-	public User findByLoginAndPassword(String email, String password) 
-															throws DaoException{
+	static User findByLoginAndPassword(Connection con, String email, String password) throws DaoException{
+		if (email == null || password == null) {
+			return null;
+		}
 		User user = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
-		try(Connection con = DbManager.getInstance().getConnection()) {
-			con.setAutoCommit(true);
-			pstmt = con.prepareStatement(Queries.getQuery(QUERY_SELECT_USER_BY_EMAIL_AND_PASSWORD)); 
+		try {
+			pstmt = con.prepareStatement(Queries.getInstance().getQuery(QUERY_SELECT_USER_BY_EMAIL_AND_PASSWORD)); 
 			int k = 0;
 			pstmt.setString(++k, email);
-			pstmt.setString(++k, DigestUtils.sha1Hex(password));
+//			pstmt.setString(++k, DigestUtils.sha1Hex(password));
+			pstmt.setString(++k, password);
 			rs = pstmt.executeQuery();
 			if (rs.next()) {
 				user = getUser(rs);
@@ -156,16 +197,99 @@ public class UserDaoImpl implements UserDao {
 			LOG.error(e);
 			throw new DaoException(message, e);
 		} finally {
-			DbManager.close(rs);
-			DbManager.close(pstmt);
+			DbManager.closeResources(con, pstmt, rs);
 		}
 		return user;
+	}
+
+	static List<User> findByRole(Connection con, UserRole userRole) throws DaoException {
+		ArrayList<User> users = new ArrayList<>();
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		try {
+			pstmt = con.prepareStatement(Queries.getInstance().getQuery(QUERY_SELECT_USERS_BY_ROLE)); 
+			int k = 0;
+			pstmt.setString(++k, userRole.toString().toLowerCase());
+			rs = pstmt.executeQuery();
+			while (rs.next()) {
+				users.add(getUser(rs));
+			}
+		} catch (SQLException e) {
+			String message = "Cannot get users from database";
+			LOG.error(e);
+			throw new DaoException(message, e);
+		} finally {
+			DbManager.closeResources(con, pstmt, rs);
+		}
+		return users;
+	}
+
+	static User findByPhone(Connection con, String phoneNumber) throws DaoException {
+		User user = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		try {
+			pstmt = con.prepareStatement(Queries.getInstance().getQuery(QUERY_SELECT_USER_BY_PHONE)); 
+			int k = 0;
+			pstmt.setString(++k, phoneNumber);
+			rs = pstmt.executeQuery();
+			if (rs.next()) {
+				user = getUser(rs);
+			}
+		} catch (SQLException e) {
+			String message = "Cannot get data from database";
+			LOG.error(e);
+			throw new DaoException(message, e);
+		} finally {
+			DbManager.closeResources(con, pstmt, rs);
+		}
+		return user;
+	}
+
+	static List<User> findByFine(Connection con) throws DaoException {
+		ArrayList<User> users = new ArrayList<>();
+		Statement stmt = null;
+		ResultSet rs = null;
+		try {
+			stmt = con.createStatement();
+			rs = stmt.executeQuery(Queries.getInstance().getQuery(QUERY_SELECT_FINED_USERS));
+			while (rs.next()) {
+				users.add(getUser(rs));
+			}
+		} catch (SQLException e) {
+			String message = "Cannot get users from database";
+			LOG.error(e);
+			throw new DaoException(message, e);
+		} finally {
+			DbManager.closeResources(con, stmt, rs);
+		}
+		return users;
+	}
+	
+	static void block(Connection con, User user) throws DaoException {
+		PreparedStatement pstmt = null;
+		try {
+			int k = 0;
+			pstmt = con.prepareStatement(Queries.getInstance().getQuery(QUERY_BLOCK_USER));
+			pstmt.setInt(++k, user.isBlocked() ? 1 : 0);
+			pstmt.setInt(++k, user.getId());
+			pstmt.executeUpdate();
+		} catch (SQLException e) {
+			String message = "Cannot block the user";
+			LOG.error(e);
+			throw new DaoException(message, e);
+		} finally {
+			DbManager.closeResources(con, pstmt);
+		}
 	}
 
 	private static User getUser(ResultSet rs) throws SQLException {
 		int k = 0;
 		User user = new User();
 		user.setId(rs.getInt(++k));
+		if (user.getId() == 0) {
+			return null;
+		}
 		user.setEmail(rs.getString(++k));
 		user.setPassword(rs.getString(++k));
 		user.setFirstName(rs.getString(++k));
@@ -182,95 +306,5 @@ public class UserDaoImpl implements UserDao {
 
 	private static boolean intToBoolean(int num) {
 		return num != 0 ? true : false;
-	}
-
-	@Override
-	public List<User> findByRole(UserRole userRole) throws DaoException {
-		ArrayList<User> users = new ArrayList<>();
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
-		try(Connection con = DbManager.getInstance().getConnection()) {
-			pstmt = con.prepareStatement(Queries.getQuery(QUERY_SELECT_USERS_BY_ROLE)); 
-			int k = 0;
-			pstmt.setString(++k, userRole.toString().toLowerCase());
-			rs = pstmt.executeQuery();
-			while (rs.next()) {
-				users.add(getUser(rs));
-			}
-		} catch (SQLException e) {
-			String message = "Cannot get users from database";
-			LOG.error(e);
-			throw new DaoException(message, e);
-		} finally {
-			DbManager.close(rs);
-			DbManager.close(pstmt);
-		}
-		return users;
-	}
-
-	@Override
-	public User findByPhone(String phoneNumber) throws DaoException {
-		User user = null;
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
-		try(Connection con = DbManager.getInstance().getConnection()) {
-			pstmt = con.prepareStatement(Queries.getQuery(QUERY_SELECT_USER_BY_PHONE)); 
-			int k = 0;
-			pstmt.setString(++k, phoneNumber);
-			rs = pstmt.executeQuery();
-			if (rs.next()) {
-				user = getUser(rs);
-			}
-		} catch (SQLException e) {
-			String message = "Cannot get data from database";
-			LOG.error(e);
-			throw new DaoException(message, e);
-		} finally {
-			DbManager.close(rs);
-			DbManager.close(pstmt);
-		}
-		return user;
-	}
-
-	@Override
-	public List<User> findByFine() throws DaoException {
-		ArrayList<User> users = new ArrayList<>();
-		Statement stmt = null;
-		ResultSet rs = null;
-		try(Connection con = DbManager.getInstance().getConnection()) {
-			stmt = con.createStatement();
-			rs = stmt.executeQuery(Queries.getQuery(QUERY_SELECT_FINED_USERS));
-			while (rs.next()) {
-				users.add(getUser(rs));
-			}
-		} catch (SQLException e) {
-			String message = "Cannot get users from database";
-			LOG.error(e);
-			throw new DaoException(message, e);
-		} finally {
-			DbManager.close(rs);
-			DbManager.close(stmt);
-		}
-		return users;
-	}
-
-	@Override
-	public void block(User user) throws DaoException {
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
-		try(Connection con = DbManager.getInstance().getConnection()) {
-			int k = 0;
-			pstmt = con.prepareStatement(Queries.getQuery(QUERY_BLOCK_USER));
-			pstmt.setInt(++k, user.isBlocked() ? 1 : 0);
-			pstmt.setInt(++k, user.getId());
-			pstmt.executeUpdate();
-		} catch (SQLException e) {
-			String message = "Cannot block the user";
-			LOG.error(e);
-			throw new DaoException(message, e);
-		} finally {
-			DbManager.close(rs);
-			DbManager.close(pstmt);
-		}
 	}
 }

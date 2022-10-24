@@ -7,15 +7,15 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.example.Config;
-import org.example.dao.DaoFactory;
+//import org.example.util.Config;
+//import org.example.dao.DaoFactory;
 import org.example.dao.UserDao;
 import org.example.entity.User;
 import org.example.entity.UserRole;
 import org.example.exception.DaoException;
 import org.example.exception.ServiceException;
 
-import static org.example.Config.*;
+import static org.example.util.Config.*;
 
 public class UserService {
 
@@ -32,24 +32,22 @@ public class UserService {
 
 	public static User register(HttpServletRequest req) throws DaoException {
 		User user = getUser(req);
-		DaoFactory daoFactory = DaoFactory.getDaoFactory(DAO_NAME);
-		UserDao userDao = daoFactory.getUserDao();
+		UserDao userDao = DAO_FACTORY.getUserDao();
+		user.setPassword(DigestUtils.sha1Hex(user.getPassword()));
 		user = userDao.create(user);
 		return user;
 	}
 	
 	public static User login(HttpServletRequest req) throws DaoException {
 		User user = getUser(req);
-		DaoFactory daoFactory = DaoFactory.getDaoFactory(Config.DAO_NAME);
-		UserDao userDao = daoFactory.getUserDao();
-		user = userDao.findByLoginAndPassword(user.getEmail(), user.getPassword());
+		UserDao userDao = DAO_FACTORY.getUserDao();
+		user = userDao.findByLoginAndPassword(user.getEmail(), DigestUtils.sha1Hex(user.getPassword()));
 		return user;
 	}
 
 	public static User updateUserData(HttpServletRequest req) throws DaoException {
 		User user = getUser(req);
-		DaoFactory daoFactory = DaoFactory.getDaoFactory(Config.DAO_NAME);
-		UserDao userDao = daoFactory.getUserDao();
+		UserDao userDao = DAO_FACTORY.getUserDao();
 		userDao.update(user);
 		user = userDao.find(user);
 		return user;
@@ -58,8 +56,7 @@ public class UserService {
 	public static User updateUserPassword(HttpServletRequest req) throws DaoException {
 		User user = getUser(req);
 		user.setPassword(DigestUtils.sha1Hex(user.getPassword()));
-		DaoFactory daoFactory = DaoFactory.getDaoFactory(Config.DAO_NAME);
-		UserDao userDao = daoFactory.getUserDao();
+		UserDao userDao = DAO_FACTORY.getUserDao();
 		userDao.update(user);
 		user = userDao.find(user);
 		return user;
@@ -96,14 +93,12 @@ public class UserService {
 	}
 
 	public static User findUserByPhone(String phoneNumber) throws DaoException {
-		DaoFactory daoFactory = DaoFactory.getDaoFactory(Config.DAO_NAME);
-		UserDao userDao = daoFactory.getUserDao();
+		UserDao userDao = DAO_FACTORY.getUserDao();
 		return userDao.findByPhone(phoneNumber);
 	}
 
 	public static List<User> findUsersByRole(UserRole userRole) throws DaoException {
-		DaoFactory daoFactory = DaoFactory.getDaoFactory(Config.DAO_NAME);
-		UserDao userDao = daoFactory.getUserDao();
+		UserDao userDao = DAO_FACTORY.getUserDao();
 		return userDao.findByRole(userRole);
 	}
 
@@ -111,8 +106,7 @@ public class UserService {
 		if (userId == null || !userId.matches("\\d+")) {
 			logAndThrowException("Cannot delete user: ID is wrong");
 		}
-		DaoFactory daoFactory = DaoFactory.getDaoFactory(Config.DAO_NAME);
-		UserDao userDao = daoFactory.getUserDao();
+		UserDao userDao = DAO_FACTORY.getUserDao();
 		User user = new User();
 		user.setId(Integer.parseInt(userId));
 		userDao.remove(user);
@@ -125,8 +119,7 @@ public class UserService {
 	}
 
 	public static List<User> findFinedUsers() throws DaoException {
-		DaoFactory daoFactory = DaoFactory.getDaoFactory(Config.DAO_NAME);
-		UserDao userDao = daoFactory.getUserDao();
+		UserDao userDao = DAO_FACTORY.getUserDao();
 		return userDao.findByFine();
 	}
 
@@ -135,8 +128,7 @@ public class UserService {
 		if (userId == null || !userId.matches("\\d+")) {
 			logAndThrowException("Cannot block user: ID is wrong");
 		}
-		DaoFactory daoFactory = DaoFactory.getDaoFactory(Config.DAO_NAME);
-		UserDao userDao = daoFactory.getUserDao();
+		UserDao userDao = DAO_FACTORY.getUserDao();
 		User user = new User();
 		user.setId(Integer.parseInt(userId));
 		user.setBlocked(Boolean.parseBoolean(req.getParameter(REQ_PARAM_BLOCKED)));

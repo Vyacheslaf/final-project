@@ -139,9 +139,9 @@
       <footer>
         <div></div>
         <div>
-          <a href="?lang=en">english</a>
+          <a href="?lang=en">${applicationScope.locales.en}</a>
           | 
-          <a href="?lang=uk">українська</a>
+          <a href="?lang=uk">${applicationScope.locales.uk}</a>
         </div>
         <div></div>
       </footer>

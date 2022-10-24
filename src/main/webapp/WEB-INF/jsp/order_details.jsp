@@ -164,9 +164,9 @@
       <footer>
         <div></div>
         <div>
-          <a href="?orderid=${requestScope.order.id}&lang=en">english</a>
+          <a href="?orderid=${requestScope.order.id}&lang=en">${applicationScope.locales.en}</a>
           | 
-          <a href="?orderid=${requestScope.order.id}&lang=uk">українська</a>
+          <a href="?orderid=${requestScope.order.id}&lang=uk">${applicationScope.locales.uk}</a>
     </div>
     <div></div>
   </footer>

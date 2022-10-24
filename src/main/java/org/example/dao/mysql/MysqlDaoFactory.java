@@ -9,11 +9,6 @@ import org.example.dao.UserDao;
 
 public class MysqlDaoFactory extends DaoFactory{
 
-	static {
-		Queries.getInstance();
-		DbManager.getInstance();
-	}
-	
 	@Override
 	public UserDao getUserDao() {
 		return new UserDaoImpl();

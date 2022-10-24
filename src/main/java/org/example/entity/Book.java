@@ -1,6 +1,7 @@
 package org.example.entity;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public class Book implements Serializable{
 	
@@ -128,6 +129,25 @@ public class Book implements Serializable{
 
 	public void setId(int id) {
 		this.id = id;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(author, isbn, publication, publicationYear, title);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Book other = (Book) obj;
+		return Objects.equals(author, other.author) && Objects.equals(isbn, other.isbn)
+				&& Objects.equals(publication, other.publication) && publicationYear == other.publicationYear
+				&& Objects.equals(title, other.title);
 	}
 
 	@Override

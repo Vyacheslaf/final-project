@@ -1,5 +1,7 @@
 package org.example.service;
 
+import static org.example.util.Config.*;
+
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
@@ -11,9 +13,9 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.example.Config;
+import org.example.util.Config;
 import org.example.dao.BookDao;
-import org.example.dao.DaoFactory;
+//import org.example.dao.DaoFactory;
 import org.example.entity.Book;
 import org.example.exception.DaoException;
 import org.example.exception.ServiceException;
@@ -41,16 +43,16 @@ public class BookService {
 		String text = req.getParameter(REQ_ATTR_SEARCH_TEXT);
 		String orderBy = getOrderBy(req);
 		String sortType = getSortType(req);
-		DaoFactory daoFactory = DaoFactory.getDaoFactory(Config.DAO_NAME);
-		BookDao bookDao = daoFactory.getBookDao();
+//		DaoFactory daoFactory = DaoFactory.getDaoFactory(Config.DAO_NAME);
+//		BookDao bookDao = daoFactory.getBookDao();
+		BookDao bookDao = DAO_FACTORY.getBookDao();
 		int offset = (page - 1) * Config.LIMIT_BOOKS_ON_PAGE;
 		return bookDao.findBooks(text, orderBy, sortType, Config.LIMIT_BOOKS_ON_PAGE, offset);
 	}
 
 	public static int getBooksCount(HttpServletRequest req) throws DaoException {
 		String text = req.getParameter(REQ_ATTR_SEARCH_TEXT);
-		DaoFactory daoFactory = DaoFactory.getDaoFactory(Config.DAO_NAME);
-		BookDao bookDao = daoFactory.getBookDao();
+		BookDao bookDao = DAO_FACTORY.getBookDao();
 		return bookDao.countBooks(text);
 	}
 
@@ -126,8 +128,7 @@ public class BookService {
 	}
 
 	public static void addBook(HttpServletRequest req) throws ServiceException, DaoException {
-		DaoFactory daoFactory = DaoFactory.getDaoFactory(Config.DAO_NAME);
-		BookDao bookDao = daoFactory.getBookDao();
+		BookDao bookDao = DAO_FACTORY.getBookDao();
 		bookDao.create(getBookFromRequest(req));
 	}
 	
@@ -212,9 +213,10 @@ public class BookService {
 	}
 	
 	public static Book findBookByISBN(String isbn) throws DaoException {
-		DaoFactory daoFactory = DaoFactory.getDaoFactory(Config.DAO_NAME);
-		BookDao bookDao = daoFactory.getBookDao();
-		return bookDao.findByISBN(isbn);
+		BookDao bookDao = DAO_FACTORY.getBookDao();
+		Book book = new Book.Builder().setISBN(isbn).build();
+//		return bookDao.findByISBN(isbn);
+		return bookDao.find(book);
 	}
 
 	public static void deleteBook(String bookId) throws ServiceException, DaoException {
@@ -223,8 +225,7 @@ public class BookService {
 		}
 		Book book = new Book.Builder().setId(Integer.parseInt(bookId))
 									  .build();
-		DaoFactory daoFactory = DaoFactory.getDaoFactory(Config.DAO_NAME);
-		BookDao bookDao = daoFactory.getBookDao();
+		BookDao bookDao = DAO_FACTORY.getBookDao();
 		bookDao.remove(book);
 	}
 
@@ -235,8 +236,7 @@ public class BookService {
 		}
 		Book book = getBookFromRequest(req);
 		book.setId(Integer.parseInt(bookId));
-		DaoFactory daoFactory = DaoFactory.getDaoFactory(Config.DAO_NAME);
-		BookDao bookDao = daoFactory.getBookDao();
+		BookDao bookDao = DAO_FACTORY.getBookDao();
 		bookDao.update(book);
 	}
 	

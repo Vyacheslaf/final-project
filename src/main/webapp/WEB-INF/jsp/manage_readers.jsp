@@ -103,9 +103,9 @@
       <footer>
         <div></div>
         <div>
-          <a href="?phonenumber=${phonenumber}&lang=en">english</a>
+          <a href="?phonenumber=${phonenumber}&lang=en">${applicationScope.locales.en}</a>
           | 
-          <a href="?phonenumber=${phonenumber}&lang=uk">українська</a>
+          <a href="?phonenumber=${phonenumber}&lang=uk">${applicationScope.locales.uk}</a>
         </div>
         <div></div>
       </footer>

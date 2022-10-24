@@ -1,6 +1,7 @@
 package org.example.entity;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public class User implements Serializable{
 
@@ -89,16 +90,35 @@ public class User implements Serializable{
 		this.blocked = blocked;
 	}
 
-	@Override
-	public String toString() {
-		return "User [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", role=" + role + "]";
-	}
-
 	public int getFine() {
 		return fine;
 	}
 
 	public void setFine(int fine) {
 		this.fine = fine;
+	}
+
+	@Override
+	public String toString() {
+		return "User [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", role=" + role + "]";
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(email, firstName, lastName, passportNumber, phoneNumber);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		User other = (User) obj;
+		return Objects.equals(email, other.email) && Objects.equals(firstName, other.firstName)
+				&& Objects.equals(lastName, other.lastName) && Objects.equals(passportNumber, other.passportNumber)
+				&& Objects.equals(phoneNumber, other.phoneNumber);
 	}
 }

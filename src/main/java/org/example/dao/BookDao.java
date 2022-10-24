@@ -9,5 +9,5 @@ public interface BookDao extends Dao<Book>{
 	List<Book> findBooks(String searchText, String orderBy, String orderType,
 							int limit, int offset) throws DaoException;
 	int countBooks(String searchText) throws DaoException;
-	Book findByISBN(String isbn) throws DaoException;
+//	Book findByISBN(String isbn) throws DaoException;
 }

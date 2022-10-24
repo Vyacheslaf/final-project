@@ -41,11 +41,15 @@ public class OrderDaoImpl implements OrderDao {
 	
 	@Override
 	public Order create(Order order) throws DaoException {
+		return create(DbManager.getInstance().getConnection(), order);
+	}
+
+	static Order create(Connection con, Order order) throws DaoException {
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
-		try(Connection con = DbManager.getInstance().getConnection()) {
+		try {
 			int k = 0;
-			pstmt = con.prepareStatement(Queries.getQuery(QUERY_INSERT_ORDER), PreparedStatement.RETURN_GENERATED_KEYS);
+			pstmt = con.prepareStatement(Queries.getInstance().getQuery(QUERY_INSERT_ORDER), PreparedStatement.RETURN_GENERATED_KEYS);
 			pstmt.setInt(++k, order.getUser().getId());
 			pstmt.setInt(++k, order.getBook().getId());
 			k = pstmt.executeUpdate();
@@ -60,19 +64,22 @@ public class OrderDaoImpl implements OrderDao {
 			LOG.error(e);
 			throw new DaoException(message, e);
 		} finally {
-			DbManager.close(rs);
-			DbManager.close(pstmt);
+			DbManager.closeResources(con, pstmt, rs);
 		}
 		return order;
 	}
-
+	
 	@Override
 	public Order find(Order order) throws DaoException {
+		return find(DbManager.getInstance().getConnection(), order);
+	}
+
+	static Order find(Connection con, Order order) throws DaoException {
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
-		try(Connection con = DbManager.getInstance().getConnection()) {
+		try {
 			int k = 0;
-			pstmt = con.prepareStatement(Queries.getQuery(QUERY_SELECT_ORDER_BY_ID));
+			pstmt = con.prepareStatement(Queries.getInstance().getQuery(QUERY_SELECT_ORDER_BY_ID));
 			pstmt.setInt(++k, order.getId());
 			rs = pstmt.executeQuery();
 			if (rs.next()) {
@@ -83,57 +90,57 @@ public class OrderDaoImpl implements OrderDao {
 			LOG.error(e);
 			throw new DaoException(message, e);
 		} finally {
-			DbManager.close(rs);
-			DbManager.close(pstmt);
+			DbManager.closeResources(con, pstmt, rs);
 		}
 		return order;
 	}
+	
+	@Override
+	public void update(Order entity) throws DaoException {}
 
 	@Override
-	public void update(Order entity) throws DaoException {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void remove(Order entity) throws DaoException {
-		// TODO Auto-generated method stub
-
-	}
+	public void remove(Order entity) throws DaoException {}
 
 	@Override
 	public int countActiveOrders(User user, Book book) throws DaoException {
-		int count = 0;
+		return countActiveOrders(DbManager.getInstance().getConnection(), user, book);
+	}
+
+	static int countActiveOrders(Connection con, User user, Book book) throws DaoException {
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
-		try (Connection con = DbManager.getInstance().getConnection()) {
+		try {
 			int k = 0;
-			pstmt = con.prepareStatement(Queries.getQuery(QUERY_SELECT_COUNT_ACTIVE_ORDERS));
+			pstmt = con.prepareStatement(Queries.getInstance().getQuery(QUERY_SELECT_COUNT_ACTIVE_ORDERS));
 			pstmt.setInt(++k, user.getId());
 			pstmt.setInt(++k, book.getId());
 			rs = pstmt.executeQuery();
 			if (rs.next()) {
-				count = rs.getInt(1);
+				return rs.getInt(1);
 			}
+			return 0;
 		} catch (SQLException e) {
 			String message = "Cannot get count of active orders";
 			LOG.error(e);
 			throw new DaoException(message, e);
 		} finally {
-			DbManager.close(rs);
-			DbManager.close(pstmt);
+			DbManager.closeResources(con, pstmt, rs);
 		}
-		return count;
 	}
+	
 
 	@Override
 	public List<Order> getUserOrders(int userId) throws DaoException {
+		return getUserOrders(DbManager.getInstance().getConnection(), userId);
+	}
+
+	static List<Order> getUserOrders(Connection con, int userId) throws DaoException {
 		List<Order> orders = new ArrayList<>();
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
-		try(Connection con = DbManager.getInstance().getConnection()) {
+		try {
 			int k = 0;
-			pstmt = con.prepareStatement(Queries.getQuery(QUERY_SELECT_READER_ORDERS));
+			pstmt = con.prepareStatement(Queries.getInstance().getQuery(QUERY_SELECT_READER_ORDERS));
 			pstmt.setInt(++k, userId);
 			rs = pstmt.executeQuery();
 			while (rs.next()) {
@@ -144,13 +151,12 @@ public class OrderDaoImpl implements OrderDao {
 			LOG.error(e);
 			throw new DaoException(message, e);
 		} finally {
-			DbManager.close(rs);
-			DbManager.close(pstmt);
+			DbManager.closeResources(con, pstmt, rs);
 		}
 		return orders;
 	}
-
-	private Order getOrder(ResultSet rs) throws SQLException {
+	
+	private static Order getOrder(ResultSet rs) throws SQLException {
 		Order order = new Order();
 		int k=0;
 		order.setId(rs.getInt(++k));
@@ -190,25 +196,29 @@ public class OrderDaoImpl implements OrderDao {
 
 	@Override
 	public boolean cancelOrder(int orderId) throws DaoException {
+		return cancelOrder(DbManager.getInstance().getConnection(), orderId);
+	}
+
+	static boolean cancelOrder(Connection con, int orderId) throws DaoException {
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
-		try(Connection con = DbManager.getInstance().getConnection()) {
+		try {
 			int k = 0;
 			con.setAutoCommit(false);
 			con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
-			pstmt = con.prepareStatement(Queries.getQuery(QUERY_SELECT_ORDER_STATE));
+			pstmt = con.prepareStatement(Queries.getInstance().getQuery(QUERY_SELECT_ORDER_STATE));
 			pstmt.setInt(++k, orderId);
 			rs = pstmt.executeQuery();
-			k = 0;
 			if (!rs.next()) {
 				throw new SQLException();
 			}
+			k = 0;
 			if (!OrderState.valueOf(rs.getString(++k).toUpperCase()).equals(OrderState.NEW)) {
 				return false;
 			}
 			DbManager.close(pstmt);
 			k=0;
-			pstmt = con.prepareStatement(Queries.getQuery(QUERY_UPDATE_ORDER_STATE));
+			pstmt = con.prepareStatement(Queries.getInstance().getQuery(QUERY_UPDATE_ORDER_STATE));
 			pstmt.setString(++k, OrderState.CANCELED.toString().toLowerCase());
 			pstmt.setInt(++k, orderId);
 			pstmt.executeUpdate();
@@ -218,20 +228,23 @@ public class OrderDaoImpl implements OrderDao {
 			LOG.error(e);
 			throw new DaoException(message, e);
 		} finally {
-			DbManager.close(rs);
-			DbManager.close(pstmt);
+			DbManager.closeResources(con, pstmt, rs);
 		}
 		return true;
 	}
-
+	
 	@Override
 	public List<Order> getNewOrders() throws DaoException {
+		return getNewOrders(DbManager.getInstance().getConnection());
+	}
+
+	static List<Order> getNewOrders(Connection con) throws DaoException {
 		List<Order> orders = new ArrayList<>();
 		Statement stmt = null;
 		ResultSet rs = null;
-		try(Connection con = DbManager.getInstance().getConnection()) {
+		try {
 			stmt = con.createStatement();
-			rs = stmt.executeQuery(Queries.getQuery(QUERY_SELECT_NEW_ORDERS));
+			rs = stmt.executeQuery(Queries.getInstance().getQuery(QUERY_SELECT_NEW_ORDERS));
 			while (rs.next()) {
 				orders.add(getOrder(rs));
 			}
@@ -240,23 +253,24 @@ public class OrderDaoImpl implements OrderDao {
 			LOG.error(e);
 			throw new DaoException(message, e);
 		} finally {
-			DbManager.close(rs);
-			DbManager.close(stmt);
+			DbManager.closeResources(con, stmt, rs);
 		}
 		return orders;
 	}
-
+	
 	@Override
 	public void giveOrder(int orderId, LocalDateTime returnTime) throws DaoException {
+		giveOrder(DbManager.getInstance().getConnection(), orderId, returnTime);
+	}
+
+	static void giveOrder(Connection con, int orderId, LocalDateTime returnTime) throws DaoException {
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
-		Connection con = null;
 		try {
-			con = DbManager.getInstance().getConnection();
 			int k = 0;
 			con.setAutoCommit(false);
 			con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
-			pstmt = con.prepareStatement(Queries.getQuery(QUERY_SELECT_BOOK_AVAILABLE));
+			pstmt = con.prepareStatement(Queries.getInstance().getQuery(QUERY_SELECT_BOOK_AVAILABLE));
 			pstmt.setInt(++k, orderId);
 			rs = pstmt.executeQuery();
 			if (!rs.next()) {
@@ -271,14 +285,14 @@ public class OrderDaoImpl implements OrderDao {
 			}
 			DbManager.close(pstmt);
 			k=0;
-			pstmt = con.prepareStatement(Queries.getQuery(QUERY_UPDATE_ORDER_STATE_AND_RETURN_DATE));
+			pstmt = con.prepareStatement(Queries.getInstance().getQuery(QUERY_UPDATE_ORDER_STATE_AND_RETURN_DATE));
 			pstmt.setString(++k, returnTime.format(DATE_TIME_FORMATTER));
 			pstmt.setString(++k, OrderState.PROCESSED.toString().toLowerCase());
 			pstmt.setInt(++k, orderId);
 			pstmt.executeUpdate();
 			DbManager.close(pstmt);
 			k=0;
-			pstmt = con.prepareStatement(Queries.getQuery(QUERY_UPDATE_BOOK_AVAILABLE));
+			pstmt = con.prepareStatement(Queries.getInstance().getQuery(QUERY_UPDATE_BOOK_AVAILABLE));
 			pstmt.setInt(++k, --available);
 			pstmt.setInt(++k, orderId);
 			pstmt.executeUpdate();
@@ -289,20 +303,22 @@ public class OrderDaoImpl implements OrderDao {
 			LOG.error(e);
 			throw new DaoException(message, e);
 		} finally {
-			DbManager.close(rs);
-			DbManager.close(pstmt);
-			DbManager.close(con);
+			DbManager.closeResources(con, pstmt, rs);
 		}
 	}
-
+	
 	@Override
 	public List<Order> getProcessedOrders() throws DaoException {
+		return getProcessedOrders(DbManager.getInstance().getConnection());
+	}
+
+	static List<Order> getProcessedOrders(Connection con) throws DaoException {
 		List<Order> orders = new ArrayList<>();
 		Statement stmt = null;
 		ResultSet rs = null;
-		try(Connection con = DbManager.getInstance().getConnection()) {
+		try {
 			stmt = con.createStatement();
-			rs = stmt.executeQuery(Queries.getQuery(QUERY_SELECT_PROCESSED_ORDERS));
+			rs = stmt.executeQuery(Queries.getInstance().getQuery(QUERY_SELECT_PROCESSED_ORDERS));
 			while (rs.next()) {
 				orders.add(getOrder(rs));
 			}
@@ -311,23 +327,24 @@ public class OrderDaoImpl implements OrderDao {
 			LOG.error(e);
 			throw new DaoException(message, e);
 		} finally {
-			DbManager.close(rs);
-			DbManager.close(stmt);
+			DbManager.closeResources(con, stmt, rs);
 		}
 		return orders;
 	}
-
+	
 	@Override
 	public void completeOrder(int orderId, LocalDateTime returnTime) throws DaoException {
+		completeOrder(DbManager.getInstance().getConnection(), orderId, returnTime);
+	}
+
+	static void completeOrder(Connection con, int orderId, LocalDateTime returnTime) throws DaoException {
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
-		Connection con = null;
 		try {
-			con = DbManager.getInstance().getConnection();
 			int k = 0;
 			con.setAutoCommit(false);
 			con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
-			pstmt = con.prepareStatement(Queries.getQuery(QUERY_SELECT_BOOK_AVAILABLE));
+			pstmt = con.prepareStatement(Queries.getInstance().getQuery(QUERY_SELECT_BOOK_AVAILABLE));
 			pstmt.setInt(++k, orderId);
 			rs = pstmt.executeQuery();
 			if (!rs.next()) {
@@ -337,14 +354,14 @@ public class OrderDaoImpl implements OrderDao {
 			int available = rs.getInt(++k);
 			DbManager.close(pstmt);
 			k=0;
-			pstmt = con.prepareStatement(Queries.getQuery(QUERY_UPDATE_ORDER_STATE_AND_RETURN_DATE));
+			pstmt = con.prepareStatement(Queries.getInstance().getQuery(QUERY_UPDATE_ORDER_STATE_AND_RETURN_DATE));
 			pstmt.setString(++k, returnTime.format(DATE_TIME_FORMATTER));
 			pstmt.setString(++k, OrderState.COMPLETED.toString().toLowerCase());
 			pstmt.setInt(++k, orderId);
 			pstmt.executeUpdate();
 			DbManager.close(pstmt);
 			k=0;
-			pstmt = con.prepareStatement(Queries.getQuery(QUERY_UPDATE_BOOK_AVAILABLE));
+			pstmt = con.prepareStatement(Queries.getInstance().getQuery(QUERY_UPDATE_BOOK_AVAILABLE));
 			pstmt.setInt(++k, ++available);
 			pstmt.setInt(++k, orderId);
 			pstmt.executeUpdate();
@@ -355,20 +372,22 @@ public class OrderDaoImpl implements OrderDao {
 			LOG.error(e);
 			throw new DaoException(message, e);
 		} finally {
-			DbManager.close(rs);
-			DbManager.close(pstmt);
-			DbManager.close(con);
+			DbManager.closeResources(con, pstmt, rs);
 		}
 	}
 
 	@Override
 	public List<Order> getUserActualOrders(int userId) throws DaoException {
+		return getUserActualOrders(DbManager.getInstance().getConnection(), userId);
+	}
+
+	static List<Order> getUserActualOrders(Connection con, int userId) throws DaoException {
 		List<Order> orders = new ArrayList<>();
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
-		try(Connection con = DbManager.getInstance().getConnection()) {
+		try {
 			int k = 0;
-			pstmt = con.prepareStatement(Queries.getQuery(QUERY_SELECT_READER_ACTUAL_ORDERS));
+			pstmt = con.prepareStatement(Queries.getInstance().getQuery(QUERY_SELECT_READER_ACTUAL_ORDERS));
 			pstmt.setInt(++k, userId);
 			rs = pstmt.executeQuery();
 			while (rs.next()) {
@@ -379,20 +398,23 @@ public class OrderDaoImpl implements OrderDao {
 			LOG.error(e);
 			throw new DaoException(message, e);
 		} finally {
-			DbManager.close(rs);
-			DbManager.close(pstmt);
+			DbManager.closeResources(con, pstmt, rs);
 		}
 		return orders;
 	}
 
 	@Override
 	public List<Order> getUserProcessedOrders(int userId) throws DaoException {
+		return getUserProcessedOrders(DbManager.getInstance().getConnection(), userId);
+	}
+
+	static List<Order> getUserProcessedOrders(Connection con, int userId) throws DaoException {
 		List<Order> orders = new ArrayList<>();
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
-		try(Connection con = DbManager.getInstance().getConnection()) {
+		try {
 			int k = 0;
-			pstmt = con.prepareStatement(Queries.getQuery(QUERY_SELECT_READER_PROCESSED_ORDERS));
+			pstmt = con.prepareStatement(Queries.getInstance().getQuery(QUERY_SELECT_READER_PROCESSED_ORDERS));
 			pstmt.setInt(++k, userId);
 			rs = pstmt.executeQuery();
 			while (rs.next()) {
@@ -403,20 +425,23 @@ public class OrderDaoImpl implements OrderDao {
 			LOG.error(e);
 			throw new DaoException(message, e);
 		} finally {
-			DbManager.close(rs);
-			DbManager.close(pstmt);
+			DbManager.closeResources(con, pstmt, rs);
 		}
 		return orders;
 	}
-
+	
 	@Override
 	public List<Integer> getOverdueOrdersIds(LocalDateTime ldt) throws DaoException {
+		return getOverdueOrdersIds(DbManager.getInstance().getConnection(), ldt);
+	}
+
+	static List<Integer> getOverdueOrdersIds(Connection con, LocalDateTime ldt) throws DaoException {
 		List<Integer> overdueOrdersIds = new ArrayList<>();
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
-		try(Connection con = DbManager.getInstance().getConnection()) {
+		try {
 			int k = 0;
-			pstmt = con.prepareStatement(Queries.getQuery(QUERY_SELECT_OVERDUE_ORDERS_IDS));
+			pstmt = con.prepareStatement(Queries.getInstance().getQuery(QUERY_SELECT_OVERDUE_ORDERS_IDS));
 			pstmt.setString(++k, ldt.format(DATE_TIME_FORMATTER));
 			rs = pstmt.executeQuery();
 			while (rs.next()) {
@@ -427,19 +452,21 @@ public class OrderDaoImpl implements OrderDao {
 			LOG.error(e);
 			throw new DaoException(message, e);
 		} finally {
-			DbManager.close(rs);
-			DbManager.close(pstmt);
+			DbManager.closeResources(con, pstmt, rs);
 		}
 		return overdueOrdersIds;
 	}
-
+	
 	@Override
 	public void setFine(int orderId, int fine) throws DaoException {
+		setFine(DbManager.getInstance().getConnection(), orderId, fine);
+	}
+
+	static void setFine(Connection con, int orderId, int fine) throws DaoException {
 		PreparedStatement pstmt = null;
-		ResultSet rs = null;
-		try(Connection con = DbManager.getInstance().getConnection()) {
+		try {
 			int k = 0;
-			pstmt = con.prepareStatement(Queries.getQuery(QUERY_SET_FINE));
+			pstmt = con.prepareStatement(Queries.getInstance().getQuery(QUERY_SET_FINE));
 			pstmt.setInt(++k, fine);
 			pstmt.setInt(++k, orderId);
 			pstmt.executeUpdate();
@@ -448,10 +475,8 @@ public class OrderDaoImpl implements OrderDao {
 			LOG.error(e);
 			throw new DaoException(message, e);
 		} finally {
-			DbManager.close(rs);
-			DbManager.close(pstmt);
+			DbManager.closeResources(con, pstmt);
 		}
 	}
-
 	
 }

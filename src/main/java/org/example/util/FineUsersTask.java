@@ -1,4 +1,4 @@
-package org.example;
+package org.example.util;
 
 import java.util.TimerTask;
 
@@ -13,7 +13,6 @@ public class FineUsersTask extends TimerTask{
 
 	@Override
 	public void run() {
-		LOG.info("Users penalty started");
 		try {
 			OrderService.setFineForOverdueOrders();
 		} catch (DaoException e) {
