@@ -18,6 +18,7 @@ import org.example.entity.UserRole;
 import org.example.exception.DaoException;
 import org.example.service.AuthorService;
 import org.example.service.PublicationService;
+import org.example.util.Messages;
 
 @WebServlet("/admin")
 public class AdminServlet extends HttpServlet{
@@ -41,7 +42,8 @@ public class AdminServlet extends HttpServlet{
 			req.setAttribute(REQ_ATTR_AUTHORS, authors);
 		} catch (DaoException e) {
 			LOG.error(e);
-			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_ERROR_MESSAGE, e.getMessage());
+			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_ERROR_MESSAGE, 
+										  Messages.getMessage(req, e.getMessage()));
 		}
 		req.getRequestDispatcher(Constants.ADMIN_HOME_PAGE).forward(req, resp);
 	}

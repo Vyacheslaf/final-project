@@ -17,6 +17,7 @@ public class AuthorDaoImpl implements AuthorDao{
 
 	private static final Logger LOG = LogManager.getLogger(AuthorDaoImpl.class);
 	private static final String QUERY_SELECT_ALL_AUTHORS = "select.all.authors";
+	private static final String ERROR_CANNOT_GET_AUTHORS = "error.cannot.get.authors";
 	
 	@Override
 	public Author create(Author entity) throws DaoException {
@@ -38,13 +39,10 @@ public class AuthorDaoImpl implements AuthorDao{
 
 	@Override
 	public List<Author> findAllAuthor() throws DaoException {
-		return findAllAuthor(DbManager.getInstance().getConnection());
-	}
-
-	static List<Author> findAllAuthor(Connection con) throws DaoException {
 		List<Author> authors = new ArrayList<>();
 		Statement stmt = null;
 		ResultSet rs = null;
+		Connection con = DbManager.getInstance().getConnection();
 		try {
 			stmt = con.createStatement();
 			rs = stmt.executeQuery(Queries.getInstance().getQuery(QUERY_SELECT_ALL_AUTHORS));
@@ -52,9 +50,8 @@ public class AuthorDaoImpl implements AuthorDao{
 				authors.add(getAuthor(rs));
 			}
 		} catch (SQLException e) {
-			String message = "Cannot get list of authors";
 			LOG.error(e);
-			throw new DaoException(message, e);
+			throw new DaoException(ERROR_CANNOT_GET_AUTHORS, e);
 		} finally {
 			DbManager.closeResources(con, stmt, rs);
 		}

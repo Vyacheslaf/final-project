@@ -1,13 +1,16 @@
 package org.example.dao.mysql;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Field;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.sql.Connection;
@@ -19,15 +22,20 @@ import java.util.List;
 import org.apache.ibatis.jdbc.ScriptRunner;
 import org.example.entity.Book;
 import org.example.exception.DaoException;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.mockito.Mockito;
 
 public class BookDaoImplTest {
 	
-	private final static String DB_URL = "jdbc:mysql://localhost:3306/fplibrarydb?user=libadmin&password=111";
-	private final static String INIT_SQL_SCRIPT = "sql/BookDaoImplTest.sql";
+	private static final String DB_URL = "jdbc:mysql://localhost:3306/fplibrarydb?user=libadmin&password=111";
+	private static final String INIT_SQL_SCRIPT = "sql/BookDaoImplTest.sql";
+	
+	private final BookDaoImpl bookDaoImpl = new BookDaoImpl();
 	
 	@BeforeAll
 	public static void initDB() throws SQLException, FileNotFoundException, IOException, URISyntaxException {
@@ -39,6 +47,30 @@ public class BookDaoImplTest {
 			runner.runScript(reader);
 		}
 	}
+	
+	@BeforeEach
+	public void tuneMockDbManager() throws DaoException, SQLException {
+	    DbManager mockDbManager = Mockito.mock(DbManager.class);
+	    setMock(mockDbManager);
+	    Mockito.when(mockDbManager.getConnection()).thenReturn(DriverManager.getConnection(DB_URL));
+	}
+
+	private void setMock(DbManager mock) {
+	    try {
+	        Field instance = DbManager.class.getDeclaredField("instance");
+	        instance.setAccessible(true);
+	        instance.set(instance, mock);
+	    } catch (Exception e) {
+	        throw new RuntimeException(e);
+	    }
+	}
+	
+	@AfterEach
+	public void resetDbManager() throws Exception {
+	   Field instance = DbManager.class.getDeclaredField("instance");
+	   instance.setAccessible(true);
+	   instance.set(null, null);
+	} 
 
 	@Test
 	public void bookCRUDTest() throws SQLException, DaoException {
@@ -50,43 +82,28 @@ public class BookDaoImplTest {
 									  .setQuantity(1)
 									  .setAvailable(1)
 									  .build();
-		
-		try (Connection con = DriverManager.getConnection(DB_URL)) {
-			BookDaoImpl.create(con, expectedBook);
-		}
-
-		Book actualBook = null;
-		try (Connection con = DriverManager.getConnection(DB_URL)) {
-			actualBook = BookDaoImpl.find(con, expectedBook);
-		}
+		bookDaoImpl.create(expectedBook);
+		tuneMockDbManager();
+		Book actualBook = bookDaoImpl.find(expectedBook);
 		assertEquals(expectedBook, actualBook);
 		
+		tuneMockDbManager();
 		expectedBook.setId(actualBook.getId());
 		expectedBook.setQuantity(2);
-		try (Connection con = DriverManager.getConnection(DB_URL)) {
-			BookDaoImpl.update(con, expectedBook);
-		}
+		bookDaoImpl.update(expectedBook);
 		
-		try (Connection con = DriverManager.getConnection(DB_URL)) {
-			actualBook = BookDaoImpl.find(con, expectedBook);
-		}
+		tuneMockDbManager();
+		actualBook = bookDaoImpl.find(expectedBook);
 		assertEquals(expectedBook.getQuantity(), actualBook.getQuantity());
 		assertEquals(expectedBook.getQuantity(), actualBook.getAvailable());
 		
-		try (Connection con = DriverManager.getConnection(DB_URL)) {
-			BookDaoImpl.remove(con, expectedBook);
-		}
-		try (Connection con = DriverManager.getConnection(DB_URL)) {
-			actualBook = BookDaoImpl.find(con, expectedBook);
-		}
-		assertEquals(null, actualBook);
+		tuneMockDbManager();
+		bookDaoImpl.remove(expectedBook);
+		tuneMockDbManager();
+		actualBook = bookDaoImpl.find(expectedBook);
+		assertNull(actualBook);
 	}
 	
-/*	@ParameterizedTest
-	@CsvSource(value = {"NULL", 
-						"''",
-						"a"},
-			   nullValues = {"NULL"})*/
 	@ParameterizedTest
 	@CsvSource({
 		", author, desc", 
@@ -94,15 +111,11 @@ public class BookDaoImplTest {
 		"a, , "})
 	public void findBooksCountsTest(String searchText, String orderBy, String orderType) throws DaoException, SQLException {
 		List<Book> books = new ArrayList<>();
-		try (Connection con = DriverManager.getConnection(DB_URL)) {
-			books = BookDaoImpl.findBooks(con, searchText, orderBy, orderType, 1000, 0);
-		}
-		assertEquals(true, books.size() > 0);
+		books = bookDaoImpl.findBooks(searchText, orderBy, orderType, 1000, 0);
+		assertTrue(books.size() > 0);
 		
-		int count = 0;
-		try (Connection con = DriverManager.getConnection(DB_URL)) {
-			count = BookDaoImpl.countBooks(con, searchText);
-		}
+		tuneMockDbManager();
+		int count = bookDaoImpl.countBooks(searchText);
 		assertEquals(count, books.size());
 	}
 	
@@ -116,30 +129,29 @@ public class BookDaoImplTest {
 				  .setQuantity(2)
 				  .setAvailable(2)
 				  .build();
-		try (Connection con = DriverManager.getConnection(DB_URL)) {
-			BookDaoImpl.create(con, book);
-		}
-		Book actualBook;
-		try (Connection con = DriverManager.getConnection(DB_URL)) {
-			actualBook = BookDaoImpl.find(con, book);
-		}
+		bookDaoImpl.create(book);
+		tuneMockDbManager();
+		Book actualBook = bookDaoImpl.find(book);
 		book.setId(actualBook.getId());
-		assertThrows(DaoException.class, () -> BookDaoImpl.create(DriverManager.getConnection(DB_URL), book));
-		try (Connection con = DriverManager.getConnection(DB_URL)) {
-			BookDaoImpl.remove(con, book);
-		}
+		tuneMockDbManager();
+		assertThrows(DaoException.class, () -> bookDaoImpl.create(book));
+
+		tuneMockDbManager();
+		bookDaoImpl.remove(book);
 
 		Book issuedBook = new Book.Builder().setId(2).setQuantity(1).build();
-		assertThrows(DaoException.class, () -> BookDaoImpl.remove(DriverManager.getConnection(DB_URL), issuedBook));
-		assertThrows(DaoException.class, () -> BookDaoImpl.update(DriverManager.getConnection(DB_URL), issuedBook));
+		tuneMockDbManager();
+		assertThrows(DaoException.class, () -> bookDaoImpl.remove(issuedBook));
+		tuneMockDbManager();
+		assertThrows(DaoException.class, () -> bookDaoImpl.update(issuedBook));
 		Book nonExistentBook = new Book.Builder().setId(4).build();
-		Connection con = DriverManager.getConnection(DB_URL);
-		assertThrows(DaoException.class, () -> BookDaoImpl.update(con, nonExistentBook));
-		assertThrows(DaoException.class, () -> BookDaoImpl.create(con, book));
-		assertThrows(DaoException.class, () -> BookDaoImpl.find(con, book));
-		assertThrows(DaoException.class, () -> BookDaoImpl.update(con, book));
-		assertThrows(DaoException.class, () -> BookDaoImpl.remove(con, book));
-		assertThrows(DaoException.class, () -> BookDaoImpl.countBooks(con, null));
-		assertThrows(DaoException.class, () -> BookDaoImpl.findBooks(con, null, null, null, 0, 0));
+		tuneMockDbManager();
+		assertThrows(DaoException.class, () -> bookDaoImpl.update(nonExistentBook));
+		assertThrows(DaoException.class, () -> bookDaoImpl.create(book));
+		assertThrows(DaoException.class, () -> bookDaoImpl.find(book));
+		assertThrows(DaoException.class, () -> bookDaoImpl.update(book));
+		assertThrows(DaoException.class, () -> bookDaoImpl.remove(book));
+		assertThrows(DaoException.class, () -> bookDaoImpl.countBooks(null));
+		assertThrows(DaoException.class, () -> bookDaoImpl.findBooks(null, null, null, 0, 0));
 	}
 }

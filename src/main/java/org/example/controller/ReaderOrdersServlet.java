@@ -16,6 +16,7 @@ import org.example.entity.User;
 import org.example.entity.UserRole;
 import org.example.exception.DaoException;
 import org.example.service.OrderService;
+import org.example.util.Messages;
 
 @WebServlet("/readerorders")
 public class ReaderOrdersServlet extends HttpServlet{
@@ -23,7 +24,6 @@ public class ReaderOrdersServlet extends HttpServlet{
 	private static final long serialVersionUID = 1L;
 	private static final Logger LOG = LogManager.getLogger(ReaderOrdersServlet.class);
 	private static final String REQ_ATTR_ORDERS = "orders";
-	private static final String GET_ORDER_LIST_ERROR_MESSAGE = "Cannot get list of orders for user #";
 	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -37,10 +37,10 @@ public class ReaderOrdersServlet extends HttpServlet{
 			orders = OrderService.getReaderOrders(user);
 			req.setAttribute(REQ_ATTR_ORDERS, orders);
 		} catch (DaoException e) {
-			String message = GET_ORDER_LIST_ERROR_MESSAGE + user.getId();
-			LOG.error(message);
-			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_ERROR_MESSAGE, message);
-			resp.sendRedirect(req.getHeader("Referer"));
+			LOG.error(e);
+			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_ERROR_MESSAGE, 
+										  Messages.getMessage(req, e.getMessage()));
+			resp.sendRedirect(req.getHeader(Constants.PREV_PAGE_HEADER_NAME));
 			return;
 		}
 		req.getRequestDispatcher(Constants.READER_ORDERS_PAGE).forward(req, resp);

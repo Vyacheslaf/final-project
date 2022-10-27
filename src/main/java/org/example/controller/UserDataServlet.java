@@ -14,6 +14,7 @@ import org.example.entity.User;
 import org.example.entity.UserRole;
 import org.example.exception.DaoException;
 import org.example.service.UserService;
+import org.example.util.Messages;
 
 @WebServlet("/changedata")
 public class UserDataServlet extends HttpServlet{
@@ -33,8 +34,9 @@ public class UserDataServlet extends HttpServlet{
 			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_USER, user);
 		} catch (DaoException e) {
 			LOG.error(e.getMessage());
-			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_ERROR_MESSAGE, e.getMessage());
+			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_ERROR_MESSAGE, 
+					  					  Messages.getMessage(req, e.getMessage()));
 		}
-		resp.sendRedirect(req.getHeader("Referer"));
+		resp.sendRedirect(req.getHeader(Constants.PREV_PAGE_HEADER_NAME));
 	}
 }

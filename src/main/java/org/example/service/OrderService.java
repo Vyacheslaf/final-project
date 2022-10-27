@@ -18,8 +18,6 @@ public class OrderService {
 
 	public static boolean createOrder(String bookId, User user) throws DaoException {
 		Book book = new Book.Builder().setId(Integer.parseInt(bookId)).build();
-//		DaoFactory daoFactory = DaoFactory.getDaoFactory(Config.DBMS);
-//		OrderDao orderDao = daoFactory.getOrderDao();
 		OrderDao orderDao = DAO_FACTORY.getOrderDao();
 		if (!isNewOrder(user, book, orderDao)) {
 			return false;
@@ -102,6 +100,5 @@ public class OrderService {
 		for (Integer id : overdueOrdersIds) {
 			orderDao.setFine(id.intValue(), FINE);
 		}
-//		overdueOrdersIds.forEach(id -> orderDao.setFine(id.intValue(), FINE));
 	}
 }

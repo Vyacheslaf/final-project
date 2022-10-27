@@ -17,46 +17,35 @@ public class PublicationDaoImpl implements PublicationDao{
 
 	private static final Logger LOG = LogManager.getLogger(PublicationDaoImpl.class);
 	private static final String QUERY_SELECT_ALL_PUBLICATIONS = "select.all.publications";
+	private static final String ERROR_CANNOT_GET_PUBLICATIONS = "error.cannot.get.publications";
 	
 	@Override
 	public Publication create(Publication entity) throws DaoException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Publication find(Publication entity) throws DaoException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public void update(Publication entity) throws DaoException {
-		// TODO Auto-generated method stub
-		
-	}
+	public void update(Publication entity) throws DaoException {}
 
 	@Override
-	public void remove(Publication entity) throws DaoException {
-		// TODO Auto-generated method stub
-		
-	}
+	public void remove(Publication entity) throws DaoException {}
 
 	@Override
 	public Publication findByName(String publicationName) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public List<Publication> findAllPublication() throws DaoException {
-		return findAllPublication(DbManager.getInstance().getConnection());
-	}
-
-	static List<Publication> findAllPublication(Connection con) throws DaoException {
 		List<Publication> publications = new ArrayList<>();
 		Statement stmt = null;
 		ResultSet rs = null;
+		Connection con = DbManager.getInstance().getConnection();
 		try {
 			stmt = con.createStatement();
 			rs = stmt.executeQuery(Queries.getInstance().getQuery(QUERY_SELECT_ALL_PUBLICATIONS));
@@ -64,9 +53,8 @@ public class PublicationDaoImpl implements PublicationDao{
 				publications.add(getPublication(rs));
 			}
 		} catch (SQLException e) {
-			String message = "Cannot get list of publications";
 			LOG.error(e);
-			throw new DaoException(message, e);
+			throw new DaoException(ERROR_CANNOT_GET_PUBLICATIONS, e);
 		} finally {
 			DbManager.closeResources(con, stmt, rs);
 		}

@@ -15,6 +15,7 @@ import org.example.entity.UserRole;
 import org.example.exception.DaoException;
 import org.example.exception.ServiceException;
 import org.example.service.UserService;
+import org.example.util.Messages;
 
 @WebServlet("/deleteuser")
 public class DeleteUserServlet extends HttpServlet{
@@ -34,9 +35,10 @@ public class DeleteUserServlet extends HttpServlet{
 			UserService.deleteUser(req.getParameter(REQ_PARAM_USER_ID));
 		} catch (DaoException | ServiceException e) {
 			LOG.error(e);
-			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_ERROR_MESSAGE, e.getMessage());
+			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_ERROR_MESSAGE, 
+					  					  Messages.getMessage(req, e.getMessage()));
 		}
-		resp.sendRedirect(req.getHeader("Referer"));
+		resp.sendRedirect(req.getHeader(Constants.PREV_PAGE_HEADER_NAME));
 	}
 
 }

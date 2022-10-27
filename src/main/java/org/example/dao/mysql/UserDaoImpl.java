@@ -29,70 +29,30 @@ public class UserDaoImpl implements UserDao {
 	private static final String QUERY_SELECT_FINED_USERS = "select.fined.users";
 	private static final String QUERY_BLOCK_USER = "block.user";
 	private static final int FINE_COLUMN_INDEX = 10;
+	private static final String ERROR_USER_ALREADY_EXISTS = "error.user.already.exists";
+	private static final String ERROR_CANNOT_CREATE_USER = "error.cannot.create.user";
+	private static final String ERROR_CANNOT_GET_DATA = "error.cannot.get.data";
+	private static final String ERROR_CANNOT_UPDATE_USER = "error.cannot.update.user";
+	private static final String ERROR_CANNOT_DELETE_USER = "error.cannot.delete.user";
+	private static final String ERROR_CANNOT_GET_USERS = "error.cannot.get.users";
+	private static final String ERROR_CANNOT_BLOCK_USER = "error.cannot.block.user";
 
 	@Override
 	public User create(User user) throws DaoException {
-		return create(DbManager.getInstance().getConnection(), user);
-	}
-
-	@Override
-	public User find(User user) throws DaoException {
-		return find(DbManager.getInstance().getConnection(), user);
-	}
-	
-	@Override
-	public void update(User user) throws DaoException {
-		update(DbManager.getInstance().getConnection(), user);
-	}
-	
-	@Override
-	public void remove(User user) throws DaoException {
-		remove(DbManager.getInstance().getConnection(), user);
-	}
-	
-	@Override
-	public User findByLoginAndPassword(String email, String password) throws DaoException{
-		return findByLoginAndPassword(DbManager.getInstance().getConnection(), email, password);
-	}
-	
-	@Override
-	public List<User> findByRole(UserRole userRole) throws DaoException {
-		return findByRole(DbManager.getInstance().getConnection(), userRole);
-	}
-	
-	@Override
-	public User findByPhone(String phoneNumber) throws DaoException {
-		return findByPhone(DbManager.getInstance().getConnection(), phoneNumber);
-	}
-	
-	@Override
-	public List<User> findByFine() throws DaoException {
-		return findByFine(DbManager.getInstance().getConnection());
-	}
-	
-	@Override
-	public void block(User user) throws DaoException {
-		block(DbManager.getInstance().getConnection(), user);
-	}
-
-	static User create(Connection con, User user) throws DaoException {
-		if (user == null || user.getPassword() == null) {
-			throw new DaoException("Password cannot be null");
-		}
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
+		Connection con = DbManager.getInstance().getConnection();
 		try {
 			int k = 0;
 			pstmt = con.prepareStatement(Queries.getInstance().getQuery(QUERY_INSERT_USER), 
 										 PreparedStatement.RETURN_GENERATED_KEYS);
 			pstmt.setString(++k, user.getEmail());
-//			pstmt.setString(++k, DigestUtils.sha1Hex(user.getPassword()));
 			pstmt.setString(++k, user.getPassword());
 			pstmt.setString(++k, user.getFirstName());
 			pstmt.setString(++k, user.getLastName());
 			pstmt.setString(++k, user.getPhoneNumber());
 			pstmt.setString(++k, user.getPassportNumber());
-			pstmt.setString(++k, user.getRole().name().toLowerCase());
+			pstmt.setString(++k, user.getRole().toString().toLowerCase());
 			k = pstmt.executeUpdate();
 			if (k > 0) {
 				rs = pstmt.getGeneratedKeys();
@@ -101,44 +61,44 @@ public class UserDaoImpl implements UserDao {
 				}
 			}
 		} catch (SQLIntegrityConstraintViolationException ex){
-			String message = "User with such data is already registered";
 			LOG.error(ex);
-			throw new DaoException(message, ex);
+			throw new DaoException(ERROR_USER_ALREADY_EXISTS, ex);
 		} catch (SQLException e) {
-			String message = "Cannot create user";
 			LOG.error(e);
-			throw new DaoException(message, e);
+			throw new DaoException(ERROR_CANNOT_CREATE_USER, e);
 		} finally {
 			DbManager.closeResources(con, pstmt, rs);
 		}
 		return user;
 	}
 
-	static User find(Connection con, User user) throws DaoException {
+	@Override
+	public User find(User user) throws DaoException {
 		int userId = user.getId();
-		user = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
+		Connection con = DbManager.getInstance().getConnection();
 		try {
 			pstmt = con.prepareStatement(Queries.getInstance().getQuery(QUERY_SELECT_USER_BY_ID)); 
 			int k = 0;
 			pstmt.setInt(++k, userId);
 			rs = pstmt.executeQuery();
 			if (rs.next()) {
-				user = getUser(rs);
+				return getUser(rs);
 			}
+			return null;
 		} catch (SQLException e) {
-			String message = "Cannot get data from database";
 			LOG.error(e);
-			throw new DaoException(message, e);
+			throw new DaoException(ERROR_CANNOT_GET_DATA, e);
 		} finally {
 			DbManager.closeResources(con, pstmt, rs);
 		}
-		return user;
 	}
 
-	static void update(Connection con, User user) throws DaoException {
+	@Override
+	public void update(User user) throws DaoException {
 		PreparedStatement pstmt = null;
+		Connection con = DbManager.getInstance().getConnection();
 		try {
 			int k = 0;
 			pstmt = con.prepareStatement(Queries.getInstance().getQuery(QUERY_UPDATE_USER));
@@ -151,61 +111,63 @@ public class UserDaoImpl implements UserDao {
 			pstmt.setInt(++k, user.getId());
 			pstmt.executeUpdate();
 		} catch (SQLException e) {
-			String message = "Cannot update user";
 			LOG.error(e);
-			throw new DaoException(message, e);
+			throw new DaoException(ERROR_CANNOT_UPDATE_USER, e);
 		} finally {
 			DbManager.closeResources(con, pstmt);
 		}
 	}
 
-	static void remove(Connection con, User user) throws DaoException {
+	@Override
+	public void remove(User user) throws DaoException {
 		PreparedStatement pstmt = null;
+		Connection con = DbManager.getInstance().getConnection();
 		try {
 			int k = 0;
 			pstmt = con.prepareStatement(Queries.getInstance().getQuery(QUERY_DELETE_USER));
 			pstmt.setInt(++k, user.getId());
 			pstmt.executeUpdate();
 		} catch (SQLException e) {
-			String message = "Cannot delete user";
 			LOG.error(e);
-			throw new DaoException(message, e);
+			throw new DaoException(ERROR_CANNOT_DELETE_USER, e);
 		} finally {
 			DbManager.closeResources(con, pstmt);
 		}
 	}
 
-	static User findByLoginAndPassword(Connection con, String email, String password) throws DaoException{
+	@Override
+	public User findByLoginAndPassword(String email, String password) throws DaoException{
 		if (email == null || password == null) {
 			return null;
 		}
 		User user = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
+		Connection con = DbManager.getInstance().getConnection();
 		try {
 			pstmt = con.prepareStatement(Queries.getInstance().getQuery(QUERY_SELECT_USER_BY_EMAIL_AND_PASSWORD)); 
 			int k = 0;
 			pstmt.setString(++k, email);
-//			pstmt.setString(++k, DigestUtils.sha1Hex(password));
 			pstmt.setString(++k, password);
 			rs = pstmt.executeQuery();
 			if (rs.next()) {
 				user = getUser(rs);
 			}
 		} catch (SQLException e) {
-			String message = "Cannot get data from database";
 			LOG.error(e);
-			throw new DaoException(message, e);
+			throw new DaoException(ERROR_CANNOT_GET_DATA, e);
 		} finally {
 			DbManager.closeResources(con, pstmt, rs);
 		}
 		return user;
 	}
 
-	static List<User> findByRole(Connection con, UserRole userRole) throws DaoException {
+	@Override
+	public List<User> findByRole(UserRole userRole) throws DaoException {
 		ArrayList<User> users = new ArrayList<>();
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
+		Connection con = DbManager.getInstance().getConnection();
 		try {
 			pstmt = con.prepareStatement(Queries.getInstance().getQuery(QUERY_SELECT_USERS_BY_ROLE)); 
 			int k = 0;
@@ -215,19 +177,20 @@ public class UserDaoImpl implements UserDao {
 				users.add(getUser(rs));
 			}
 		} catch (SQLException e) {
-			String message = "Cannot get users from database";
 			LOG.error(e);
-			throw new DaoException(message, e);
+			throw new DaoException(ERROR_CANNOT_GET_USERS, e);
 		} finally {
 			DbManager.closeResources(con, pstmt, rs);
 		}
 		return users;
 	}
 
-	static User findByPhone(Connection con, String phoneNumber) throws DaoException {
+	@Override
+	public User findByPhone(String phoneNumber) throws DaoException {
 		User user = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
+		Connection con = DbManager.getInstance().getConnection();
 		try {
 			pstmt = con.prepareStatement(Queries.getInstance().getQuery(QUERY_SELECT_USER_BY_PHONE)); 
 			int k = 0;
@@ -237,19 +200,20 @@ public class UserDaoImpl implements UserDao {
 				user = getUser(rs);
 			}
 		} catch (SQLException e) {
-			String message = "Cannot get data from database";
 			LOG.error(e);
-			throw new DaoException(message, e);
+			throw new DaoException(ERROR_CANNOT_GET_DATA, e);
 		} finally {
 			DbManager.closeResources(con, pstmt, rs);
 		}
 		return user;
 	}
 
-	static List<User> findByFine(Connection con) throws DaoException {
+	@Override
+	public List<User> findByFine() throws DaoException {
 		ArrayList<User> users = new ArrayList<>();
 		Statement stmt = null;
 		ResultSet rs = null;
+		Connection con = DbManager.getInstance().getConnection();
 		try {
 			stmt = con.createStatement();
 			rs = stmt.executeQuery(Queries.getInstance().getQuery(QUERY_SELECT_FINED_USERS));
@@ -257,17 +221,18 @@ public class UserDaoImpl implements UserDao {
 				users.add(getUser(rs));
 			}
 		} catch (SQLException e) {
-			String message = "Cannot get users from database";
 			LOG.error(e);
-			throw new DaoException(message, e);
+			throw new DaoException(ERROR_CANNOT_GET_USERS, e);
 		} finally {
 			DbManager.closeResources(con, stmt, rs);
 		}
 		return users;
 	}
 	
-	static void block(Connection con, User user) throws DaoException {
+	@Override
+	public void block(User user) throws DaoException {
 		PreparedStatement pstmt = null;
+		Connection con = DbManager.getInstance().getConnection();
 		try {
 			int k = 0;
 			pstmt = con.prepareStatement(Queries.getInstance().getQuery(QUERY_BLOCK_USER));
@@ -275,9 +240,8 @@ public class UserDaoImpl implements UserDao {
 			pstmt.setInt(++k, user.getId());
 			pstmt.executeUpdate();
 		} catch (SQLException e) {
-			String message = "Cannot block the user";
 			LOG.error(e);
-			throw new DaoException(message, e);
+			throw new DaoException(ERROR_CANNOT_BLOCK_USER, e);
 		} finally {
 			DbManager.closeResources(con, pstmt);
 		}

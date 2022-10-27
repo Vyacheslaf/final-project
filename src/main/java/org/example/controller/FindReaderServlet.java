@@ -16,6 +16,7 @@ import org.example.entity.User;
 import org.example.entity.UserRole;
 import org.example.exception.DaoException;
 import org.example.service.UserService;
+import org.example.util.Messages;
 
 @WebServlet("/findreader")
 public class FindReaderServlet extends HttpServlet{
@@ -23,8 +24,9 @@ public class FindReaderServlet extends HttpServlet{
 	private static final long serialVersionUID = 1L;
 	private static final Logger LOG = LogManager.getLogger(FindReaderServlet.class);
 	private static final String REQ_ATTR_PHONE_NUMBER = "phonenumber";
-	private static final Object ERROR_MESSAGE = "Reader not found";
+	private static final String ERROR_READER_NOT_FOUND = "error.reader.not.found";
 	private static final String REQ_ATTR_READERS = "readers";
+	private static final String REQ_ATTR_READER_ID = "readerid";
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -38,12 +40,14 @@ public class FindReaderServlet extends HttpServlet{
 		try {
 			User reader = UserService.findUserByPhone(phoneNumber);
 			if (reader == null) {
-				req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_ERROR_MESSAGE, ERROR_MESSAGE);
-				resp.sendRedirect(req.getHeader("Referer"));
+				req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_ERROR_MESSAGE, 
+											  Messages.getMessage(req, ERROR_READER_NOT_FOUND));
+				resp.sendRedirect(req.getHeader(Constants.PREV_PAGE_HEADER_NAME));
 				return;
 			}
 			if (user.getRole().equals(UserRole.LIBRARIAN)) {
-				resp.sendRedirect(Constants.READER_DETAILS_SERVLET_MAPPING + "?readerid=" + reader.getId());
+				String reqParameter = "?" + REQ_ATTR_READER_ID + "=" + reader.getId();
+				resp.sendRedirect(Constants.READER_DETAILS_SERVLET_MAPPING + reqParameter);
 				return;
 			}
 			List<User> readers = new ArrayList<>();
@@ -52,8 +56,9 @@ public class FindReaderServlet extends HttpServlet{
 			req.getRequestDispatcher(Constants.MANAGE_READERS_PAGE).forward(req, resp);
 		} catch (DaoException e) {
 			LOG.error(e.getMessage());
-			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_ERROR_MESSAGE, e.getMessage());
-			resp.sendRedirect(req.getHeader("Referer"));
+			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_ERROR_MESSAGE, 
+					  					  Messages.getMessage(req, e.getMessage()));
+			resp.sendRedirect(req.getHeader(Constants.PREV_PAGE_HEADER_NAME));
 		}
 	}
 }

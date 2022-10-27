@@ -14,13 +14,14 @@ import org.example.entity.User;
 import org.example.entity.UserRole;
 import org.example.exception.DaoException;
 import org.example.service.OrderService;
+import org.example.util.Messages;
 
 @WebServlet("/cancelorder")
 public class CancelOrderServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 	private static final Logger LOG = LogManager.getLogger(CancelOrderServlet.class);
-	private static final String CANCEL_ORDER_ERROR_MESSAGE = "Cannot cancel an order";
+	private static final String ERROR_CANNOT_CANCEL_ORDER = "error.cannot.cancel.order";
 	private static final String REQ_ATTR_ORDER_ID = "orderid";
 
 	@Override
@@ -33,17 +34,17 @@ public class CancelOrderServlet extends HttpServlet {
 		String orderId = req.getParameter(REQ_ATTR_ORDER_ID);
 		try {
 			if (!OrderService.cancelOrder(orderId)) {
-				throw new DaoException(CANCEL_ORDER_ERROR_MESSAGE, null);
+				throw new DaoException(ERROR_CANNOT_CANCEL_ORDER, null);
 			}
-			if (user.getRole().equals(UserRole.READER)) {
-				resp.sendRedirect(req.getHeader("Referer"));
+			if (user.getRole().equals(UserRole.LIBRARIAN)) {
+				resp.sendRedirect(Constants.LIBRARIAN_SERVLET_MAPPING);
 				return;
 			}
-			resp.sendRedirect(Constants.LIBRARIAN_SERVLET_MAPPING);
 		} catch (DaoException e) {
-			LOG.error(CANCEL_ORDER_ERROR_MESSAGE);
-			resp.sendRedirect(req.getHeader("Referer"));
-//			req.getRequestDispatcher(Constants.ERROR_SERVLET_MAPPING).forward(req, resp);
+			LOG.error(ERROR_CANNOT_CANCEL_ORDER);
+			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_ERROR_MESSAGE, 
+					  					  Messages.getMessage(req, e.getMessage()));
 		}
+		resp.sendRedirect(req.getHeader(Constants.PREV_PAGE_HEADER_NAME));
 	}
 }

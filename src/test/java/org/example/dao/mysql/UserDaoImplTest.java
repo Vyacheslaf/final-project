@@ -1,34 +1,41 @@
 package org.example.dao.mysql;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Field;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.ibatis.jdbc.ScriptRunner;
 import org.example.entity.User;
 import org.example.entity.UserRole;
 import org.example.exception.DaoException;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.mockito.Mockito;
 
 public class UserDaoImplTest {
 	
-	private final static String DB_URL = "jdbc:mysql://localhost:3306/fplibrarydb?user=libadmin&password=111";
-	private final static String INIT_SQL_SCRIPT = "sql/UserDaoImplTest.sql";
+	private static final String DB_URL = "jdbc:mysql://localhost:3306/fplibrarydb?user=libadmin&password=111";
+	private static final String INIT_SQL_SCRIPT = "sql/UserDaoImplTest.sql";
+	
+	private final UserDaoImpl userDaoImpl = new UserDaoImpl();
 	
 	@BeforeAll
 	public static void initDB() throws SQLException, FileNotFoundException, IOException, URISyntaxException {
@@ -41,6 +48,30 @@ public class UserDaoImplTest {
 		}
 	}
 	
+	@BeforeEach
+	public void tuneMockDbManager() throws DaoException, SQLException {
+	    DbManager mockDbManager = Mockito.mock(DbManager.class);
+	    setMock(mockDbManager);
+	    Mockito.when(mockDbManager.getConnection()).thenReturn(DriverManager.getConnection(DB_URL));
+	}
+
+	private void setMock(DbManager mock) {
+	    try {
+	        Field instance = DbManager.class.getDeclaredField("instance");
+	        instance.setAccessible(true);
+	        instance.set(instance, mock);
+	    } catch (Exception e) {
+	        throw new RuntimeException(e);
+	    }
+	}
+	
+	@AfterEach
+	public void resetDbManager() throws Exception {
+	   Field instance = DbManager.class.getDeclaredField("instance");
+	   instance.setAccessible(true);
+	   instance.set(null, null);
+	} 
+	
 	@Test
 	public void findUserByIdTest() throws DaoException, SQLException {
 		User expectedUser = new User();
@@ -52,10 +83,7 @@ public class UserDaoImplTest {
 		expectedUser.setPassportNumber("AA000000");
 		expectedUser.setRole(UserRole.ADMIN);
 		
-		User actualUser = new User();
-		try (Connection con = DriverManager.getConnection(DB_URL)) {
-			actualUser = UserDaoImpl.find(con, expectedUser);
-		}
+		User actualUser = userDaoImpl.find(expectedUser);
 		assertEquals(expectedUser, actualUser);
 	}
 
@@ -69,10 +97,7 @@ public class UserDaoImplTest {
 		expectedUser.setPassportNumber("AA000001");
 		expectedUser.setRole(UserRole.READER);
 		
-		User actualUser = new User();
-		try (Connection con = DriverManager.getConnection(DB_URL)) {
-			actualUser = UserDaoImpl.findByPhone(con, expectedUser.getPhoneNumber());
-		}
+		User actualUser = userDaoImpl.findByPhone(expectedUser.getPhoneNumber());
 		assertEquals(expectedUser, actualUser);
 	}
 	
@@ -89,10 +114,7 @@ public class UserDaoImplTest {
 		
 		String password = "a4cbb2f3933c5016da7e83fd135ab8a48b67bf61";
 		
-		User actualUser = new User();
-		try (Connection con = DriverManager.getConnection(DB_URL)) {
-			actualUser = UserDaoImpl.findByLoginAndPassword(con, expectedUser.getEmail(), password);
-		}
+		User actualUser = userDaoImpl.findByLoginAndPassword(expectedUser.getEmail(), password);
 		assertEquals(expectedUser, actualUser);
 	}
 	
@@ -110,11 +132,8 @@ public class UserDaoImplTest {
 		" , "
 	})
 	public void failedFindUserByLoginAndPasswordTest(String email, String password) throws SQLException, DaoException {
-		User actualUser = new User();
-		try (Connection con = DriverManager.getConnection(DB_URL)) {
-			actualUser = UserDaoImpl.findByLoginAndPassword(con, email, password);
-		}
-		assertEquals(null, actualUser);
+		User actualUser = userDaoImpl.findByLoginAndPassword(email, password);
+		assertNull(actualUser);
 	}
 
 	@ParameterizedTest
@@ -125,11 +144,8 @@ public class UserDaoImplTest {
 	})
 	public void findUserByRole(String role) throws SQLException, DaoException {
 		UserRole userRole = UserRole.valueOf(role.toUpperCase());
-		List<User> users = new ArrayList<>();
-		try (Connection con = DriverManager.getConnection(DB_URL)) {
-			users = UserDaoImpl.findByRole(con, userRole);
-		}
-		assertEquals(true, users.size() > 0);
+		List<User> users = userDaoImpl.findByRole(userRole);
+		assertTrue(users.size() > 0);
 	}
 	
 	@Test
@@ -143,17 +159,15 @@ public class UserDaoImplTest {
 		user.setPassportNumber("AA000000");
 		user.setRole(UserRole.ADMIN);
 		user.setPassword("nimda");
-		Connection con = DriverManager.getConnection(DB_URL);
-		assertThrows(DaoException.class, () -> UserDaoImpl.create(con, user));
-//		con.close();
-		assertThrows(DaoException.class, () -> UserDaoImpl.create(con, user));
-		assertThrows(DaoException.class, () -> UserDaoImpl.find(con, user));
-		assertThrows(DaoException.class, () -> UserDaoImpl.update(con, user));
-		assertThrows(DaoException.class, () -> UserDaoImpl.block(con, user));
-		assertThrows(DaoException.class, () -> UserDaoImpl.remove(con, user));
-		assertThrows(DaoException.class, () -> UserDaoImpl.findByLoginAndPassword(con, user.getEmail(), user.getPassword()));
-		assertThrows(DaoException.class, () -> UserDaoImpl.findByRole(con, user.getRole()));
-		assertThrows(DaoException.class, () -> UserDaoImpl.findByPhone(con, user.getPhoneNumber()));
+		assertThrows(DaoException.class, () -> userDaoImpl.create(user));
+		assertThrows(DaoException.class, () -> userDaoImpl.create(user));
+		assertThrows(DaoException.class, () -> userDaoImpl.find(user));
+		assertThrows(DaoException.class, () -> userDaoImpl.update(user));
+		assertThrows(DaoException.class, () -> userDaoImpl.block(user));
+		assertThrows(DaoException.class, () -> userDaoImpl.remove(user));
+		assertThrows(DaoException.class, () -> userDaoImpl.findByLoginAndPassword(user.getEmail(), user.getPassword()));
+		assertThrows(DaoException.class, () -> userDaoImpl.findByRole(user.getRole()));
+		assertThrows(DaoException.class, () -> userDaoImpl.findByPhone(user.getPhoneNumber()));
 	}
 	
 	@Test
@@ -167,59 +181,39 @@ public class UserDaoImplTest {
 		expectedUser.setRole(UserRole.READER);
 		expectedUser.setPassword("6216f8a75fd5bb3d5f22b6f9958cdede3fc086c2");
 		
-		User actualUser = new User();
-		try (Connection con = DriverManager.getConnection(DB_URL)) {
-			actualUser = UserDaoImpl.create(con, expectedUser);
-		}
+		User actualUser = userDaoImpl.create(expectedUser);
 		assertEquals(expectedUser, actualUser);
 
 		expectedUser.setId(actualUser.getId());
-		actualUser = new User();
-		try (Connection con = DriverManager.getConnection(DB_URL)) {
-			actualUser = UserDaoImpl.find(con, expectedUser);
-		}
+		tuneMockDbManager();
+		actualUser = userDaoImpl.find(expectedUser);
 		assertEquals(expectedUser, actualUser);
 		
 		expectedUser.setPhoneNumber("380970000111");
-		try (Connection con = DriverManager.getConnection(DB_URL)) {
-			UserDaoImpl.update(con, expectedUser);
-		}
-		 
-		actualUser = new User();
-		try (Connection con = DriverManager.getConnection(DB_URL)) {
-			actualUser = UserDaoImpl.find(con, expectedUser);
-		}
+		tuneMockDbManager();
+		userDaoImpl.update(expectedUser);
+		tuneMockDbManager();
+		actualUser = userDaoImpl.find(expectedUser);
 		assertEquals(expectedUser, actualUser);
 		
 		expectedUser.setBlocked(true);
-		try (Connection con = DriverManager.getConnection(DB_URL)) {
-			UserDaoImpl.block(con, expectedUser);
-		}
- 
-		actualUser = new User();
-		try (Connection con = DriverManager.getConnection(DB_URL)) {
-			actualUser = UserDaoImpl.find(con, expectedUser);
-		}
+		tuneMockDbManager();
+		userDaoImpl.block(expectedUser);
+		tuneMockDbManager();
+		actualUser = userDaoImpl.find(expectedUser);
 		assertEquals(expectedUser, actualUser);
 
 		expectedUser.setBlocked(false);
-		try (Connection con = DriverManager.getConnection(DB_URL)) {
-			UserDaoImpl.block(con, expectedUser);
-		}
- 
-		actualUser = new User();
-		try (Connection con = DriverManager.getConnection(DB_URL)) {
-			actualUser = UserDaoImpl.find(con, expectedUser);
-		}
+		tuneMockDbManager();
+		userDaoImpl.block(expectedUser);
+		tuneMockDbManager();
+		actualUser = userDaoImpl.find(expectedUser);
 		assertEquals(expectedUser, actualUser);
 		
-		try (Connection con = DriverManager.getConnection(DB_URL)) {
-			UserDaoImpl.remove(con, expectedUser);
-		}
-		
-		try (Connection con = DriverManager.getConnection(DB_URL)) {
-			actualUser = UserDaoImpl.findByPhone(con, expectedUser.getPhoneNumber());
-		}
-		assertEquals(null, actualUser);
+		tuneMockDbManager();
+		userDaoImpl.remove(expectedUser);
+		tuneMockDbManager();
+		actualUser = userDaoImpl.findByPhone(expectedUser.getPhoneNumber());
+		assertNull(actualUser);
 	}
 }

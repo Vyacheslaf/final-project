@@ -37,7 +37,7 @@ public class InitServletListener implements ServletContextListener{
 		ServletContext context = sce.getServletContext();
 		setLocales(context);
 		initPenaltyTimer();
-		LOG.info("Selected DBMS is " + Config.DBMS.toUpperCase());
+//		LOG.info("Selected DBMS is " + Config.DBMS.toUpperCase());
 		LOG.info("Servlet at " + context.getRealPath("") + " started");
 		try {
 			OrderService.setFineForOverdueOrders();

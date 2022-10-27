@@ -14,13 +14,14 @@ import org.example.entity.User;
 import org.example.entity.UserRole;
 import org.example.exception.DaoException;
 import org.example.service.OrderService;
+import org.example.util.Messages;
 
 @WebServlet("/neworder")
 public class NewOrderServlet extends HttpServlet{
 
 	private static final long serialVersionUID = 1L;
 	private static final Logger LOG = LogManager.getLogger(NewOrderServlet.class);
-	private static final String INFO_MESSAGE = "The book is already in orders";
+	private static final String INFO_BOOK_ALREADY_IN_ORDERS = "info.book.already.in.orders";
 	private static final String REQ_PARAM_BOOK_ID = "bookid";
 
 	@Override
@@ -36,16 +37,18 @@ public class NewOrderServlet extends HttpServlet{
 			isCreated = OrderService.createOrder(bookId, user);
 		} catch (DaoException e) {
 			LOG.error(e);
-			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_ERROR_MESSAGE, e.getMessage());
-			resp.sendRedirect(req.getHeader("Referer"));
+			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_ERROR_MESSAGE, 
+										  Messages.getMessage(req, e.getMessage()));
+			resp.sendRedirect(req.getHeader(Constants.PREV_PAGE_HEADER_NAME));
 			return;
 		}
 		if (isCreated) {
 			resp.sendRedirect(req.getRequestURI());
 			return;
 		}
-		req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_INFO_MESSAGE, INFO_MESSAGE);
-		resp.sendRedirect(req.getHeader("Referer"));
+		req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_INFO_MESSAGE, 
+									  Messages.getMessage(req, INFO_BOOK_ALREADY_IN_ORDERS));
+		resp.sendRedirect(req.getHeader(Constants.PREV_PAGE_HEADER_NAME));
 	}
 	
 	@Override

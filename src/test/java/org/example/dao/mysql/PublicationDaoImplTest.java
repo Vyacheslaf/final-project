@@ -8,24 +8,29 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Field;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.ibatis.jdbc.ScriptRunner;
 import org.example.entity.Publication;
 import org.example.exception.DaoException;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 public class PublicationDaoImplTest {
 
-	private final static String DB_URL = "jdbc:mysql://localhost:3306/fplibrarydb?user=libadmin&password=111";
-	private final static String INIT_SQL_SCRIPT = "sql/BookDaoImplTest.sql";
+	private static final String DB_URL = "jdbc:mysql://localhost:3306/fplibrarydb?user=libadmin&password=111";
+	private static final String INIT_SQL_SCRIPT = "sql/BookDaoImplTest.sql";
+	
+	private final PublicationDaoImpl publicationDaoImpl = new PublicationDaoImpl();
 	
 	@BeforeAll
 	public static void initDB() throws SQLException, FileNotFoundException, IOException, URISyntaxException {
@@ -37,20 +42,40 @@ public class PublicationDaoImplTest {
 			runner.runScript(reader);
 		}
 	}
+	
+	@BeforeEach
+	public void tuneMockDbManager() throws DaoException, SQLException {
+	    DbManager mockDbManager = Mockito.mock(DbManager.class);
+	    setMock(mockDbManager);
+	    Mockito.when(mockDbManager.getConnection()).thenReturn(DriverManager.getConnection(DB_URL));
+	}
+
+	private void setMock(DbManager mock) {
+	    try {
+	        Field instance = DbManager.class.getDeclaredField("instance");
+	        instance.setAccessible(true);
+	        instance.set(instance, mock);
+	    } catch (Exception e) {
+	        throw new RuntimeException(e);
+	    }
+	}
+	
+	@AfterEach
+	public void resetDbManager() throws Exception {
+	   Field instance = DbManager.class.getDeclaredField("instance");
+	   instance.setAccessible(true);
+	   instance.set(null, null);
+	} 
 
 	@Test
 	public void findAllPublicationTest() throws SQLException, DaoException {
-		List<Publication> publications = new ArrayList<>();
-		try (Connection con = DriverManager.getConnection(DB_URL)) {
-			publications = PublicationDaoImpl.findAllPublication(con);
-		}
+		List<Publication> publications = publicationDaoImpl.findAllPublication();
 		assertEquals(3, publications.size());
 	}
 
 	@Test
 	public void daoExceptionTest() throws SQLException, DaoException {
-		Connection con = DriverManager.getConnection(DB_URL);
-		PublicationDaoImpl.findAllPublication(con);
-		assertThrows(DaoException.class, () -> PublicationDaoImpl.findAllPublication(con));
+		publicationDaoImpl.findAllPublication();
+		assertThrows(DaoException.class, () -> publicationDaoImpl.findAllPublication());
 	}
 }

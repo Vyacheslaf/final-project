@@ -15,7 +15,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.example.util.Config;
 import org.example.dao.BookDao;
-//import org.example.dao.DaoFactory;
 import org.example.entity.Book;
 import org.example.exception.DaoException;
 import org.example.exception.ServiceException;
@@ -24,8 +23,6 @@ public class BookService {
 
 	private static final Logger LOG = LogManager.getLogger(BookService.class);
 	private static final String SORT_TYPE_ASC = "asc";
-//	private static final String SORT_TYPE_DESC = "desc";
-//	private static final String SORT_BY_ID = "id";
 	private static final String REQ_ATTR_SORT_BY = "sortBy";
 	private static final String REQ_ATTR_SORT_TYPE = "sortType";
 	private static final String REQ_ATTR_SEARCH_TEXT = "search";
@@ -38,13 +35,17 @@ public class BookService {
 	private static final String REQ_PARAM_QUANTITY = "quantity";
 	private static final String REQ_PARAM_BOOK_ID = "bookid";
 	private static final String ISBN_REGEX = "^(97(8|9))?\\d{9}(\\d|X)$";
+	private static final String ONLY_DIGITS_REGEX = "\\d+";
+	private static final String ERROR_WRONG_ISBN = "error.wrong.isbn";//ISBN is wrong
+	private static final String ERROR_WRONG_PUBLICATION_YEAR = "error.wrong.publication.year";//"Year of publication is wrong"
+	private static final String ERROR_WRONG_QUANTITY = "error.wrong.quantity";//"Quantity is wrong"
+	private static final String ERROR_CANNOT_DELETE_BOOK = "error.cannot.delete.book";//"Cannot delete the book: Wrong id!"
+	private static final String ERROR_CANNOT_CHANGE_BOOK = "error.cannot.change.book";//"Cannot change the book: Wrong id!"
 	
 	public static List<Book> findBooks(HttpServletRequest req, int page) throws DaoException {
 		String text = req.getParameter(REQ_ATTR_SEARCH_TEXT);
 		String orderBy = getOrderBy(req);
 		String sortType = getSortType(req);
-//		DaoFactory daoFactory = DaoFactory.getDaoFactory(Config.DAO_NAME);
-//		BookDao bookDao = daoFactory.getBookDao();
 		BookDao bookDao = DAO_FACTORY.getBookDao();
 		int offset = (page - 1) * Config.LIMIT_BOOKS_ON_PAGE;
 		return bookDao.findBooks(text, orderBy, sortType, Config.LIMIT_BOOKS_ON_PAGE, offset);
@@ -62,25 +63,6 @@ public class BookService {
 			sortType= SORT_TYPE_ASC;
 		}
 		req.setAttribute(REQ_ATTR_SORT_TYPE, sortType);
-/*		String sessionSortBy = (String) req.getSession().getAttribute(REQ_ATTR_SORT_BY);
-		if (sessionSortBy == null) {
-			return SORT_TYPE_ASC;
-		}
-		String reqSortBy = req.getParameter(REQ_ATTR_SORT_BY);
-		String sortType = (String) req.getSession().getAttribute(REQ_ATTR_SORT_TYPE);
-		if (reqSortBy == null) {
-			return sortType;
-		}
-		if (sessionSortBy.equalsIgnoreCase(reqSortBy)) {
-			if (sortType == null || sortType.equalsIgnoreCase(SORT_TYPE_DESC)) {
-				sortType = SORT_TYPE_ASC;
-			} else {
-				sortType = SORT_TYPE_DESC;
-			}
-		} else {
-			sortType = SORT_TYPE_ASC;
-		}
-		req.getSession().setAttribute(REQ_ATTR_SORT_TYPE, sortType);*/
 		return sortType;
 	}
 
@@ -90,21 +72,11 @@ public class BookService {
 			req.setAttribute(REQ_ATTR_SORT_BY, sortBy);
 		}
 		return sortBy;
-/*		String sortBy = req.getParameter(REQ_ATTR_SORT_BY);
-		if (sortBy != null) {
-			req.getSession().setAttribute(REQ_ATTR_SORT_BY, sortBy);
-		} else {
-			sortBy = (String)req.getSession().getAttribute(REQ_ATTR_SORT_BY);
-		}
-		if (sortBy == null) {
-			sortBy = SORT_BY_ID;
-		}
-		return sortBy;*/
 	}
 
 	public static int getPageNumber(HttpServletRequest req) {
 		String str = req.getParameter(REQ_ATTR_CURRENT_PAGE);
-		if (str == null || !str.matches("\\d+") || Integer.parseInt(str) == 0) {
+		if (str == null || !str.matches(ONLY_DIGITS_REGEX) || Integer.parseInt(str) == 0) {
 			return 1;
 		}
 		return Integer.parseInt(str);
@@ -134,13 +106,13 @@ public class BookService {
 	
 	private static Book getBookFromRequest(HttpServletRequest req) throws ServiceException {
 		if (!checkISBN(req)) {
-			logAndThrowException("ISBN is wrong");
+			logAndThrowException(ERROR_WRONG_ISBN);
 		}
 		if (!checkPublicationYear(req)) {
-			logAndThrowException("Year of publication is wrong");
+			logAndThrowException(ERROR_WRONG_PUBLICATION_YEAR);
 		}
 		if (!isNumber(req.getParameter(REQ_PARAM_QUANTITY))) {
-			logAndThrowException("Quantity is wrong");
+			logAndThrowException(ERROR_WRONG_QUANTITY);
 		}
 		return new Book.Builder().setISBN(req.getParameter(REQ_PARAM_ISBN))
 								 .setAuthor(req.getParameter(REQ_PARAM_AUTHOR))
@@ -152,7 +124,7 @@ public class BookService {
 	}
 
 	private static boolean isNumber(String str) {
-		return str != null && str.matches("\\d+");
+		return str != null && str.matches(ONLY_DIGITS_REGEX);
 	}
 
 	private static boolean checkISBN(HttpServletRequest req) {
@@ -215,13 +187,12 @@ public class BookService {
 	public static Book findBookByISBN(String isbn) throws DaoException {
 		BookDao bookDao = DAO_FACTORY.getBookDao();
 		Book book = new Book.Builder().setISBN(isbn).build();
-//		return bookDao.findByISBN(isbn);
 		return bookDao.find(book);
 	}
 
 	public static void deleteBook(String bookId) throws ServiceException, DaoException {
 		if (!isNumber(bookId)) {
-			logAndThrowException("Cannot delete the book: Wrong id!");
+			logAndThrowException(ERROR_CANNOT_DELETE_BOOK);
 		}
 		Book book = new Book.Builder().setId(Integer.parseInt(bookId))
 									  .build();
@@ -232,7 +203,7 @@ public class BookService {
 	public static void changeBook(HttpServletRequest req) throws ServiceException, DaoException {
 		String bookId = req.getParameter(REQ_PARAM_BOOK_ID);
 		if (!isNumber(bookId)) {
-			logAndThrowException("Cannot change the book: Wrong id!");
+			logAndThrowException(ERROR_CANNOT_CHANGE_BOOK);
 		}
 		Book book = getBookFromRequest(req);
 		book.setId(Integer.parseInt(bookId));

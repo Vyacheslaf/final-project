@@ -15,13 +15,14 @@ import org.example.entity.UserRole;
 import org.example.exception.DaoException;
 import org.example.exception.ServiceException;
 import org.example.service.BookService;
+import org.example.util.Messages;
 
 @WebServlet("/addbook")
 public class AddBookServlet extends HttpServlet{
 
 	private static final long serialVersionUID = 1L;
 	private static final Logger LOG = LogManager.getLogger(AddBookServlet.class);
-	private static final String INFO_MESSAGE = "The book was added";
+	private static final String INFO_BOOK_WAS_ADDED = "info.book.was.added";
 	
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -32,12 +33,14 @@ public class AddBookServlet extends HttpServlet{
 		}
 		try {
 			BookService.addBook(req);
-			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_INFO_MESSAGE, INFO_MESSAGE);
+			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_INFO_MESSAGE, 
+										  Messages.getMessage(req, INFO_BOOK_WAS_ADDED));
 			resp.sendRedirect(Constants.START_PAGE);
 		} catch (ServiceException | DaoException e) {
 			LOG.error(e);
-			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_ERROR_MESSAGE, e.getMessage());
-			resp.sendRedirect(req.getHeader("Referer"));
+			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_ERROR_MESSAGE, 
+										  Messages.getMessage(req, e.getMessage()));
+			resp.sendRedirect(req.getHeader(Constants.PREV_PAGE_HEADER_NAME));
 		}
 	}
 

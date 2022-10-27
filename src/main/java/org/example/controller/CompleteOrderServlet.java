@@ -14,6 +14,7 @@ import org.example.entity.User;
 import org.example.entity.UserRole;
 import org.example.exception.DaoException;
 import org.example.service.OrderService;
+import org.example.util.Messages;
 
 @WebServlet("/completeorder")
 public class CompleteOrderServlet extends HttpServlet {
@@ -34,11 +35,12 @@ public class CompleteOrderServlet extends HttpServlet {
 		String readerId = req.getParameter(REQ_ATTR_READER_ID);
 		try {
 			OrderService.completeOrder(orderId);
-			resp.sendRedirect(Constants.READER_DETAILS_SERVLET_MAPPING + "?readerid=" +readerId);
+			resp.sendRedirect(Constants.READER_DETAILS_SERVLET_MAPPING + "?" + REQ_ATTR_READER_ID + "=" +readerId);
 		} catch (DaoException e) {
 			LOG.error(e);
-			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_ERROR_MESSAGE, e.getMessage());
-			resp.sendRedirect(req.getHeader("Referer"));
+			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_ERROR_MESSAGE, 
+										  Messages.getMessage(req, e.getMessage()));
+			resp.sendRedirect(req.getHeader(Constants.PREV_PAGE_HEADER_NAME));
 		}
 	}
 

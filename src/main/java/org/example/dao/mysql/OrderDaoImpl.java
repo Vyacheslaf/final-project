@@ -38,15 +38,26 @@ public class OrderDaoImpl implements OrderDao {
 	private static final String QUERY_SELECT_READER_PROCESSED_ORDERS = "select.reader.processed.orders";
 	private static final String QUERY_SELECT_OVERDUE_ORDERS_IDS = "select.overdue.orders.ids";
 	private static final String QUERY_SET_FINE = "set.fine";
+	private static final String ERROR_CANNOT_CREATE_ORDER = "error.cannot.create.order";
+	private static final String ERROR_CANNOT_FIND_ORDER = "error.cannot.find.order";
+	private static final String ERROR_CANNOT_GET_ORDERS_COUNT = "error.cannot.get.orders.count";
+	private static final String ERROR_CANNOT_GET_USER_ORDERS_LIST = "error.cannot.get.user.orders.list";
+	private static final String ERROR_CANNOT_CANCEL_ORDER_NUM = "error.cannot.cancel.order.num";
+	private static final String ERROR_CANNOT_GET_NEW_ORDERS_LIST = "error.cannot.get.new.orders.list";
+	private static final String ERROR_BOOK_NOT_AVAILABLE = "error.book.not.available";
+	private static final String ERROR_CANNOT_GIVE_ORDER = "error.cannot.give.order";
+	private static final String ERROR_CANNOT_GET_PROCESSED_ORDERS = "error.cannot.get.processed.orders";
+	private static final String ERROR_CANNOT_COMPLETE_ORDER = "error.cannot.complete.order";
+	private static final String ERROR_CANNOT_GET_USER_ACTUAL_ORDERS = "error.cannot.get.user.actual.orders";
+	private static final String ERROR_CANNOT_GET_USER_PROCESSED_ORDERS = "error.cannot.get.user.processed.orders";
+	private static final String ERROR_CANNOT_GET_OVERDUE_ORDERS = "error.cannot.get.overdue.orders";
+	private static final String ERROR_CANNOT_SET_ORDER_FINE = "error.cannot.set.order.fine";
 	
 	@Override
 	public Order create(Order order) throws DaoException {
-		return create(DbManager.getInstance().getConnection(), order);
-	}
-
-	static Order create(Connection con, Order order) throws DaoException {
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
+		Connection con = DbManager.getInstance().getConnection();
 		try {
 			int k = 0;
 			pstmt = con.prepareStatement(Queries.getInstance().getQuery(QUERY_INSERT_ORDER), PreparedStatement.RETURN_GENERATED_KEYS);
@@ -60,9 +71,8 @@ public class OrderDaoImpl implements OrderDao {
 				}
 			}
 		} catch (SQLException e) {
-			String message = "Cannot create order";
 			LOG.error(e);
-			throw new DaoException(message, e);
+			throw new DaoException(ERROR_CANNOT_CREATE_ORDER, e);
 		} finally {
 			DbManager.closeResources(con, pstmt, rs);
 		}
@@ -71,12 +81,9 @@ public class OrderDaoImpl implements OrderDao {
 	
 	@Override
 	public Order find(Order order) throws DaoException {
-		return find(DbManager.getInstance().getConnection(), order);
-	}
-
-	static Order find(Connection con, Order order) throws DaoException {
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
+		Connection con = DbManager.getInstance().getConnection();
 		try {
 			int k = 0;
 			pstmt = con.prepareStatement(Queries.getInstance().getQuery(QUERY_SELECT_ORDER_BY_ID));
@@ -86,9 +93,8 @@ public class OrderDaoImpl implements OrderDao {
 				order = getOrder(rs);
 			}
 		} catch (SQLException e) {
-			String message = "Cannot create order";
 			LOG.error(e);
-			throw new DaoException(message, e);
+			throw new DaoException(ERROR_CANNOT_FIND_ORDER, e);
 		} finally {
 			DbManager.closeResources(con, pstmt, rs);
 		}
@@ -103,12 +109,9 @@ public class OrderDaoImpl implements OrderDao {
 
 	@Override
 	public int countActiveOrders(User user, Book book) throws DaoException {
-		return countActiveOrders(DbManager.getInstance().getConnection(), user, book);
-	}
-
-	static int countActiveOrders(Connection con, User user, Book book) throws DaoException {
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
+		Connection con = DbManager.getInstance().getConnection();
 		try {
 			int k = 0;
 			pstmt = con.prepareStatement(Queries.getInstance().getQuery(QUERY_SELECT_COUNT_ACTIVE_ORDERS));
@@ -120,9 +123,8 @@ public class OrderDaoImpl implements OrderDao {
 			}
 			return 0;
 		} catch (SQLException e) {
-			String message = "Cannot get count of active orders";
 			LOG.error(e);
-			throw new DaoException(message, e);
+			throw new DaoException(ERROR_CANNOT_GET_ORDERS_COUNT, e);
 		} finally {
 			DbManager.closeResources(con, pstmt, rs);
 		}
@@ -131,13 +133,10 @@ public class OrderDaoImpl implements OrderDao {
 
 	@Override
 	public List<Order> getUserOrders(int userId) throws DaoException {
-		return getUserOrders(DbManager.getInstance().getConnection(), userId);
-	}
-
-	static List<Order> getUserOrders(Connection con, int userId) throws DaoException {
 		List<Order> orders = new ArrayList<>();
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
+		Connection con = DbManager.getInstance().getConnection();
 		try {
 			int k = 0;
 			pstmt = con.prepareStatement(Queries.getInstance().getQuery(QUERY_SELECT_READER_ORDERS));
@@ -147,9 +146,8 @@ public class OrderDaoImpl implements OrderDao {
 				orders.add(getOrder(rs));
 			}
 		} catch (SQLException e) {
-			String message = "Cannot get list of order for user #" + userId;
 			LOG.error(e);
-			throw new DaoException(message, e);
+			throw new DaoException(ERROR_CANNOT_GET_USER_ORDERS_LIST + userId, e);
 		} finally {
 			DbManager.closeResources(con, pstmt, rs);
 		}
@@ -196,12 +194,9 @@ public class OrderDaoImpl implements OrderDao {
 
 	@Override
 	public boolean cancelOrder(int orderId) throws DaoException {
-		return cancelOrder(DbManager.getInstance().getConnection(), orderId);
-	}
-
-	static boolean cancelOrder(Connection con, int orderId) throws DaoException {
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
+		Connection con = DbManager.getInstance().getConnection();
 		try {
 			int k = 0;
 			con.setAutoCommit(false);
@@ -224,9 +219,8 @@ public class OrderDaoImpl implements OrderDao {
 			pstmt.executeUpdate();
 			con.commit();
 		} catch (SQLException e) {
-			String message = "Cannot cancel order #" + orderId;
 			LOG.error(e);
-			throw new DaoException(message, e);
+			throw new DaoException(ERROR_CANNOT_CANCEL_ORDER_NUM + orderId, e);
 		} finally {
 			DbManager.closeResources(con, pstmt, rs);
 		}
@@ -235,13 +229,10 @@ public class OrderDaoImpl implements OrderDao {
 	
 	@Override
 	public List<Order> getNewOrders() throws DaoException {
-		return getNewOrders(DbManager.getInstance().getConnection());
-	}
-
-	static List<Order> getNewOrders(Connection con) throws DaoException {
 		List<Order> orders = new ArrayList<>();
 		Statement stmt = null;
 		ResultSet rs = null;
+		Connection con = DbManager.getInstance().getConnection();
 		try {
 			stmt = con.createStatement();
 			rs = stmt.executeQuery(Queries.getInstance().getQuery(QUERY_SELECT_NEW_ORDERS));
@@ -249,9 +240,8 @@ public class OrderDaoImpl implements OrderDao {
 				orders.add(getOrder(rs));
 			}
 		} catch (SQLException e) {
-			String message = "Cannot get list of new orders";
 			LOG.error(e);
-			throw new DaoException(message, e);
+			throw new DaoException(ERROR_CANNOT_GET_NEW_ORDERS_LIST, e);
 		} finally {
 			DbManager.closeResources(con, stmt, rs);
 		}
@@ -260,12 +250,9 @@ public class OrderDaoImpl implements OrderDao {
 	
 	@Override
 	public void giveOrder(int orderId, LocalDateTime returnTime) throws DaoException {
-		giveOrder(DbManager.getInstance().getConnection(), orderId, returnTime);
-	}
-
-	static void giveOrder(Connection con, int orderId, LocalDateTime returnTime) throws DaoException {
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
+		Connection con = DbManager.getInstance().getConnection();
 		try {
 			int k = 0;
 			con.setAutoCommit(false);
@@ -279,9 +266,8 @@ public class OrderDaoImpl implements OrderDao {
 			k = 0;
 			int available = rs.getInt(++k);
 			if (available == 0) {
-				String message = "Book is not available";
-				LOG.error(message);
-				throw new DaoException(message);
+				LOG.error(ERROR_BOOK_NOT_AVAILABLE);
+				throw new DaoException(ERROR_BOOK_NOT_AVAILABLE);
 			}
 			DbManager.close(pstmt);
 			k=0;
@@ -299,9 +285,8 @@ public class OrderDaoImpl implements OrderDao {
 			con.commit();
 		} catch (SQLException e) {
 			DbManager.rollback(con);
-			String message = "Cannot give an order #" + orderId;
 			LOG.error(e);
-			throw new DaoException(message, e);
+			throw new DaoException(ERROR_CANNOT_GIVE_ORDER + orderId, e);
 		} finally {
 			DbManager.closeResources(con, pstmt, rs);
 		}
@@ -309,13 +294,10 @@ public class OrderDaoImpl implements OrderDao {
 	
 	@Override
 	public List<Order> getProcessedOrders() throws DaoException {
-		return getProcessedOrders(DbManager.getInstance().getConnection());
-	}
-
-	static List<Order> getProcessedOrders(Connection con) throws DaoException {
 		List<Order> orders = new ArrayList<>();
 		Statement stmt = null;
 		ResultSet rs = null;
+		Connection con = DbManager.getInstance().getConnection();
 		try {
 			stmt = con.createStatement();
 			rs = stmt.executeQuery(Queries.getInstance().getQuery(QUERY_SELECT_PROCESSED_ORDERS));
@@ -323,9 +305,8 @@ public class OrderDaoImpl implements OrderDao {
 				orders.add(getOrder(rs));
 			}
 		} catch (SQLException e) {
-			String message = "Cannot get list of processed orders";
 			LOG.error(e);
-			throw new DaoException(message, e);
+			throw new DaoException(ERROR_CANNOT_GET_PROCESSED_ORDERS, e);
 		} finally {
 			DbManager.closeResources(con, stmt, rs);
 		}
@@ -334,12 +315,9 @@ public class OrderDaoImpl implements OrderDao {
 	
 	@Override
 	public void completeOrder(int orderId, LocalDateTime returnTime) throws DaoException {
-		completeOrder(DbManager.getInstance().getConnection(), orderId, returnTime);
-	}
-
-	static void completeOrder(Connection con, int orderId, LocalDateTime returnTime) throws DaoException {
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
+		Connection con = DbManager.getInstance().getConnection();
 		try {
 			int k = 0;
 			con.setAutoCommit(false);
@@ -368,9 +346,8 @@ public class OrderDaoImpl implements OrderDao {
 			con.commit();
 		} catch (SQLException e) {
 			DbManager.rollback(con);
-			String message = "Cannot give an order #" + orderId;
 			LOG.error(e);
-			throw new DaoException(message, e);
+			throw new DaoException(ERROR_CANNOT_COMPLETE_ORDER + orderId, e);
 		} finally {
 			DbManager.closeResources(con, pstmt, rs);
 		}
@@ -378,13 +355,10 @@ public class OrderDaoImpl implements OrderDao {
 
 	@Override
 	public List<Order> getUserActualOrders(int userId) throws DaoException {
-		return getUserActualOrders(DbManager.getInstance().getConnection(), userId);
-	}
-
-	static List<Order> getUserActualOrders(Connection con, int userId) throws DaoException {
 		List<Order> orders = new ArrayList<>();
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
+		Connection con = DbManager.getInstance().getConnection();
 		try {
 			int k = 0;
 			pstmt = con.prepareStatement(Queries.getInstance().getQuery(QUERY_SELECT_READER_ACTUAL_ORDERS));
@@ -394,9 +368,8 @@ public class OrderDaoImpl implements OrderDao {
 				orders.add(getOrder(rs));
 			}
 		} catch (SQLException e) {
-			String message = "Cannot get list of order for user #" + userId;
 			LOG.error(e);
-			throw new DaoException(message, e);
+			throw new DaoException(ERROR_CANNOT_GET_USER_ACTUAL_ORDERS + userId, e);
 		} finally {
 			DbManager.closeResources(con, pstmt, rs);
 		}
@@ -405,13 +378,10 @@ public class OrderDaoImpl implements OrderDao {
 
 	@Override
 	public List<Order> getUserProcessedOrders(int userId) throws DaoException {
-		return getUserProcessedOrders(DbManager.getInstance().getConnection(), userId);
-	}
-
-	static List<Order> getUserProcessedOrders(Connection con, int userId) throws DaoException {
 		List<Order> orders = new ArrayList<>();
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
+		Connection con = DbManager.getInstance().getConnection();
 		try {
 			int k = 0;
 			pstmt = con.prepareStatement(Queries.getInstance().getQuery(QUERY_SELECT_READER_PROCESSED_ORDERS));
@@ -421,9 +391,8 @@ public class OrderDaoImpl implements OrderDao {
 				orders.add(getOrder(rs));
 			}
 		} catch (SQLException e) {
-			String message = "Cannot get list of orders for user #" + userId;
 			LOG.error(e);
-			throw new DaoException(message, e);
+			throw new DaoException(ERROR_CANNOT_GET_USER_PROCESSED_ORDERS + userId, e);
 		} finally {
 			DbManager.closeResources(con, pstmt, rs);
 		}
@@ -432,13 +401,10 @@ public class OrderDaoImpl implements OrderDao {
 	
 	@Override
 	public List<Integer> getOverdueOrdersIds(LocalDateTime ldt) throws DaoException {
-		return getOverdueOrdersIds(DbManager.getInstance().getConnection(), ldt);
-	}
-
-	static List<Integer> getOverdueOrdersIds(Connection con, LocalDateTime ldt) throws DaoException {
 		List<Integer> overdueOrdersIds = new ArrayList<>();
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
+		Connection con = DbManager.getInstance().getConnection();
 		try {
 			int k = 0;
 			pstmt = con.prepareStatement(Queries.getInstance().getQuery(QUERY_SELECT_OVERDUE_ORDERS_IDS));
@@ -448,9 +414,8 @@ public class OrderDaoImpl implements OrderDao {
 				overdueOrdersIds.add(rs.getInt(k));
 			}
 		} catch (SQLException e) {
-			String message = "Cannot get list of overdue orders ids";
 			LOG.error(e);
-			throw new DaoException(message, e);
+			throw new DaoException(ERROR_CANNOT_GET_OVERDUE_ORDERS, e);
 		} finally {
 			DbManager.closeResources(con, pstmt, rs);
 		}
@@ -459,11 +424,8 @@ public class OrderDaoImpl implements OrderDao {
 	
 	@Override
 	public void setFine(int orderId, int fine) throws DaoException {
-		setFine(DbManager.getInstance().getConnection(), orderId, fine);
-	}
-
-	static void setFine(Connection con, int orderId, int fine) throws DaoException {
 		PreparedStatement pstmt = null;
+		Connection con = DbManager.getInstance().getConnection();
 		try {
 			int k = 0;
 			pstmt = con.prepareStatement(Queries.getInstance().getQuery(QUERY_SET_FINE));
@@ -471,9 +433,8 @@ public class OrderDaoImpl implements OrderDao {
 			pstmt.setInt(++k, orderId);
 			pstmt.executeUpdate();
 		} catch (SQLException e) {
-			String message = "Cannot set fine for order #" + orderId;
 			LOG.error(e);
-			throw new DaoException(message, e);
+			throw new DaoException(ERROR_CANNOT_SET_ORDER_FINE + orderId, e);
 		} finally {
 			DbManager.closeResources(con, pstmt);
 		}

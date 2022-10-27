@@ -11,7 +11,6 @@ import org.example.dao.DaoFactory;
 
 public class Config {
 
-	public static final String DBMS;
 	public static final int LIMIT_BOOKS_ON_PAGE;
 	public static final int DAY_ON_SUBSCRIPTION;
 	public static final ZoneId ZONE_ID;
@@ -27,12 +26,13 @@ public class Config {
 			}
 			Properties prop = new Properties();
 			prop.load(inputStream);
-			DBMS = prop.getProperty("dbms");
-			DAO_FACTORY = DaoFactory.getDaoFactory(DBMS);
+			String dbms = prop.getProperty("dbms");
+			DAO_FACTORY = DaoFactory.getDaoFactory(dbms);
 			LIMIT_BOOKS_ON_PAGE = Integer.parseInt(prop.getProperty("limit.books.on.page"));
 			DAY_ON_SUBSCRIPTION = Integer.parseInt(prop.getProperty("count.days.on.subscription"));
 			ZONE_ID = ZoneId.of(prop.getProperty("time.zone.id"));
 			FINE = Integer.parseInt(prop.getProperty("fine"));
+			LOG.info("Selected DBMS is " + dbms.toUpperCase());
 		} catch (IOException e) {
 			LOG.error("Cannot load a config file");
 			throw new RuntimeException(e);

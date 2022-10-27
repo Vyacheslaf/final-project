@@ -25,15 +25,31 @@ public class BookDaoImpl implements BookDao{
 	private static final String QUERY_DELETE_BOOK = "delete.book";
 	private static final String QUERY_SELECT_BOOK_BY_ID = "select.book.by.id";
 	private static final String QUERY_UPDATE_BOOK = "update.book";
+	private static final String QUERY_SELECT_BOOK = "select.book";
+	private static final String QUERY_SEARCH_TEXT = "search.text";
+	private static final String QUERY_ORDER_BY = "order.by";
+	private static final String ORDER_BY_DEFAULT = "default";
+	private static final String ORDER_TYPE_DESC = "desc";
+	private static final String QUERY_ORDER_DESC = "order.desc";
+	private static final String QUERY_LIMIT_OFFSET = "limit.offset";
+	private static final String SQL_ANY_SYMBOLS = "%";
+	private static final String LOG_MESSAGE_CANNOT_FOUND_BOOK = "Cannot found the book";
+	private static final String LOG_MESSAGE_CANNOT_CHANGE_QUANTITY = "Cannot change quantity of the book";
+	private static final String LOG_MESSAGE_CANNOT_DELETE_ISSUED_BOOK = "The book issued to reader, cannot delete it";
+	private static final String ERROR_BOOK_IS_ALREADY_IN_CATALOG = "error.book.is.already.in.catalog";
+	private static final String ERROR_CANNOT_CREATE_BOOK = "error.cannot.create.book";
+	private static final String ERROR_CANNOT_GET_DATA = "error.cannot.get.data";
+	private static final String ERROR_CANNOT_FOUND_BOOK = "error.cannot.found.book";
+	private static final String ERROR_CANNOT_CHANGE_BOOK_QUANTITY = "error.cannot.change.book.quantity";
+	private static final String ERROR_CANNOT_SAVE_BOOK_CHANGES = "error.cannot.save.book.changes";
+	private static final String ERROR_CANNOT_DELETE_ISSUED_BOOK = "error.cannot.delete.issued.book";
+	private static final String ERROR_DAO_CANNOT_DELETE_BOOK = "error.dao.cannot.delete.book";
 	
 	@Override
 	public Book create(Book book) throws DaoException {
-		return create(DbManager.getInstance().getConnection(), book);
-	}
-	
-	static Book create(Connection con, Book book) throws DaoException {
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
+		Connection con = DbManager.getInstance().getConnection();
 		try {
 			int k = 0;
 			pstmt = con.prepareStatement(Queries.getInstance().getQuery(QUERY_INSERT_BOOK));
@@ -45,13 +61,11 @@ public class BookDaoImpl implements BookDao{
 			pstmt.setString(++k, book.getIsbn());
 			pstmt.executeUpdate();
 		} catch (SQLIntegrityConstraintViolationException ex){
-			String message = "The book is already in the catalog";
 			LOG.error(ex);
-			throw new DaoException(message, ex);
+			throw new DaoException(ERROR_BOOK_IS_ALREADY_IN_CATALOG, ex);
 		} catch (SQLException e) {
-			String message = "Cannot create a book";
 			LOG.error(e);
-			throw new DaoException(message, e);
+			throw new DaoException(ERROR_CANNOT_CREATE_BOOK, e);
 		} finally {
 			DbManager.closeResources(con, pstmt, rs);
 		}
@@ -60,12 +74,9 @@ public class BookDaoImpl implements BookDao{
 
 	@Override
 	public Book find(Book book) throws DaoException {
-		return find(DbManager.getInstance().getConnection(), book);
-	}
-
-	static Book find(Connection con, Book book) throws DaoException {
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
+		Connection con = DbManager.getInstance().getConnection();
 		try {
 			int k = 0;
 			pstmt = con.prepareStatement(Queries.getInstance().getQuery(QUERY_SELECT_BOOK_BY_ISBN));
@@ -76,9 +87,8 @@ public class BookDaoImpl implements BookDao{
 			}
 			return null;
 		} catch (SQLException e) {
-			String message = "Cannot get data from database";
-			LOG.error(message);
-			throw new DaoException(message, e);
+			LOG.error(e);
+			throw new DaoException(ERROR_CANNOT_GET_DATA, e);
 		} finally {
 			DbManager.closeResources(con, pstmt, rs);
 		}
@@ -86,12 +96,9 @@ public class BookDaoImpl implements BookDao{
 	
 	@Override
 	public void update(Book book) throws DaoException {
-		update(DbManager.getInstance().getConnection(), book);
-	}
-
-	static void update(Connection con, Book book) throws DaoException {
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
+		Connection con = DbManager.getInstance().getConnection();
 		try {
 			con.setAutoCommit(false);
 			con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
@@ -100,16 +107,14 @@ public class BookDaoImpl implements BookDao{
 			pstmt.setInt(++k, book.getId());
 			rs = pstmt.executeQuery();
 			if (!rs.next()) {
-				String message = "Cannot found the book";
-				LOG.error(message);
-				throw new DaoException(message);
+				LOG.error(LOG_MESSAGE_CANNOT_FOUND_BOOK);
+				throw new DaoException(ERROR_CANNOT_FOUND_BOOK);
 			}
 			Book bookFromCatalog = getBook(rs);
 			int available = bookFromCatalog.getAvailable() + book.getQuantity() - bookFromCatalog.getQuantity();
 			if (available < 0) {
-				String message = "Cannot change quantity of the book";
-				LOG.error(message);
-				throw new DaoException(message);
+				LOG.error(LOG_MESSAGE_CANNOT_CHANGE_QUANTITY);
+				throw new DaoException(ERROR_CANNOT_CHANGE_BOOK_QUANTITY);
 			}
 			book.setAvailable(available);
 			k = 0;
@@ -127,9 +132,8 @@ public class BookDaoImpl implements BookDao{
 			con.commit();
 		} catch (SQLException e) {
 			DbManager.rollback(con);
-			String message = "Cannot save changes for the book";
 			LOG.error(e);
-			throw new DaoException(message, e);
+			throw new DaoException(ERROR_CANNOT_SAVE_BOOK_CHANGES, e);
 		} finally {
 			DbManager.closeResources(con, pstmt, rs);
 		}
@@ -137,12 +141,9 @@ public class BookDaoImpl implements BookDao{
 
 	@Override
 	public void remove(Book book) throws DaoException {
-		remove(DbManager.getInstance().getConnection(), book);
-	}
-
-	static void remove(Connection con, Book book) throws DaoException {
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
+		Connection con = DbManager.getInstance().getConnection();
 		try {
 			con.setAutoCommit(false);
 			con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
@@ -151,9 +152,8 @@ public class BookDaoImpl implements BookDao{
 			pstmt.setInt(++k, book.getId());
 			rs = pstmt.executeQuery();
 			if (!rs.next() || rs.getInt(k) > 0) {
-				String message = "The book issued to reader, cannot delete it";
-				LOG.error(message);
-				throw new DaoException(message);
+				LOG.error(LOG_MESSAGE_CANNOT_DELETE_ISSUED_BOOK);
+				throw new DaoException(ERROR_CANNOT_DELETE_ISSUED_BOOK);
 			}
 			DbManager.close(pstmt);
 			k=0;
@@ -163,9 +163,8 @@ public class BookDaoImpl implements BookDao{
 			con.commit();
 		} catch (SQLException e) {
 			DbManager.rollback(con);
-			String message = "Cannot delete the book";
 			LOG.error(e);
-			throw new DaoException(message, e);
+			throw new DaoException(ERROR_DAO_CANNOT_DELETE_BOOK, e);
 		} finally {
 			DbManager.closeResources(con, pstmt, rs);
 		}
@@ -174,20 +173,16 @@ public class BookDaoImpl implements BookDao{
 	@Override
 	public List<Book> findBooks(String searchText, String orderBy,
 								String orderType, int limit, int offset) throws DaoException{
-		return findBooks(DbManager.getInstance().getConnection(), searchText, orderBy, orderType, limit, offset);
-	}
-
-	static List<Book> findBooks(Connection con, String searchText, String orderBy,
-											String orderType, int limit, int offset) throws DaoException{
 		List<Book> books = new ArrayList<>();
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
+		Connection con = DbManager.getInstance().getConnection();
 		try {
 			int k = 0;
 			String query = makeQuery(searchText, orderBy, orderType);
 			pstmt = con.prepareStatement(query);
 			if (searchText != null && !searchText.equalsIgnoreCase("")) {
-				String search = "%" + searchText + "%";
+				String search = SQL_ANY_SYMBOLS + searchText + SQL_ANY_SYMBOLS;
 				pstmt.setString(++k, search);
 				pstmt.setString(++k, search);
 			}
@@ -198,9 +193,8 @@ public class BookDaoImpl implements BookDao{
 				books.add(getBook(rs));
 			}
 		} catch (SQLException e) {
-			String message = "Cannot get data from database";
-			LOG.error(message);
-			throw new DaoException(message, e);
+			LOG.error(e);
+			throw new DaoException(ERROR_CANNOT_GET_DATA, e);
 		} finally {
 			DbManager.closeResources(con, pstmt, rs);
 		}
@@ -209,19 +203,16 @@ public class BookDaoImpl implements BookDao{
 	
 	@Override
 	public int countBooks(String searchText) throws DaoException{
-		return countBooks(DbManager.getInstance().getConnection(), searchText);
-	}
-
-	static int countBooks(Connection con, String searchText) throws DaoException{
 		int count = 0;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
+		Connection con = DbManager.getInstance().getConnection();
 		try {
 			int k = 0;
 			if (searchText == null || searchText.equalsIgnoreCase("")) {
 				pstmt = con.prepareStatement(Queries.getInstance().getQuery(QUERY_COUNT_ALL_BOOKS));
 			} else {
-				String search = "%" + searchText + "%";
+				String search = SQL_ANY_SYMBOLS + searchText + SQL_ANY_SYMBOLS;
 				pstmt = con.prepareStatement(Queries.getInstance().getQuery(QUERY_COUNT_BOOKS_FROM_SEARCH));
 				pstmt.setString(++k, search);
 				pstmt.setString(++k, search);
@@ -231,9 +222,8 @@ public class BookDaoImpl implements BookDao{
 				count = rs.getInt(1);
 			}
 		} catch (SQLException e) {
-			String message = "Cannot get data from database";
-			LOG.error(message);
-			throw new DaoException(message, e);
+			LOG.error(e);
+			throw new DaoException(ERROR_CANNOT_GET_DATA, e);
 		} finally {
 			DbManager.closeResources(con, pstmt, rs);
 		}
@@ -242,19 +232,19 @@ public class BookDaoImpl implements BookDao{
 	
 	private static String makeQuery(String searchText, String orderBy, String orderType) {
 		StringBuilder query = new StringBuilder("");
-		query.append(Queries.getInstance().getQuery("select.book")).append(" ");
+		query.append(Queries.getInstance().getQuery(QUERY_SELECT_BOOK)).append(" ");
 		if (searchText != null && !searchText.equalsIgnoreCase("")) {
-			query.append(Queries.getInstance().getQuery("search.text")).append(" ");
+			query.append(Queries.getInstance().getQuery(QUERY_SEARCH_TEXT)).append(" ");
 		}
-		query.append(Queries.getInstance().getQuery("order.by")).append(" ");
+		query.append(Queries.getInstance().getQuery(QUERY_ORDER_BY)).append(" ");
 		if (orderBy == null || orderBy.equalsIgnoreCase("")) {
-			orderBy = "default";
+			orderBy = ORDER_BY_DEFAULT;
 		}
 		query.append(Queries.getInstance().getQuery(orderBy)).append(" ");
-		if ("desc".equalsIgnoreCase(orderType)) {
-			query.append(Queries.getInstance().getQuery("order.desc")).append(" ");
+		if (ORDER_TYPE_DESC.equalsIgnoreCase(orderType)) {
+			query.append(Queries.getInstance().getQuery(QUERY_ORDER_DESC)).append(" ");
 		}
-		query.append(Queries.getInstance().getQuery("limit.offset")).append(" ");
+		query.append(Queries.getInstance().getQuery(QUERY_LIMIT_OFFSET)).append(" ");
 		return query.toString();
 	}
 	

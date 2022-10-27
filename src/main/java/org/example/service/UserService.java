@@ -29,6 +29,9 @@ public class UserService {
 	private static final String REQ_PARAM_ROLE = "role";
 	private static final String REQ_PARAM_ID = "id";
 	private static final String REQ_PARAM_BLOCKED = "blocked";
+	private static final String ONLY_DIGITS_REGEX = "\\d+";
+	private static final String ERROR_CANNOT_DELETE_USER_WRONG_ID = "error.cannot.delete.user.wrong.id";
+	private static final String ERROR_CANNOT_BLOCK_USER_WRONG_ID = "error.cannot.block.user.wrong.id";
 
 	public static User register(HttpServletRequest req) throws DaoException {
 		User user = getUser(req);
@@ -78,7 +81,7 @@ public class UserService {
 	
 	private static int getId(HttpServletRequest req) {
 		String stringId = req.getParameter(REQ_PARAM_ID);
-		if (stringId != null && stringId.matches("\\d+")) {
+		if (stringId != null && stringId.matches(ONLY_DIGITS_REGEX)) {
 			return Integer.parseInt(stringId);
 		}
 		return 0;
@@ -103,8 +106,8 @@ public class UserService {
 	}
 
 	public static void deleteUser(String userId) throws ServiceException, DaoException {
-		if (userId == null || !userId.matches("\\d+")) {
-			logAndThrowException("Cannot delete user: ID is wrong");
+		if (userId == null || !userId.matches(ONLY_DIGITS_REGEX)) {
+			logAndThrowException(ERROR_CANNOT_DELETE_USER_WRONG_ID);
 		}
 		UserDao userDao = DAO_FACTORY.getUserDao();
 		User user = new User();
@@ -125,8 +128,8 @@ public class UserService {
 
 	public static void blockUser(HttpServletRequest req) throws DaoException, ServiceException {
 		String userId = req.getParameter(REQ_PARAM_ID);
-		if (userId == null || !userId.matches("\\d+")) {
-			logAndThrowException("Cannot block user: ID is wrong");
+		if (userId == null || !userId.matches(ONLY_DIGITS_REGEX)) {
+			logAndThrowException(ERROR_CANNOT_BLOCK_USER_WRONG_ID);
 		}
 		UserDao userDao = DAO_FACTORY.getUserDao();
 		User user = new User();

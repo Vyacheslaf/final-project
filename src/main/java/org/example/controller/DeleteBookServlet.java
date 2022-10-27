@@ -15,13 +15,14 @@ import org.example.entity.UserRole;
 import org.example.exception.DaoException;
 import org.example.exception.ServiceException;
 import org.example.service.BookService;
+import org.example.util.Messages;
 
 @WebServlet("/deletebook")
 public class DeleteBookServlet extends HttpServlet{
 
 	private static final long serialVersionUID = 1L;
 	private static final Logger LOG = LogManager.getLogger(AddBookServlet.class);
-	private static final String INFO_MESSAGE = "The book was deleted";
+	private static final String INFO_BOOK_WAS_DELETED = "info.book.was.deleted";
 	private static final String REQ_PARAM_BOOK_ID = "bookid";
 	
 	@Override
@@ -34,12 +35,14 @@ public class DeleteBookServlet extends HttpServlet{
 		String bookId = req.getParameter(REQ_PARAM_BOOK_ID);
 		try {
 			BookService.deleteBook(bookId);
-			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_INFO_MESSAGE, INFO_MESSAGE);
+			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_INFO_MESSAGE, 
+										  Messages.getMessage(req, INFO_BOOK_WAS_DELETED));
 			resp.sendRedirect(Constants.START_PAGE);
 		} catch (ServiceException | DaoException e) {
 			LOG.error(e);
-			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_ERROR_MESSAGE, e.getMessage());
-			resp.sendRedirect(req.getHeader("Referer"));
+			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_ERROR_MESSAGE, 
+										  Messages.getMessage(req, e.getMessage()));
+			resp.sendRedirect(req.getHeader(Constants.PREV_PAGE_HEADER_NAME));
 		}
 	}
 }

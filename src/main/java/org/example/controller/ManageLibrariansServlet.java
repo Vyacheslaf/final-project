@@ -15,6 +15,7 @@ import org.example.entity.User;
 import org.example.entity.UserRole;
 import org.example.exception.DaoException;
 import org.example.service.UserService;
+import org.example.util.Messages;
 
 @WebServlet("/managelibrarians")
 public class ManageLibrariansServlet extends HttpServlet{
@@ -35,7 +36,8 @@ public class ManageLibrariansServlet extends HttpServlet{
 			req.setAttribute(REQ_ATTR_LIBRARIANS, librarians);
 		} catch (DaoException e) {
 			LOG.error(e);
-			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_ERROR_MESSAGE, e.getMessage());
+			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_ERROR_MESSAGE, 
+										  Messages.getMessage(req, e.getMessage()));
 		}
 		req.getRequestDispatcher(Constants.MANAGE_LIBRARIANS_PAGE).forward(req, resp);
 	}
