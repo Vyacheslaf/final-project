@@ -26,8 +26,8 @@
             <td><input type="text" value="${sessionScope.user.passportNumber}" name="passport" id="passport" onkeyup='checkData();' required></td>
           </tr>
         </table>
-        <input type="hidden" name="id" value="${sessionScope.user.id}" >
-        <input type="hidden" name="password" value="${sessionScope.user.password}" >
+        <input type="hidden" value="${sessionScope.user.id}" name="id" >
+        <input type="hidden" value="${sessionScope.user.password}" name="password" >
         <button type="submit" id="databtn"><fmt:message key='change.register.data'/></button>
       </div>
     </form>
@@ -36,7 +36,7 @@
         <input class="pass-center" type="password" placeholder="<fmt:message key='enter.new.password'/>" name="password" id="password" onkeyup='checkPass();' required>
         <input class="pass-center" type="password" placeholder="<fmt:message key='confirm.new.password'/>" name="confirm" id="confirm" onkeyup='checkPass();' required>
         <span id='message' class="center"></span>
-        <input type="hidden" name="id" value="${sessionScope.user.id}" >
+        <input type="hidden" value="${sessionScope.user.id}" name="id" >
         <input type="hidden" value="${sessionScope.user.email}" name="email" >
         <input type="hidden" value="${sessionScope.user.firstName}" name="firstname" >
         <input type="hidden" value="${sessionScope.user.lastName}" name="lastname" >

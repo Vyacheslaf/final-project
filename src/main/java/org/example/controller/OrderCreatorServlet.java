@@ -13,29 +13,51 @@ import org.apache.logging.log4j.Logger;
 import org.example.entity.User;
 import org.example.entity.UserRole;
 import org.example.exception.DaoException;
+import org.example.exception.ServiceException;
 import org.example.service.OrderService;
 import org.example.util.Messages;
 
-@WebServlet("/neworder")
-public class NewOrderServlet extends HttpServlet{
+/**
+ * A servlet that creates a new order and redirects the reader after successful order creation 
+ * to the reader orders servlet.
+ * If an order cannot be created, then the reader redirects to the previous page 
+ * with a corresponding info message.
+ * If currently logged user is not a reader, then the user is redirected to the welcome page.
+ * 
+ * @author Vyacheslav Fedchenko
+ *
+ */
 
-	private static final long serialVersionUID = 1L;
-	private static final Logger LOG = LogManager.getLogger(NewOrderServlet.class);
+@WebServlet("/neworder")
+public class OrderCreatorServlet extends HttpServlet {
+
+	/**
+	 * A unique serial version identifier
+	 * @see java.io.Serializable#serialVersionUID
+	 */
+	private static final long serialVersionUID = -5792514670640647017L;
+
+	/**
+	 * The Log4j Logger
+	 */
+	private static final Logger LOG = LogManager.getLogger(OrderCreatorServlet.class);
+
+	/**
+	 * The key for getting a localized message from the resource bundles if the order cannot be created
+	 */
 	private static final String INFO_BOOK_ALREADY_IN_ORDERS = "info.book.already.in.orders";
-	private static final String REQ_PARAM_BOOK_ID = "bookid";
 
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp)	throws ServletException, IOException {
 		User user = (User) req.getSession().getAttribute(Constants.SESSION_ATTRIBUTE_USER);
-		if (user == null || !user.getRole().equals(UserRole.READER)) {
+		if ((user == null) ||!user.getRole().equals(UserRole.READER)) {
 			resp.sendRedirect(Constants.START_PAGE);
 			return;
 		}
-		String bookId = req.getParameter(REQ_PARAM_BOOK_ID);
 		boolean isCreated = false;
 		try {
-			isCreated = OrderService.createOrder(bookId, user);
-		} catch (DaoException e) {
+			isCreated = new OrderService().createOrder(req);
+		} catch (DaoException | ServiceException e) {
 			LOG.error(e);
 			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_ERROR_MESSAGE, 
 										  Messages.getMessage(req, e.getMessage()));

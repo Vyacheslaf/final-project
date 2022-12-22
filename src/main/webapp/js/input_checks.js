@@ -1,21 +1,17 @@
 var checkPass = function() {
-  if (/^.+$/.test(document.getElementById('password').value) &&
+  if (/^.{1,39}$/.test(document.getElementById('password').value) &&
 	(document.getElementById('password').value ==
     document.getElementById('confirm').value)) {
     document.getElementById('password').style.borderColor = '#ccc';
     document.getElementById('password').style.color = 'black';
     document.getElementById('confirm').style.borderColor = '#ccc';
     document.getElementById('confirm').style.color = 'black';
-/*    document.getElementById('message').style.color = 'green';
-    document.getElementById('message').innerHTML = 'matching';*/
     document.getElementById('passbtn').disabled = false;
   } else {
     document.getElementById('password').style.borderColor = 'red';
     document.getElementById('password').style.color = 'red';
     document.getElementById('confirm').style.borderColor = 'red';
     document.getElementById('confirm').style.color = 'red';
-/*    document.getElementById('message').style.color = 'red';
-    document.getElementById('message').innerHTML = 'not matching';*/
     document.getElementById('passbtn').disabled = true;
   }
 }
@@ -68,7 +64,7 @@ var checkData = function() {
 }
 
 var checkRegData = function() {
-  if (/^.+$/.test(document.getElementById('password').value) &&
+  if (/^.{1,39}$/.test(document.getElementById('password').value) &&
 	(document.getElementById('password').value ==
     document.getElementById('confirm').value)) {
     document.getElementById('password').style.borderColor = '#ccc';

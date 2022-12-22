@@ -7,7 +7,14 @@ import org.example.dao.OrderDao;
 import org.example.dao.PublicationDao;
 import org.example.dao.UserDao;
 
-public class MysqlDaoFactory extends DaoFactory{
+/**
+ * The {@code MysqlDaoFactory} class is used to produce MySQL DAO objects
+ * 
+ * @author Vyacheslav Fedchenko
+ * @see org.example.dao.DaoFactory
+ */
+
+public class MysqlDaoFactory extends DaoFactory {
 
 	@Override
 	public UserDao getUserDao() {

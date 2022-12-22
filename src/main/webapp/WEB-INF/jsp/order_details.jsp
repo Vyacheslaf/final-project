@@ -57,12 +57,14 @@
                 <c:if test="${requestScope.order.book.available > 0}">
 	              <form action="givebook" method="post">
 	                <div class="container-button">
+                      <input type="hidden" name="readerid" value="${requestScope.order.user.id}" >
 	                  <input type="hidden" name="orderid" value="${requestScope.order.id}" >
 	                  <button type="submit" class="givebook-active"><fmt:message key='give.book.reading.room'/></button>
 	                </div>
 	              </form>
 	              <form action="givebook" method="post">
 	                <div class="container-button">
+                      <input type="hidden" name="readerid" value="${requestScope.order.user.id}" >
 	                  <input type="hidden" name="orderid" value="${requestScope.order.id}" >
 	                  <input type="hidden" name="onsubscription" value="true" >
 	                  <button type="submit" class="givebook-active"><fmt:message key='give.book.subscription'/></button>
@@ -96,6 +98,7 @@
               </c:if>
               <form action="cancelorder" method="post">
                 <div class="container-button">
+                  <input type="hidden" name="readerid" value="${requestScope.order.user.id}" >
                   <input type="hidden" name="orderid" value="${requestScope.order.id}" >
                   <button type="submit" class="cancelorder"><fmt:message key='cancel.order'/></button>
                 </div>

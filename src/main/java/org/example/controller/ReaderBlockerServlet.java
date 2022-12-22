@@ -17,28 +17,42 @@ import org.example.exception.ServiceException;
 import org.example.service.UserService;
 import org.example.util.Messages;
 
-@WebServlet("/deleteuser")
-public class DeleteUserServlet extends HttpServlet{
+/**
+ * A servlet that blocks/unblocks the reader.
+ * If currently logged user is not an admin, then the user is redirected to the welcome page.
+ * 
+ * @author Vyacheslav Fedchenko
+ *
+ */
 
-	private static final long serialVersionUID = 1L;
-	private static final Logger LOG = LogManager.getLogger(AdminServlet.class);
-	private static final String REQ_PARAM_USER_ID = "userid";
+@WebServlet("/blockreader")
+public class ReaderBlockerServlet extends HttpServlet {
+
+	/**
+	 * A unique serial version identifier
+	 * @see java.io.Serializable#serialVersionUID
+	 */
+	private static final long serialVersionUID = 2558865726284076523L;
+
+	/**
+	 * The Log4j Logger
+	 */
+	private static final Logger LOG = LogManager.getLogger(ReaderBlockerServlet.class);
 
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		User user = (User) req.getSession().getAttribute(Constants.SESSION_ATTRIBUTE_USER);
-		if (user == null || !user.getRole().equals(UserRole.ADMIN)) {
+		if ((user == null) ||!user.getRole().equals(UserRole.ADMIN)) {
 			resp.sendRedirect(Constants.START_PAGE);
 			return;
 		}
 		try {
-			UserService.deleteUser(req.getParameter(REQ_PARAM_USER_ID));
+			new UserService().blockUser(req);
 		} catch (DaoException | ServiceException e) {
 			LOG.error(e);
 			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_ERROR_MESSAGE, 
-					  					  Messages.getMessage(req, e.getMessage()));
+										  Messages.getMessage(req, e.getMessage()));
 		}
 		resp.sendRedirect(req.getHeader(Constants.PREV_PAGE_HEADER_NAME));
 	}
-
 }

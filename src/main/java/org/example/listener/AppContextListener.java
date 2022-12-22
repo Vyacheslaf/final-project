@@ -22,10 +22,16 @@ import org.example.service.OrderService;
 import org.example.util.Config;
 import org.example.util.FineUsersTask;
 
+/**
+ * The {@code InitServletListener} class is used to configure web application
+ * 
+ * @author Vyacheslav Fedchenko
+ */
+
 @WebListener
-public class InitServletListener implements ServletContextListener{
+public class AppContextListener implements ServletContextListener {
 	
-	private static final Logger LOG = LogManager.getLogger(InitServletListener.class);
+	private static final Logger LOG = LogManager.getLogger(AppContextListener.class);
 	private static final Timer PENALTY_TIMER = new Timer();
 	private static final String LOCALES_PATH = "i18n/locales.properties";
 	private static final String CANNOT_FIND_ERROR_MESSAGE = "Cannot find property file";
@@ -37,16 +43,18 @@ public class InitServletListener implements ServletContextListener{
 		ServletContext context = sce.getServletContext();
 		setLocales(context);
 		initPenaltyTimer();
-//		LOG.info("Selected DBMS is " + Config.DBMS.toUpperCase());
 		LOG.info("Servlet at " + context.getRealPath("") + " started");
 		try {
-			OrderService.setFineForOverdueOrders();
+			new OrderService().setFineForOverdueOrders();
 		} catch (DaoException e) {
 			LOG.error(e);
 			throw new RuntimeException(e);
 		}
 	}
 
+	/**
+	 * Initializes user penalty timer to run it everyday at 00:01:00
+	 */
 	private void initPenaltyTimer() {
 		LocalDateTime tomorrow = LocalDate.now().atStartOfDay().plusDays(1).plusMinutes(1);
 		ZonedDateTime zdt = tomorrow.atZone(Config.ZONE_ID);
@@ -55,8 +63,14 @@ public class InitServletListener implements ServletContextListener{
 		LOG.info("Penalty timer started");
 	}
 
+	/**
+	 * Creates the attribute with currently available locales in the servlet context
+	 * 
+	 * @param context
+	 * 		  The servlet context
+	 */
 	private void setLocales(ServletContext context) {
-		try (InputStream is = InitServletListener.class.getClassLoader().getResourceAsStream(LOCALES_PATH)) {
+		try (InputStream is = AppContextListener.class.getClassLoader().getResourceAsStream(LOCALES_PATH)) {
 			if (is == null) {
 				LOG.error(CANNOT_FIND_ERROR_MESSAGE);
 				throw new IOException();
@@ -70,6 +84,9 @@ public class InitServletListener implements ServletContextListener{
 		}
 	}
 
+	/**
+	 * @implNote Cancels user penalty timer at destroy servlet context
+	 */
 	@Override
 	public void contextDestroyed(ServletContextEvent sce) {
 		ServletContextListener.super.contextDestroyed(sce);

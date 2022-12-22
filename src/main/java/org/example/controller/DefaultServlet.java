@@ -10,18 +10,35 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.example.entity.User;
 
-@WebServlet("/start")
-public class StartServlet extends HttpServlet{
+/**
+ * A start servlet that redirects the user to the start page corresponding to user's role.
+ * 
+ * @author Vyacheslav Fedchenko
+ *
+ */
 
-	private static final long serialVersionUID = 1L;
+@WebServlet("/start")
+public class DefaultServlet extends HttpServlet {
+
+	/**
+	 * A unique serial version identifier
+	 * @see java.io.Serializable#serialVersionUID
+	 */
+	private static final long serialVersionUID = -89857105068664164L;
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		
 		User user = (User) req.getSession().getAttribute(Constants.SESSION_ATTRIBUTE_USER);
 		req.getRequestDispatcher(getServletPath(user)).forward(req, resp);
 	}
 	
+	/**
+	 * Returns the pathname to the resource corresponding to user's role
+	 * 
+	 * @param user
+	 * 		  A {@code User}
+	 * @return the pathname to the resource corresponding to user's role
+	 */
 	private static String getServletPath(User user) {
 		if (user == null) {
 			return Constants.READER_SERVLET_MAPPING;

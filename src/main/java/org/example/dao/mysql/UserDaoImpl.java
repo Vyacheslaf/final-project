@@ -17,6 +17,12 @@ import org.example.entity.User;
 import org.example.entity.UserRole;
 import org.example.exception.DaoException;
 
+/**
+ * The {@code UserDaoImpl} class is used to realize operations with users' table in MySQL DBMS
+ * 
+ * @author Vyacheslav Fedchenko
+ */
+
 public class UserDaoImpl implements UserDao {
 	private static final Logger LOG = LogManager.getLogger(UserDaoImpl.class);
 	private static final String QUERY_INSERT_USER = "insert.user";
@@ -247,6 +253,18 @@ public class UserDaoImpl implements UserDao {
 		}
 	}
 
+	/**
+	 * Extracts the {@code User} object from the {@code ResultSet}
+	 * 
+	 * @param rs
+	 * 		  {@code ResultSet} that contains {@code User}'s fields
+	 * 
+	 * @return {@code User} object extracted from the {@code ResultSet}
+	 * 
+	 * @throws SQLException
+	 * 
+	 * @see org.example.entity.User
+	 */
 	private static User getUser(ResultSet rs) throws SQLException {
 		int k = 0;
 		User user = new User();
@@ -268,6 +286,12 @@ public class UserDaoImpl implements UserDao {
 		return user;
 	}
 
+	/**
+	 * Converts int number to boolean
+	 * @param num
+	 * 		  any int value
+	 * @return {@code false} only if {@code num} equals zero
+	 */
 	private static boolean intToBoolean(int num) {
 		return num != 0 ? true : false;
 	}

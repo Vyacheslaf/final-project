@@ -9,13 +9,17 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 
-public class NoCacheFilter implements Filter{
+/**
+ * The {@code NoCacheFilter} class is used to disable the cache to avoid using irrelevant data
+ * 
+ * @author Vyacheslav Fedchenko
+ */
+
+public class NoCacheFilter implements Filter {
 
 	@Override
-	public void doFilter(ServletRequest request, 
-						 ServletResponse response, 
-						 FilterChain chain)
-								 		throws IOException, ServletException {
+	public void doFilter(ServletRequest request, ServletResponse response, 
+						 FilterChain chain)	throws IOException, ServletException {
 		HttpServletResponse resp = (HttpServletResponse) response;
 
 		//set cache-control header to disable caching (HTTP/1.1 spec)

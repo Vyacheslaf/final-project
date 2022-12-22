@@ -78,9 +78,9 @@
       <footer>
         <div></div>
         <div>
-          <a href="?lang=en">${applicationScope.locales.en}</a>
+          <a href="start?lang=en">${applicationScope.locales.en}</a>
           | 
-          <a href="?lang=uk">${applicationScope.locales.uk}</a>
+          <a href="start?lang=uk">${applicationScope.locales.uk}</a>
         </div>
         <div></div>
       </footer>

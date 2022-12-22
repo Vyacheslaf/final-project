@@ -16,6 +16,7 @@ public class Config {
 	public static final ZoneId ZONE_ID;
 	public static final DaoFactory DAO_FACTORY;
 	public static final int FINE;
+	public static final int EARLIEST_PUBLICATION_YEAR;
 	private static final Logger LOG = LogManager.getLogger(Config.class);
 	
 	static {
@@ -32,6 +33,7 @@ public class Config {
 			DAY_ON_SUBSCRIPTION = Integer.parseInt(prop.getProperty("count.days.on.subscription"));
 			ZONE_ID = ZoneId.of(prop.getProperty("time.zone.id"));
 			FINE = Integer.parseInt(prop.getProperty("fine"));
+			EARLIEST_PUBLICATION_YEAR = Integer.parseInt(prop.getProperty("earliest.publication.year"));
 			LOG.info("Selected DBMS is " + dbms.toUpperCase());
 		} catch (IOException e) {
 			LOG.error("Cannot load a config file");

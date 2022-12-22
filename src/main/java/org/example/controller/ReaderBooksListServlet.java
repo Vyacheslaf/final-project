@@ -18,23 +18,45 @@ import org.example.exception.DaoException;
 import org.example.service.OrderService;
 import org.example.util.Messages;
 
-@WebServlet("/readerbooks")
-public class ReaderBooksServlet extends HttpServlet {
+/**
+ * A servlet that obtains the list of all processed orders of currently logged reader
+ * and forwards the reader to the reader's books page.
+ * If currently logged user is not a reader, then the user is redirected to the welcome page.
+ * 
+ * @author Vyacheslav Fedchenko
+ *
+ */
 
-	private static final long serialVersionUID = 1L;
-	private static final Logger LOG = LogManager.getLogger(ReaderBooksServlet.class);
+@WebServlet("/readerbooks")
+public class ReaderBooksListServlet extends HttpServlet {
+
+	/**
+	 * A unique serial version identifier
+	 * @see java.io.Serializable#serialVersionUID
+	 */
+	private static final long serialVersionUID = -5447484776865622749L;
+
+	/**
+	 * The Log4j Logger
+	 */
+	private static final Logger LOG = LogManager.getLogger(ReaderBooksListServlet.class);
+
+	/**
+	 * The {@code String} specifying the name of the attribute 
+	 * to store the orders' list to the <code>HttpServletRequest</code>
+	 */
 	private static final String REQ_ATTR_ORDERS = "orders";
 	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		User user = (User)req.getSession().getAttribute(Constants.SESSION_ATTRIBUTE_USER);
-		if (user == null || !user.getRole().equals(UserRole.READER)) {
+		if ((user == null) ||!user.getRole().equals(UserRole.READER)) {
 			req.getRequestDispatcher(Constants.START_PAGE).forward(req, resp);
 			return;
 		}
 		List<Order> orders;
 		try {
-			orders = OrderService.getReaderProcessedOrders(user);
+			orders = new OrderService().getReaderProcessedOrders(user);
 			req.setAttribute(REQ_ATTR_ORDERS, orders);
 		} catch (DaoException e) {
 			LOG.error(e);
@@ -45,5 +67,4 @@ public class ReaderBooksServlet extends HttpServlet {
 		}
 		req.getRequestDispatcher(Constants.READER_BOOKS_PAGE).forward(req, resp);
 	}
-
 }

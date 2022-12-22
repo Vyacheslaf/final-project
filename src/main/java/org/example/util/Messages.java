@@ -12,10 +12,11 @@ public class Messages {
 	private static final String SESSION_ATTR_LANG = "lang";
 	
 	public static String getMessage(HttpServletRequest req, String key) {
-		if (req == null || req.getSession().getAttribute(SESSION_ATTR_LANG) == null || key == null) {
+		String language = (String)req.getSession().getAttribute(SESSION_ATTR_LANG);
+		if (req == null || language == null || key == null) {
 			return WRONG_MESSAGE;
 		}
-		Locale locale = new Locale((String)req.getSession().getAttribute(SESSION_ATTR_LANG));
+		Locale locale = new Locale(language);
 		ResourceBundle resourceBundle = ResourceBundle.getBundle(LOCALES_BASE_NAME, locale);
 		if (resourceBundle.containsKey(key)) {
 			return resourceBundle.getString(key);

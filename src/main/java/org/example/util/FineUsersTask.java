@@ -14,7 +14,7 @@ public class FineUsersTask extends TimerTask{
 	@Override
 	public void run() {
 		try {
-			OrderService.setFineForOverdueOrders();
+			new OrderService().setFineForOverdueOrders();
 		} catch (DaoException e) {
 			LOG.error(e);
 		}

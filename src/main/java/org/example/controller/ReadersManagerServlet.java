@@ -17,22 +17,45 @@ import org.example.exception.DaoException;
 import org.example.service.UserService;
 import org.example.util.Messages;
 
-@WebServlet("/managereaders")
-public class ManageReadersServlet extends HttpServlet{
+/**
+ * A servlet that obtains the list of fined and blocked readers,
+ * puts this list to the {@code HttpServletRequest}
+ * and forwards the admin to the manage readers page.
+ * If currently logged user is not an admin, then the user is redirected to the welcome page.
+ * 
+ * @author Vyacheslav Fedchenko
+ *
+ */
 
-	private static final long serialVersionUID = 1L;
-	private static final Logger LOG = LogManager.getLogger(ManageLibrariansServlet.class);
+@WebServlet("/managereaders")
+public class ReadersManagerServlet extends HttpServlet {
+
+	/**
+	 * A unique serial version identifier
+	 * @see java.io.Serializable#serialVersionUID
+	 */
+	private static final long serialVersionUID = -6164835349447637401L;
+	
+	/**
+	 * The Log4j Logger
+	 */
+	private static final Logger LOG = LogManager.getLogger(LibrariansManagerServlet.class);
+	
+	/**
+	 * The {@code String} specifying the name of the attribute 
+	 * to store the list of readers to the <code>HttpServletRequest</code>
+	 */
 	private static final String REQ_ATTR_READERS = "readers";
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		User user = (User) req.getSession().getAttribute(Constants.SESSION_ATTRIBUTE_USER);
-		if (user == null || !user.getRole().equals(UserRole.ADMIN)) {
+		if ((user == null) ||!user.getRole().equals(UserRole.ADMIN)) {
 			resp.sendRedirect(Constants.START_PAGE);
 			return;
 		}
 		try {
-			List<User> readers = UserService.findFinedUsers();
+			List<User> readers = new UserService().findFinedUsers();
 			req.setAttribute(REQ_ATTR_READERS, readers);
 		} catch (DaoException e) {
 			LOG.error(e);

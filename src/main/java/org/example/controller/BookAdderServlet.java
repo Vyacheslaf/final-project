@@ -17,24 +17,44 @@ import org.example.exception.ServiceException;
 import org.example.service.BookService;
 import org.example.util.Messages;
 
-@WebServlet("/addbook")
-public class AddBookServlet extends HttpServlet{
+/**
+ * A servlet that tries to add a book from the {@code HttpServletRequest} to the catalog.
+ * If the catalog already has such a book, then the user is redirected to the previous page.
+ * If currently logged user is not an admin, then the user is redirected to the welcome page.
+ * 
+ * @author Vyacheslav Fedchenko
+ */
 
-	private static final long serialVersionUID = 1L;
-	private static final Logger LOG = LogManager.getLogger(AddBookServlet.class);
-	private static final String INFO_BOOK_WAS_ADDED = "info.book.was.added";
+@WebServlet("/addbook")
+public class BookAdderServlet extends HttpServlet {
+
+	/**
+	 * A unique serial version identifier
+	 * @see java.io.Serializable#serialVersionUID
+	 */
+	private static final long serialVersionUID = 8350904582494550692L;
+
+	/**
+	 * The Log4j Logger
+	 */
+	private static final Logger LOG = LogManager.getLogger(BookAdderServlet.class);
+	
+	/**
+	 * The key for getting a localized message of successful operation from the resource bundles
+	 */
+	private static final String INFO_BOOK_HAS_ADDED = "info.book.has.added";
 	
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		User user = (User) req.getSession().getAttribute(Constants.SESSION_ATTRIBUTE_USER);
-		if (user == null || !user.getRole().equals(UserRole.ADMIN)) {
+		if ((user == null) ||!user.getRole().equals(UserRole.ADMIN)) {
 			resp.sendRedirect(Constants.START_PAGE);
 			return;
 		}
 		try {
-			BookService.addBook(req);
+			new BookService().addBook(req);
 			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_INFO_MESSAGE, 
-										  Messages.getMessage(req, INFO_BOOK_WAS_ADDED));
+										  Messages.getMessage(req, INFO_BOOK_HAS_ADDED));
 			resp.sendRedirect(Constants.START_PAGE);
 		} catch (ServiceException | DaoException e) {
 			LOG.error(e);

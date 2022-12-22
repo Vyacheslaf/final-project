@@ -14,33 +14,54 @@ import org.example.entity.Order;
 import org.example.entity.User;
 import org.example.entity.UserRole;
 import org.example.exception.DaoException;
+import org.example.exception.ServiceException;
 import org.example.service.OrderService;
 import org.example.util.Messages;
 
-@WebServlet("/orderdetails")
-public class OrderDetailsServlet extends HttpServlet{
+/**
+ * A servlet that obtains the order, puts this order to the {@code HttpServletRequest}
+ * and forwards the librarian to the order details page.
+ * If currently logged user is not a librarian, then the user is redirected to the welcome page.
+ * 
+ * @author Vyacheslav Fedchenko
+ *
+ */
 
-	private static final long serialVersionUID = 1L;
-	private static final Logger LOG = LogManager.getLogger(NewOrderServlet.class);
+@WebServlet("/orderdetails")
+public class OrderGetterServlet extends HttpServlet {
+
+	/**
+	 * A unique serial version identifier
+	 * @see java.io.Serializable#serialVersionUID
+	 */
+	private static final long serialVersionUID = 1794911463844682299L;
+	
+	/**
+	 * The Log4j Logger
+	 */
+	private static final Logger LOG = LogManager.getLogger(OrderGetterServlet.class);
+
+	/**
+	 * The {@code String} specifying the name of the attribute 
+	 * to store the {@code Order} to the <code>HttpServletRequest</code>
+	 */
 	private static final String REQ_ATTR_ORDER = "order";
-	private static final String REQ_ATTR_ORDER_ID = "orderid";
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		User user = (User) req.getSession().getAttribute(Constants.SESSION_ATTRIBUTE_USER);
-		if (user == null || !user.getRole().equals(UserRole.LIBRARIAN)) {
+		if ((user == null) ||!user.getRole().equals(UserRole.LIBRARIAN)) {
 			resp.sendRedirect(Constants.START_PAGE);
 			return;
 		}
-		int orderId = Integer.parseInt(req.getParameter(REQ_ATTR_ORDER_ID));
 		try {
-			Order order = OrderService.findOrder(orderId);
+			Order order = new OrderService().findOrder(req);
 			req.setAttribute(REQ_ATTR_ORDER, order);
-		} catch (DaoException e) {
+		} catch (DaoException | ServiceException e) {
 			LOG.error(e);
 			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_ERROR_MESSAGE, 
 										  Messages.getMessage(req, e.getMessage()));
-			resp.sendRedirect(req.getHeader(Constants.PREV_PAGE_HEADER_NAME));
+			resp.sendRedirect(Constants.LIBRARIAN_SERVLET_MAPPING);
 			return;
 		}
 		req.getRequestDispatcher(Constants.ORDER_DETAILS_PAGE).forward(req, resp);

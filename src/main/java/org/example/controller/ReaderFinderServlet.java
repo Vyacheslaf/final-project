@@ -15,30 +15,73 @@ import org.apache.logging.log4j.Logger;
 import org.example.entity.User;
 import org.example.entity.UserRole;
 import org.example.exception.DaoException;
+import org.example.exception.ServiceException;
 import org.example.service.UserService;
 import org.example.util.Messages;
 
-@WebServlet("/findreader")
-public class FindReaderServlet extends HttpServlet{
+/**
+ * A servlet that finds a reader by phone number 
+ * if the logged user's role is <code>ADMIN</code> or <code>LIBRARIAN</code>.
+ * If there is no logged user or the logged user's role is <code>READER</code>,
+ * then the user redirects to the welcome page.
+ * If the logged user's role is <code>LIBRARIAN</code> and the reader found,
+ * then the librarian redirects to the reader's details servlet.
+ * If the logged user's role is <code>ADMIN</code> and the reader found,
+ * then the reader is added to the empty list, that puts to the {@code HttpServletRequest}
+ * and the admin forwards to the manage readers page.
+ * 
+ * @author Vyacheslav Fedchenko
+ *
+ */
 
-	private static final long serialVersionUID = 1L;
-	private static final Logger LOG = LogManager.getLogger(FindReaderServlet.class);
+@WebServlet("/findreader")
+public class ReaderFinderServlet extends HttpServlet {
+
+	/**
+	 * A unique serial version identifier
+	 * @see java.io.Serializable#serialVersionUID
+	 */
+	private static final long serialVersionUID = 4987013653510425615L;
+
+	/**
+	 * The Log4j Logger
+	 */
+	private static final Logger LOG = LogManager.getLogger(ReaderFinderServlet.class);
+	
+	/**
+	 * The {@code String} specifying the name of the attribute 
+	 * to store the reader's phone number to the <code>HttpServletRequest</code>
+	 */
 	private static final String REQ_ATTR_PHONE_NUMBER = "phonenumber";
-	private static final String ERROR_READER_NOT_FOUND = "error.reader.not.found";
+	
+	/**
+	 * The {@code String} specifying the name of the attribute 
+	 * to store the list of readers to the <code>HttpServletRequest</code>
+	 */
 	private static final String REQ_ATTR_READERS = "readers";
+	
+	/**
+	 * The {@code String} specifying the name of the attribute 
+	 * to store the found reader's ID to the <code>HttpServletRequest</code>
+	 */
 	private static final String REQ_ATTR_READER_ID = "readerid";
+	
+	/**
+	 * The key for getting a localized error message from the resource bundles if the reader not found
+	 */
+	private static final String ERROR_READER_NOT_FOUND = "error.reader.not.found";
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		User user = (User)req.getSession().getAttribute(Constants.SESSION_ATTRIBUTE_USER);
-		if (user == null || user.getRole().equals(UserRole.READER)) {
+		if ((user == null) || user.getRole().equals(UserRole.READER)) {
 			req.getRequestDispatcher(Constants.START_PAGE).forward(req, resp);
 			return;
 		}
 		String phoneNumber = req.getParameter(REQ_ATTR_PHONE_NUMBER);
-		req.setAttribute(REQ_ATTR_PHONE_NUMBER, req.getParameter(REQ_ATTR_PHONE_NUMBER));
+		req.setAttribute(REQ_ATTR_PHONE_NUMBER, phoneNumber);
 		try {
-			User reader = UserService.findUserByPhone(phoneNumber);
+			User reader = new UserService().findUserByPhone(phoneNumber);
 			if (reader == null) {
 				req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_ERROR_MESSAGE, 
 											  Messages.getMessage(req, ERROR_READER_NOT_FOUND));
@@ -54,7 +97,7 @@ public class FindReaderServlet extends HttpServlet{
 			readers.add(reader);
 			req.setAttribute(REQ_ATTR_READERS, readers);
 			req.getRequestDispatcher(Constants.MANAGE_READERS_PAGE).forward(req, resp);
-		} catch (DaoException e) {
+		} catch (DaoException | ServiceException e) {
 			LOG.error(e.getMessage());
 			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_ERROR_MESSAGE, 
 					  					  Messages.getMessage(req, e.getMessage()));

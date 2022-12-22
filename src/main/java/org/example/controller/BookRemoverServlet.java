@@ -17,26 +17,46 @@ import org.example.exception.ServiceException;
 import org.example.service.BookService;
 import org.example.util.Messages;
 
-@WebServlet("/deletebook")
-public class DeleteBookServlet extends HttpServlet{
+/**
+ * A servlet that removes the {@code Book} by ID from the catalog.
+ * If currently logged user is not an admin, then the user is redirected to the welcome page.
+ * If the book is removed, then the admin is redirected to the admin's start page,
+ * otherwise the admin is redirected to the previous page with an error message.
+ * 
+ * @author Vyacheslav Fedchenko
+ *
+ */
 
-	private static final long serialVersionUID = 1L;
-	private static final Logger LOG = LogManager.getLogger(AddBookServlet.class);
-	private static final String INFO_BOOK_WAS_DELETED = "info.book.was.deleted";
-	private static final String REQ_PARAM_BOOK_ID = "bookid";
+@WebServlet("/deletebook")
+public class BookRemoverServlet extends HttpServlet {
+
+	/**
+	 * A unique serial version identifier
+	 * @see java.io.Serializable#serialVersionUID
+	 */
+	private static final long serialVersionUID = -7658580627542637964L;
+
+	/**
+	 * The Log4j Logger
+	 */
+	private static final Logger LOG = LogManager.getLogger(BookRemoverServlet.class);
+
+	/**
+	 * The key for getting a localized message of successful operation from the resource bundles
+	 */
+	private static final String INFO_BOOK_HAS_DELETED = "info.book.has.deleted";
 	
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		User user = (User) req.getSession().getAttribute(Constants.SESSION_ATTRIBUTE_USER);
-		if (user == null || !user.getRole().equals(UserRole.ADMIN)) {
+		if ((user == null) ||!user.getRole().equals(UserRole.ADMIN)) {
 			resp.sendRedirect(Constants.START_PAGE);
 			return;
 		}
-		String bookId = req.getParameter(REQ_PARAM_BOOK_ID);
 		try {
-			BookService.deleteBook(bookId);
+			new BookService().deleteBook(req);
 			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_INFO_MESSAGE, 
-										  Messages.getMessage(req, INFO_BOOK_WAS_DELETED));
+										  Messages.getMessage(req, INFO_BOOK_HAS_DELETED));
 			resp.sendRedirect(Constants.START_PAGE);
 		} catch (ServiceException | DaoException e) {
 			LOG.error(e);

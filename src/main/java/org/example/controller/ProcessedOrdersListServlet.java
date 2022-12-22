@@ -18,23 +18,45 @@ import org.example.exception.DaoException;
 import org.example.service.OrderService;
 import org.example.util.Messages;
 
-@WebServlet("/listreaders")
-public class LibrarianReadersServlet extends HttpServlet{
+/**
+ * A servlet that obtains the list of all processed orders,
+ * puts this list to the {@code HttpServletRequest} and 
+ * forwards the librarian to the readers' list page.
+ * If currently logged user is not a librarian, then the user is redirected to the welcome page.
+ * 
+ * @author Vyacheslav Fedchenko
+ *
+ */
 
-	private static final long serialVersionUID = 1L;
-	private static final Logger LOG = LogManager.getLogger(LibrarianReadersServlet.class);
+@WebServlet("/listreaders")
+public class ProcessedOrdersListServlet extends HttpServlet {
+
+	/**
+	 * A unique serial version identifier
+	 * @see java.io.Serializable#serialVersionUID
+	 */
+	private static final long serialVersionUID = 6920592435989675949L;
+
+	/**
+	 * The Log4j Logger
+	 */
+	private static final Logger LOG = LogManager.getLogger(ProcessedOrdersListServlet.class);
+
+	/**
+	 * The {@code String} specifying the name of the attribute 
+	 * to store the orders' list to the <code>HttpServletRequest</code>
+	 */
 	private static final String REQ_ATTR_ORDERS = "orders";
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		User user = (User) req.getSession().getAttribute(Constants.SESSION_ATTRIBUTE_USER);
-		if (user == null || !user.getRole().equals(UserRole.LIBRARIAN)) {
+		if ((user == null) ||!user.getRole().equals(UserRole.LIBRARIAN)) {
 			resp.sendRedirect(Constants.START_PAGE);
 			return;
 		}
-		List<Order> orders;
 		try {
-			orders = OrderService.getProcessedOrders();
+			List<Order> orders = new OrderService().getProcessedOrders();
 			req.setAttribute(REQ_ATTR_ORDERS, orders);
 		} catch (DaoException e) {
 			LOG.error(e);

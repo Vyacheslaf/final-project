@@ -9,9 +9,19 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
-public class EncodingFilter implements Filter{
+/**
+ * The {@code EncodingFilter} class is used to override the name of the 
+ * character encoding used in the body of the request
+ * 
+ * @author Vyacheslav Fedchenko
+ */
+
+public class EncodingFilter implements Filter {
 	
+	/** The name of the encoding initialization parameter */
 	private static final String ENCODING_PARAMETER_NAME = "encoding";
+
+	/** The {@code encoding} is used for character encoding storage */
 	private String encoding;
 
 	@Override
@@ -20,10 +30,8 @@ public class EncodingFilter implements Filter{
 	}
 	
 	@Override
-	public void doFilter(ServletRequest req, 
-						 ServletResponse resp, 
-						 FilterChain chain)
-								 		throws IOException, ServletException {
+	public void doFilter(ServletRequest req, ServletResponse resp, 
+						 FilterChain chain) throws IOException, ServletException {
 		req.setCharacterEncoding(encoding);
 		chain.doFilter(req, resp);
 	}

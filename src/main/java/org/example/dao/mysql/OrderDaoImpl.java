@@ -19,9 +19,23 @@ import org.example.entity.OrderState;
 import org.example.entity.User;
 import org.example.exception.DaoException;
 
+/**
+ * The {@code OrderDaoImpl} class is used to realize operations with orders in MySQL DBMS
+ * 
+ * @author Vyacheslav Fedchenko
+ * @see org.example.dao.OrderDao
+ */
+
 public class OrderDaoImpl implements OrderDao {
 
+	/**
+	 * The Log4j Logger
+	 */
 	private static final Logger LOG = LogManager.getLogger(OrderDaoImpl.class);
+	
+	/**
+	 * The {@code DateTimeFormatter} for formatting the {@code LocalDateTime}. 
+	 */
 	private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 	private static final String QUERY_SELECT_COUNT_ACTIVE_ORDERS = "select.count.active.orders";
 	private static final String QUERY_INSERT_ORDER = "insert.order";
@@ -60,7 +74,8 @@ public class OrderDaoImpl implements OrderDao {
 		Connection con = DbManager.getInstance().getConnection();
 		try {
 			int k = 0;
-			pstmt = con.prepareStatement(Queries.getInstance().getQuery(QUERY_INSERT_ORDER), PreparedStatement.RETURN_GENERATED_KEYS);
+			pstmt = con.prepareStatement(Queries.getInstance().getQuery(QUERY_INSERT_ORDER), 
+										 PreparedStatement.RETURN_GENERATED_KEYS);
 			pstmt.setInt(++k, order.getUser().getId());
 			pstmt.setInt(++k, order.getBook().getId());
 			k = pstmt.executeUpdate();
@@ -154,6 +169,20 @@ public class OrderDaoImpl implements OrderDao {
 		return orders;
 	}
 	
+	/**
+	 * Extracts the {@code Order} object from the {@code ResultSet}
+	 * 
+	 * @param rs
+	 * 		  {@code ResultSet} that contains {@code Order}'s fields
+	 * 
+	 * @return {@code Order} object extracted from the {@code ResultSet}
+	 * 
+	 * @throws SQLException
+	 * 
+	 * @see org.example.entity.Order
+	 * @see org.example.entity.Book
+	 * @see org.example.entity.User
+	 */
 	private static Order getOrder(ResultSet rs) throws SQLException {
 		Order order = new Order();
 		int k=0;
@@ -188,10 +217,19 @@ public class OrderDaoImpl implements OrderDao {
 		return order;
 	}
 
+	/**
+	 * Converts int number to boolean
+	 * @param num
+	 * 		  any int value
+	 * @return {@code false} only if {@code num} equals zero
+	 */
 	private static boolean intToBoolean(int num) {
 		return num != 0 ? true : false;
 	}
 
+	/**
+	 * @implNote Cancels the order only if order's state is {@code NEW}
+	 */
 	@Override
 	public boolean cancelOrder(int orderId) throws DaoException {
 		PreparedStatement pstmt = null;
@@ -248,6 +286,9 @@ public class OrderDaoImpl implements OrderDao {
 		return orders;
 	}
 	
+	/**
+	 * @implNote Throws {@code DaoException} if the book is not available
+	 */
 	@Override
 	public void giveOrder(int orderId, LocalDateTime returnTime) throws DaoException {
 		PreparedStatement pstmt = null;

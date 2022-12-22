@@ -13,26 +13,50 @@ import org.apache.logging.log4j.Logger;
 import org.example.entity.User;
 import org.example.entity.UserRole;
 import org.example.exception.DaoException;
+import org.example.exception.ServiceException;
 import org.example.service.UserService;
 import org.example.util.Messages;
 
-@WebServlet("/changepass")
-public class UserPassServlet extends HttpServlet{
+/**
+ * A servlet that changes the reader's password and redirects the reader to the previous page.
+ * If currently logged user is not a reader, then the user is redirected to the welcome page.
+ * 
+ * @author Vyacheslav Fedchenko
+ *
+ */
 
-	private static final long serialVersionUID = 1L;
-	private static final Logger LOG = LogManager.getLogger(UserDataServlet.class);
+@WebServlet("/changepass")
+public class UserPasswordChangerServlet extends HttpServlet {
+
+	/**
+	 * A unique serial version identifier
+	 * @see java.io.Serializable#serialVersionUID
+	 */
+	private static final long serialVersionUID = 4632862964715260330L;
+	
+	/**
+	 * The Log4j Logger
+	 */
+	private static final Logger LOG = LogManager.getLogger(UserPasswordChangerServlet.class);
+
+	/**
+	 * The key for getting a localized message of successful operation from the resource bundles
+	 */
+	private static final String INFO_PASSWORD_HAS_CHANGED = "info.password.has.changed";
 
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		User user = (User) req.getSession().getAttribute(Constants.SESSION_ATTRIBUTE_USER);
-		if (user == null || !user.getRole().equals(UserRole.READER)) {
+		if ((user == null) ||!user.getRole().equals(UserRole.READER)) {
 			resp.sendRedirect(Constants.START_PAGE);
 			return;
 		}
 		try {
-			user = UserService.updateUserPassword(req);
+			user = new UserService().updateUserData(req);
 			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_USER,	user);
-		} catch (DaoException e) {
+			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_INFO_MESSAGE, 
+					  					  Messages.getMessage(req, INFO_PASSWORD_HAS_CHANGED));
+		} catch (DaoException | ServiceException e) {
 			LOG.error(e.getMessage());
 			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_ERROR_MESSAGE, 
 										  Messages.getMessage(req, e.getMessage()));

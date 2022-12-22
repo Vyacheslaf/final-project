@@ -13,7 +13,13 @@ import org.example.dao.PublicationDao;
 import org.example.entity.Publication;
 import org.example.exception.DaoException;
 
-public class PublicationDaoImpl implements PublicationDao{
+/**
+ * The {@code PublicationDaoImpl} class is used to realize operations with publications in MySQL DBMS
+ * 
+ * @author Vyacheslav Fedchenko
+ */
+
+public class PublicationDaoImpl implements PublicationDao {
 
 	private static final Logger LOG = LogManager.getLogger(PublicationDaoImpl.class);
 	private static final String QUERY_SELECT_ALL_PUBLICATIONS = "select.all.publications";
@@ -36,11 +42,6 @@ public class PublicationDaoImpl implements PublicationDao{
 	public void remove(Publication entity) throws DaoException {}
 
 	@Override
-	public Publication findByName(String publicationName) {
-		return null;
-	}
-
-	@Override
 	public List<Publication> findAllPublication() throws DaoException {
 		List<Publication> publications = new ArrayList<>();
 		Statement stmt = null;
@@ -61,6 +62,18 @@ public class PublicationDaoImpl implements PublicationDao{
 		return publications;
 	}
 	
+	/**
+	 * Extracts the {@code Publication} object from the {@code ResultSet}
+	 * 
+	 * @param rs
+	 * 		  {@code ResultSet} that contains {@code Publication}'s fields
+	 * 
+	 * @return {@code Publication} object extracted from the {@code ResultSet}
+	 * 
+	 * @throws SQLException
+	 * 
+	 * @see org.example.entity.Publication
+	 */
 	private static Publication getPublication(ResultSet rs) throws SQLException {
 		Publication publication = new Publication();
 		int k = 0;

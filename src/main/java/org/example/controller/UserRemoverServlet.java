@@ -14,33 +14,46 @@ import org.example.entity.User;
 import org.example.entity.UserRole;
 import org.example.exception.DaoException;
 import org.example.exception.ServiceException;
-import org.example.service.BookService;
+import org.example.service.UserService;
 import org.example.util.Messages;
 
-@WebServlet("/changebook")
-public class ChangeBookServlet extends HttpServlet{
+/**
+ * A servlet that deletes the selected librarian and redirects the admin to the previous page.
+ * If currently logged user is not an admin, then the user is redirected to the welcome page.
+ * 
+ * @author Vyacheslav Fedchenko
+ *
+ */
 
-	private static final long serialVersionUID = 1L;
-	private static final Logger LOG = LogManager.getLogger(ChangeBookServlet.class);
-	private static final String INFO_BOOK_WAS_CHANGED = "info.book.was.changed";
-	
+@WebServlet("/deleteuser")
+public class UserRemoverServlet extends HttpServlet {
+
+	/**
+	 * A unique serial version identifier
+	 * @see java.io.Serializable#serialVersionUID
+	 */
+	private static final long serialVersionUID = 3081563601249316480L;
+
+	/**
+	 * The Log4j Logger
+	 */
+	private static final Logger LOG = LogManager.getLogger(UserRemoverServlet.class);
+
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		User user = (User) req.getSession().getAttribute(Constants.SESSION_ATTRIBUTE_USER);
-		if (user == null || !user.getRole().equals(UserRole.ADMIN)) {
+		if ((user == null) ||!user.getRole().equals(UserRole.ADMIN)) {
 			resp.sendRedirect(Constants.START_PAGE);
 			return;
 		}
 		try {
-			BookService.changeBook(req);
-			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_INFO_MESSAGE, 
-										  Messages.getMessage(req, INFO_BOOK_WAS_CHANGED));
-			resp.sendRedirect(Constants.START_PAGE);
-		} catch (ServiceException | DaoException e) {
+			new UserService().deleteLibrarian(req);
+		} catch (DaoException | ServiceException e) {
 			LOG.error(e);
 			req.getSession().setAttribute(Constants.SESSION_ATTRIBUTE_ERROR_MESSAGE, 
 					  					  Messages.getMessage(req, e.getMessage()));
-			resp.sendRedirect(req.getHeader(Constants.PREV_PAGE_HEADER_NAME));
 		}
+		resp.sendRedirect(req.getHeader(Constants.PREV_PAGE_HEADER_NAME));
 	}
+
 }
