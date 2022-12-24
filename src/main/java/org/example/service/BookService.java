@@ -189,7 +189,7 @@ public class BookService {
 		if ((page <= 0) || (booksCount < 0)) {
 			return 1;
 		}
-		if (booksCount - page * Config.LIMIT_BOOKS_ON_PAGE > 0) {
+		if ((booksCount - page * Config.LIMIT_BOOKS_ON_PAGE) > 0) {
 			page++;
 		}
 		return page;

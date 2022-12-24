@@ -13,52 +13,11 @@ public class PaginationTag extends TagSupport{
 	private int nextPage;
 	private int previousPage;
 	private String searchText;
-//	private String servletName;
 	private String sortBy;
 	private String sortType;
 	private String nextButtonText;
 	private String previousButtonText;
 	
-/*	public String getSearchText() {
-		return searchText;
-	}
-
-	public String getServletName() {
-		return servletName;
-	}
-
-	public void setServletName(String servletName) {
-		this.servletName = servletName;
-	}
-
-	public int getCurrentPage() {
-		return currentPage;
-	}
-	
-	public int getNextPage() {
-		return nextPage;
-	}
-	
-	public int getPreviousPage() {
-		return previousPage;
-	}
-
-	public String getSortType() {
-		return sortType;
-	}
-
-	public String getSortBy() {
-		return sortBy;
-	}
-
-	public String getNextButtonText() {
-		return nextButtonText;
-	}
-
-	public String getPreviousButtonText() {
-		return previousButtonText;
-	}
-	*/
 	public void setSearchText(String searchText) {
 		this.searchText = searchText;
 	}
@@ -98,10 +57,6 @@ public class PaginationTag extends TagSupport{
 		if (!searchText.equalsIgnoreCase("")) {
 			insertSearchText = "search=" + searchText + "&";
 		}
-/*		String insertSortBy = "";
-		if (!sortBy.equalsIgnoreCase("")) {
-			insertSortBy = "sortBy=" + sortBy + "&";
-		}*/
 		String insertSortType = "";
 		if (!sortType.equalsIgnoreCase("")) {
 			insertSortType = "sortType=" + sortType + "&";
@@ -116,15 +71,13 @@ public class PaginationTag extends TagSupport{
 			if (currentPage == previousPage) {
 				out.println("<td></td>");
 			} else {
-//				out.print("<td><a href=\"" + servletName + "?");//text=");
-				out.print("<td><a href=\"reader?");//text=");
+				out.print("<td><a href=\"reader?");
 				out.print(insertSearchText + "page=");
 				out.println(previousPage + "\">" + previousButtonText + "</a></td>");
 			}
 			if (currentPage == nextPage) {
 				out.println("<td></td>");
 			} else {
-//				out.print("<td class=\"right\"><a href=\"" + servletName);
 				out.print("<td class=\"right\"><a href=\"reader?");
 				out.print(insertSearchText + "page=");
 				out.println(nextPage + "\">" + nextButtonText + "</a></td>");

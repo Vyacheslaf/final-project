@@ -38,7 +38,7 @@ public class AuthorDaoImplTest {
 		File file = new File(url.toURI());
 		try (Connection con = DriverManager.getConnection(DB_URL);
 			 InputStreamReader reader = new InputStreamReader(new FileInputStream(file))) {
-			ScriptRunner runner=new ScriptRunner(con);
+			ScriptRunner runner = new ScriptRunner(con);
 			runner.runScript(reader);
 		}
 	}

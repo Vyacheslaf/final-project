@@ -150,17 +150,14 @@ public class UserService {
 	/**
 	 * Extracts librarian's ID from the {@code HttpServletRequest} and deletes the librarian with selected ID
 	 * 
-	 * @param userId
+	 * @param req
 	 * 		  The {@code HttpServletRequest} containing ID of the selected librarian
 	 * @throws ServiceException if ID is wrong or if the user with selected ID is not a librarian
 	 * @throws DaoException if cannot find or remove librarian with such ID
 	 */
-//	public void deleteUser(String userId) throws ServiceException, DaoException {
 	public void deleteLibrarian(HttpServletRequest req) throws ServiceException, DaoException {
 		int userId = getUserId(req, ERROR_CANNOT_DELETE_USER_WRONG_ID);
-//		checkUserId(userId, ERROR_CANNOT_DELETE_USER_WRONG_ID);
 		User user = new User();
-//		user.setId(Integer.parseInt(userId));
 		user.setId(userId);
 		user = userDao.find(user);
 		if (!user.getRole().equals(UserRole.LIBRARIAN)) {
@@ -190,11 +187,8 @@ public class UserService {
 	 * @throws ServiceException if ID is wrong or if the user with selected ID is not a reader
 	 */
 	public void blockUser(HttpServletRequest req) throws DaoException, ServiceException {
-//		String userId = req.getParameter(REQ_PARAM_ID);
-//		checkUserId(userId, ERROR_CANNOT_BLOCK_USER_WRONG_ID);
 		int userId = getUserId(req, ERROR_CANNOT_BLOCK_USER_WRONG_ID);
 		User user = new User();
-//		user.setId(Integer.parseInt(userId));
 		user.setId(userId);
 		user = userDao.find(user);
 		if (!user.getRole().equals(UserRole.READER)) {
@@ -235,9 +229,9 @@ public class UserService {
 	 * 		   <i>0</i> otherwise
 	 */
 	private static int getUserId(HttpServletRequest req) {
-		String stringId = req.getParameter(REQ_PARAM_ID);
-		if (stringId != null && stringId.matches(ONLY_DIGITS_REGEX)) {
-			return Integer.parseInt(stringId);
+		String userId = req.getParameter(REQ_PARAM_ID);
+		if (userId != null && userId.matches(ONLY_DIGITS_REGEX)) {
+			return Integer.parseInt(userId);
 		}
 		return 0;
 	}
@@ -409,12 +403,6 @@ public class UserService {
 		}
 	}
 
-/*	private static void checkUserId(String userId, String errorMessage) throws ServiceException {
-		if (userId == null ||!userId.matches(ONLY_DIGITS_REGEX) || Integer.parseInt(userId) == 0) {
-			logAndThrowException(errorMessage);
-		}
-	}*/
-	
 	/**
 	 * Throws the {@code ServiceException} if the {@code String} does not match to a phone number
 	 * 

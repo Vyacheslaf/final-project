@@ -120,7 +120,7 @@ public class BookDaoImplTest {
 	}
 	
 	@Test
-	public void daoException() throws SQLException, DaoException {
+	public void daoExceptionTest() throws SQLException, DaoException {
 		Book book = new Book.Builder().setISBN("9780131872486")
 				  .setTitle("Thinking in Java 4th Edition")
 				  .setAuthor("Bruce Eckel")

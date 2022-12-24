@@ -4,14 +4,9 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-public class Order implements Serializable{
+public class Order implements Serializable {
 
-	@Override
-	public String toString() {
-		return "Order [id=" + id + ", user=" + user + ", book=" + book + ", state=" + state + "]";
-	}
-
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = -6885569595941715374L;
 	private int id;
 	private User user;
 	private Book book;
@@ -93,6 +88,9 @@ public class Order implements Serializable{
 		return Objects.equals(book, other.book) && id == other.id && state == other.state
 				&& Objects.equals(user, other.user);
 	}
-	
-	
+
+	@Override
+	public String toString() {
+		return "Order [id=" + id + ", user=" + user + ", book=" + book + ", state=" + state + "]";
+	}
 }

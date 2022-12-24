@@ -3,10 +3,9 @@ package org.example.entity;
 import java.io.Serializable;
 import java.util.Objects;
 
-public class User implements Serializable{
+public class User implements Serializable {
 
-	private static final long serialVersionUID = 1L;
-
+	private static final long serialVersionUID = -1662524353718248488L;
 	private int id;
 	private String email;
 	private String password;

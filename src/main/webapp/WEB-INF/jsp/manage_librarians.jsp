@@ -47,7 +47,7 @@
                 <td class="center">${librarian.email}</td>
                 <td class="center">
                   <form action="deleteuser" method="post">
-	                <input type="hidden" name="userid" value="${librarian.id}" >
+	                <input type="hidden" name="id" value="${librarian.id}" >
                     <button type="submit" class="deleteuser"><fmt:message key='delete'/></button>
                   </form>
                 </td>

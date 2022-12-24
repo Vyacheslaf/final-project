@@ -1,8 +1,12 @@
 package org.example.entity;
 
-public class Publication {
-	public int id;
-	public String publicationName;
+import java.io.Serializable;
+
+public class Publication implements Serializable {
+	
+	private static final long serialVersionUID = 3182368804441753794L;
+	private int id;
+	private String publicationName;
 
 	public int getId() {
 		return id;

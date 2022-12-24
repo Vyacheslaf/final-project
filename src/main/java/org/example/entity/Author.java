@@ -1,9 +1,12 @@
 package org.example.entity;
 
-public class Author {
+import java.io.Serializable;
 
-	public int id;
-	public String fullName;
+public class Author implements Serializable {
+
+	private static final long serialVersionUID = -437840623341122308L;
+	private int id;
+	private String fullName;
 	
 	public int getId() {
 		return id;
